@@ -2,14 +2,14 @@ services:
   # API
   api:
     build: "./api"
-    ports: -"3000:3000"
+    ports:
+      - "3000:3000"
     environment:
       MONGO_URI: mongodb://root:example@db:27017/voltaic-db?authSource=admin
     env_file:
       - ./api/.env
     depends_on:
       - mongodb
-      - mysql
     volumes:
       - ./api:/app
       - /app/node_modules
@@ -20,15 +20,10 @@ services:
     ports:
       - "27017:27017"
     environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: example
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=example
     volumes:
       - mongo_data:/data/db
 
-  # MySQL Database
-  mysql:
-    image: mysql
-    restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: example
-      MYSQL_DATABASE: voltaic-db
+volumes:
+  mongo_data:
