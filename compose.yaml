@@ -12,7 +12,7 @@ services:
       - mongodb
     volumes:
       - ./api:/app
-      - /app/node_modules
+      - /node_modules
 
   # Mongo Database
   mongodb:

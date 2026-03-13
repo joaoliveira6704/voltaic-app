@@ -1,4 +1,7 @@
 const express = require("express");
+require("dotenv").config();
+
+console.log(process.env.TESTE); // remove this after you've confirmed it is working
 
 const app = express();
 
