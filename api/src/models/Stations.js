@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const stationSchema = new mongoose.Schema(
   {
-    stationId: { type: String, required: true },
+    stationId: { type: String, required: true, unique: true },
     title: { type: String, required: true },
     location: {
       type: {

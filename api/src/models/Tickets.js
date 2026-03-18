@@ -2,12 +2,12 @@ const mongoose = require("mongoose");
 
 const ticketSchema = new mongoose.Schema(
   {
+    ticketId: { type: String, unique: true, required: true },
     stationId: { type: String, ref: "Station" },
     createdBy: { type: String, ref: "User" },
     title: {
       type: String,
       required: true,
-      select: false,
     },
     description: {
       type: String,
