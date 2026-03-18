@@ -25,5 +25,13 @@ services:
     volumes:
       - mongo_data:/data/db
 
+  pythongen:
+    build:
+      context: ./data-gen
+    environment:
+      - MONGO_URI=mongodb://root:example@mongodb:27017/voltaic-db?authSource=admin
+    depends_on:
+      - mongodb
+
 volumes:
   mongo_data:

@@ -4,7 +4,7 @@ const { Schema } = mongoose;
 const userSessionSchema = new Schema(
   {
     userId: {
-      type: Schema.Types.ObjectId,
+      type: String,
       ref: "User",
       required: true,
       index: true,
@@ -14,6 +14,7 @@ const userSessionSchema = new Schema(
       required: true,
       unique: true,
     },
+    //
     deviceInfo: {
       browser: String,
       os: String,

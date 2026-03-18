@@ -2,8 +2,8 @@ const mongoose = require("mongoose");
 
 const ticketSchema = new mongoose.Schema(
   {
-    stationId: { type: mongoose.Schema.Types.ObjectId, ref: "Station" },
-    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    stationId: { type: String, ref: "Station" },
+    createdBy: { type: String, ref: "User" },
     title: {
       type: String,
       required: true,

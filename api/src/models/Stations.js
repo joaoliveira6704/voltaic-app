@@ -2,8 +2,8 @@ const mongoose = require("mongoose");
 
 const stationSchema = new mongoose.Schema(
   {
+    stationId: { type: String, required: true },
     title: { type: String, required: true },
-
     location: {
       type: {
         type: String,
@@ -70,16 +70,6 @@ const stationSchema = new mongoose.Schema(
       required: true,
       default: true,
     },
-
-    logs: [
-      {
-        timestamp: { type: Date, default: Date.now },
-        amperage: Number,
-        voltage: Number,
-        temperature: Number,
-        state: String,
-      },
-    ],
   },
   { timestamps: true },
 );
