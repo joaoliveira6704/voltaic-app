@@ -1,193 +1,165 @@
-Welcome to your new TanStack Start app! 
+# Project Name
 
-# Getting Started
+> Short description of what this project does.
 
-To run this application:
+---
 
-```bash
-bun install
-bun --bun run dev
-```
+## Table of Contents
 
-# Building For Production
+- [Getting Started](#getting-started)
+- [Branching Strategy](#branching-strategy)
+- [Git Flow](#git-flow)
+- [Pull Request Process](#pull-request-process)
+- [Branch Protection Rules](#branch-protection-rules)
 
-To build this application for production:
+---
 
-```bash
-bun --bun run build
-```
-
-## Testing
-
-This project uses [Vitest](https://vitest.dev/) for testing. You can run the tests with:
+## Getting Started
 
 ```bash
-bun --bun run test
+# Clone the repository
+git clone https://github.com/your-org/your-repo.git
+cd your-repo
+
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
 ```
 
-## Styling
+---
 
-This project uses [Tailwind CSS](https://tailwindcss.com/) for styling.
+## Branching Strategy
 
-### Removing Tailwind CSS
+This project follows **Git Flow**. The two long-lived branches are:
 
-If you prefer not to use Tailwind CSS:
+| Branch    | Purpose                             | Direct push |
+| --------- | ----------------------------------- | ----------- |
+| `main`    | Production-ready code               | Never       |
+| `develop` | Integration branch for ongoing work | Allowed     |
 
-1. Remove the demo pages in `src/routes/demo/`
-2. Replace the Tailwind import in `src/styles.css` with your own styles
-3. Remove `tailwindcss()` from the plugins array in `vite.config.ts`
-4. Uninstall the packages: `bun install @tailwindcss/vite tailwindcss -D`
+All other branches are short-lived and must be created from — and merged back into — the correct base branch.
 
+---
 
+## Git Flow
 
-## Routing
+### Branch Types
 
-This project uses [TanStack Router](https://tanstack.com/router) with file-based routing. Routes are managed as files in `src/routes`.
+| Branch  | Naming convention                 | Branches from | Merges into        |
+| ------- | --------------------------------- | ------------- | ------------------ |
+| Feature | `feature/<ticket-or-description>` | `develop`     | `develop`          |
+| Bug fix | `bugfix/<ticket-or-description>`  | `develop`     | `develop`          |
+| Release | `release/<version>`               | `develop`     | `main` + `develop` |
+| Hotfix  | `hotfix/<ticket-or-description>`  | `main`        | `main` + `develop` |
 
-### Adding A Route
+### Starting a New Feature
 
-To add a new route to your application just add a new file in the `./src/routes` directory.
+```bash
+# Always start from an up-to-date develop
+git checkout develop
+git pull origin develop
 
-TanStack will automatically generate the content of the route file for you.
+# Create your feature branch
+git checkout -b feature/my-feature
 
-Now that you have two routes you can use a `Link` component to navigate between them.
-
-### Adding Links
-
-To use SPA (Single Page Application) navigation you will need to import the `Link` component from `@tanstack/react-router`.
-
-```tsx
-import { Link } from "@tanstack/react-router";
+# Work, commit, push
+git add .
+git commit -m "feat: add my feature"
+git push origin feature/my-feature
 ```
 
-Then anywhere in your JSX you can use it like so:
+Then open a Pull Request from `feature/my-feature` → `develop`.
 
-```tsx
-<Link to="/about">About</Link>
+### Creating a Release
+
+```bash
+git checkout develop
+git pull origin develop
+git checkout -b release/1.2.0
+
+# Bump version, update changelog, final fixes...
+git commit -m "chore: prepare release 1.2.0"
+git push origin release/1.2.0
 ```
 
-This will create a link that will navigate to the `/about` route.
+Open a PR from `release/1.2.0` → `main`, then a second PR from `release/1.2.0` → `develop` to back-merge any release fixes.
 
-More information on the `Link` component can be found in the [Link documentation](https://tanstack.com/router/v1/docs/framework/react/api/router/linkComponent).
+### Hotfixing Production
 
-### Using A Layout
+```bash
+# Branch directly off main
+git checkout main
+git pull origin main
+git checkout -b hotfix/critical-bug
 
-In the File Based Routing setup the layout is located in `src/routes/__root.tsx`. Anything you add to the root route will appear in all the routes. The route content will appear in the JSX where you render `{children}` in the `shellComponent`.
-
-Here is an example layout that includes a header:
-
-```tsx
-import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router'
-
-export const Route = createRootRoute({
-  head: () => ({
-    meta: [
-      { charSet: 'utf-8' },
-      { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-      { title: 'My App' },
-    ],
-  }),
-  shellComponent: ({ children }) => (
-    <html lang="en">
-      <head>
-        <HeadContent />
-      </head>
-      <body>
-        <header>
-          <nav>
-            <Link to="/">Home</Link>
-            <Link to="/about">About</Link>
-          </nav>
-        </header>
-        {children}
-        <Scripts />
-      </body>
-    </html>
-  ),
-})
+git commit -m "fix: patch critical bug"
+git push origin hotfix/critical-bug
 ```
 
-More information on layouts can be found in the [Layouts documentation](https://tanstack.com/router/latest/docs/framework/react/guide/routing-concepts#layouts).
+Open a PR into `main` **and** a separate PR into `develop` so the fix is not lost.
 
-## Server Functions
+---
 
-TanStack Start provides server functions that allow you to write server-side code that seamlessly integrates with your client components.
+## Pull Request Process
 
-```tsx
-import { createServerFn } from '@tanstack/react-start'
+1. Push your branch and open a PR against the correct target branch (usually `develop`).
+2. Fill in the [PR template](.github/pull_request_template.md) — description, type of change, testing steps, and checklist.
+3. Request at least one reviewer.
+4. Address all review comments before merging.
+5. Squash or merge once approved — do not merge your own PR without a review.
 
-const getServerTime = createServerFn({
-  method: 'GET',
-}).handler(async () => {
-  return new Date().toISOString()
-})
+> PRs that do not follow the template or are missing a reviewer will not be merged.
 
-// Use in a component
-function MyComponent() {
-  const [time, setTime] = useState('')
-  
-  useEffect(() => {
-    getServerTime().then(setTime)
-  }, [])
-  
-  return <div>Server time: {time}</div>
-}
+---
+
+## Branch Protection Rules
+
+### `main`
+
+- Requires a Pull Request — **direct pushes are disabled**
+- PR must come from `develop`
+- Requires at least **1 approving review**
+
+### `develop`
+
+- Requires a Pull Request from a `feature/*`, `bugfix/*`, `release/*`, or `hotfix/*` branch
+- Requires at least **1 approving review**
+- Status checks must pass before merging
+
+> Any attempt to push directly to `main` will be rejected by the remote.
+
+---
+
+## Commit Message Convention
+
+This project uses [Conventional Commits](https://www.conventionalcommits.org/):
+
+```
+<type>(<scope>): <short summary>
 ```
 
-## API Routes
+| Type       | When to use                                     |
+| ---------- | ----------------------------------------------- |
+| `feat`     | A new feature                                   |
+| `fix`      | A bug fix                                       |
+| `chore`    | Build process, tooling, or dependency updates   |
+| `docs`     | Documentation only                              |
+| `refactor` | Code change that is neither a fix nor a feature |
+| `test`     | Adding or updating tests                        |
+| `ci`       | CI/CD configuration changes                     |
 
-You can create API routes by using the `server` property in your route definitions:
+**Examples:**
 
-```tsx
-import { createFileRoute } from '@tanstack/react-router'
-import { json } from '@tanstack/react-start'
-
-export const Route = createFileRoute('/api/hello')({
-  server: {
-    handlers: {
-      GET: () => json({ message: 'Hello, World!' }),
-    },
-  },
-})
+```bash
+git commit -m "feat(auth): add OAuth2 login"
+git commit -m "fix(api): handle null response from payment service"
+git commit -m "docs: update README with Git Flow instructions"
 ```
 
-## Data Fetching
+---
 
-There are multiple ways to fetch data in your application. You can use TanStack Query to fetch data from a server. But you can also use the `loader` functionality built into TanStack Router to load the data for a route before it's rendered.
+## Questions?
 
-For example:
-
-```tsx
-import { createFileRoute } from '@tanstack/react-router'
-
-export const Route = createFileRoute('/people')({
-  loader: async () => {
-    const response = await fetch('https://swapi.dev/api/people')
-    return response.json()
-  },
-  component: PeopleComponent,
-})
-
-function PeopleComponent() {
-  const data = Route.useLoaderData()
-  return (
-    <ul>
-      {data.results.map((person) => (
-        <li key={person.name}>{person.name}</li>
-      ))}
-    </ul>
-  )
-}
-```
-
-Loaders simplify your data fetching logic dramatically. Check out more information in the [Loader documentation](https://tanstack.com/router/latest/docs/framework/react/guide/data-loading#loader-parameters).
-
-# Demo files
-
-Files prefixed with `demo` can be safely deleted. They are there to provide a starting point for you to play around with the features you've installed.
-
-# Learn More
-
-You can learn more about all of the offerings from TanStack in the [TanStack documentation](https://tanstack.com).
-
-For TanStack Start specific documentation, visit [TanStack Start](https://tanstack.com/start).
+Open an issue or reach out to the maintainers.
