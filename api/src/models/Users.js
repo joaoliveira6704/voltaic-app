@@ -12,11 +12,12 @@ const userSchema = new mongoose.Schema(
       required: true,
       select: false,
     },
-    type: {
+    role: {
       type: String,
       required: true,
-      enum: ["client", "admin", "company"],
+      enum: ["client", "admin", "worker", "company-manager"],
     },
+    companyId: { type: String, required: false, ref: "Company" },
     vehicles: [
       {
         plate: { type: String, required: true },
