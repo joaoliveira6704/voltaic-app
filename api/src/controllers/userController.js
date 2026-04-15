@@ -1,4 +1,5 @@
 import Users from "../models/Users.js";
+import generateUniqueId from "../utils/utils.js";
 
 export const getUsers = async (req, res, next) => {
   try {
@@ -12,10 +13,9 @@ export const getUsers = async (req, res, next) => {
 
 export const createUser = async (req, res, next) => {
   try {
-    const { userId, username, email, firstName, lastName, password, role } =
-      req.body;
+    const { username, email, firstName, lastName, password, role } = req.body;
     const newUser = new Users({
-      userId,
+      userId: generateUniqueId(),
       username,
       email,
       firstName,
@@ -24,7 +24,7 @@ export const createUser = async (req, res, next) => {
       role,
     });
     await newUser.save();
-    res.status(201).json(newUser);
+    res.status(201).json({ userId: newUser.userId });
   } catch (error) {
     next(error);
   }
@@ -39,6 +39,24 @@ export const deleteUser = async (req, res, next) => {
       return next(err);
     }
     res.json({ message: "User deleted successfully" });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateUser = async (req, res, next) => {
+  try {
+    const updatedUser = await Users.findOneAndUpdate(
+      { userId: req.params.id },
+      req.body,
+      { new: true },
+    );
+    if (!updatedUser) {
+      const err = new Error("User not found");
+      err.status = 404;
+      return next(err);
+    }
+    res.json(updatedUser);
   } catch (error) {
     next(error);
   }
