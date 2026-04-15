@@ -1,16 +1,8 @@
-const express = require("express");
-require("dotenv").config();
-
-console.log(process.env.TESTE); // remove this after you've confirmed it is working
-
-const app = express();
+import "dotenv/config";
+import app from "./app.js";
+import connectDB from "./src/services/db.service.js";
 
 const PORT = 3000;
 
-app.get("/", (req, res) => {
-  res.send("Alive");
-});
-
-app.listen(PORT, () => {
-  console.log(`Api running on: http://0.0.0.0:${PORT}`);
-});
+connectDB();
+app.listen(PORT, () => console.log(`Api running on: http://0.0.0.0:${PORT}`));

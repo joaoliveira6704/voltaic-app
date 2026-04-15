@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const stationSchema = new mongoose.Schema(
   {
@@ -76,4 +76,4 @@ const stationSchema = new mongoose.Schema(
 
 stationSchema.index({ location: "2dsphere" });
 
-module.exports = mongoose.model("Station", stationSchema);
+export default mongoose.model("Station", stationSchema);

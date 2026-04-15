@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const companySchema = new mongoose.Schema(
   {
@@ -11,7 +11,7 @@ const companySchema = new mongoose.Schema(
         default: "Point",
       },
       coordinates: {
-        type: [Number], // [longitude, latitude]
+        type: [Number],
         required: true,
       },
     },
@@ -21,4 +21,4 @@ const companySchema = new mongoose.Schema(
 
 companySchema.index({ workingArea: "2dsphere" });
 
-module.exports = mongoose.model("Company", companySchema);
+export default mongoose.model("Company", companySchema);

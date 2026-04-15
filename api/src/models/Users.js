@@ -1,8 +1,8 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema(
   {
-    usedId: { type: String, required: true, unique: true },
+    userId: { type: String, required: true, unique: true },
     username: { type: String, required: true, unique: true, trim: true },
     email: { type: String, required: true, unique: true },
     firstName: { type: String, required: true },
@@ -54,4 +54,4 @@ const userSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
-module.exports = mongoose.model("User", userSchema);
+export default mongoose.model("users", userSchema);
