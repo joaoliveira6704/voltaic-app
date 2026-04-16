@@ -6,7 +6,7 @@ export default defineNuxtConfig({
   devServer: {
     port: 5173,
   },
-  modules: ["shadcn-nuxt", "@nuxtjs/tailwindcss"],
+  modules: ["shadcn-nuxt", "@nuxtjs/tailwindcss", "@nuxt/image"],
   shadcn: {
     /**
      * Prefix for all the imported component.
