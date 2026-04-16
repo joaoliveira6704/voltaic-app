@@ -1,156 +1,117 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
-const form = ref({
-  name: "",
-  email: "",
-  contact: "",
-  password: "",
-  language: "",
-  acceptedTerms: true,
+const email = ref("");
+const password = ref("");
+const rememberMe = ref(true);
+
+definePageMeta({
+  layout: "default",
 });
 
-function onSubmit() {
-  console.log("Registration Data:", form.value);
-}
+const handleLogin = () => {
+  console.log("Login attempt:", {
+    email: email.value,
+    password: password.value,
+    rememberMe: rememberMe.value,
+  });
+};
 </script>
 
 <template>
   <div
-    class="min-h-screen w-full flex flex-col items-center justify-center bg-white p-4"
+    class="w-full flex flex-col items-center justify-center py-12 md:py-24 px-4"
   >
-    <div class="flex items-end gap-1 mb-8 select-none">
-      <svg
-        viewBox="0 0 16 16"
-        class="h-12 w-auto text-[#00c885]"
-        fill="currentColor"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path d="M11 0L4.5 9.5H8L5 16L11.5 6.5H8L11 0Z" />
-      </svg>
-      <span
-        class="text-5xl font-mono leading-none tracking-tighter text-gray-900"
-        >ol&zwnj;taic</span
-      >
+    <div class="flex items-end gap-1 mb-10 select-none">
+      <NuxtImg src="/voltaic-logotype.png" width="300" />
     </div>
 
     <form
-      @submit.prevent="onSubmit"
-      class="w-full max-w-[400px] rounded-xl border border-gray-200 bg-white p-6 shadow-sm md:p-10"
+      @submit.prevent="handleLogin"
+      class="w-full max-w-[400px] rounded-xl border border-gray-100 bg-white p-6 shadow-sm md:p-10 space-y-6"
     >
-      <div class="space-y-5">
-        <div class="space-y-2">
-          <Label
-            for="name"
-            class="font-mono text-sm font-semibold text-gray-700"
-            >Name</Label
-          >
-          <Input
-            id="name"
-            v-model="form.name"
-            placeholder="Value"
-            class="h-11 border-gray-200"
-          />
-        </div>
+      <div class="space-y-2">
+        <Label
+          for="email"
+          class="font-mono text-xs font-bold uppercase text-gray-500 tracking-wider"
+        >
+          Email
+        </Label>
+        <Input
+          id="email"
+          v-model="email"
+          type="email"
+          placeholder="Value"
+          class="h-11 font-mono border-gray-200 focus-visible:ring-[#00c885]"
+        />
+      </div>
 
-        <div class="space-y-2">
-          <Label
-            for="email"
-            class="font-mono text-sm font-semibold text-gray-700"
-            >Email</Label
-          >
-          <Input
-            id="email"
-            v-model="form.email"
-            type="email"
-            placeholder="Value"
-            class="h-11 border-gray-200"
-          />
-        </div>
-
-        <div class="space-y-2">
-          <Label
-            for="contact"
-            class="font-mono text-sm font-semibold text-gray-700"
-            >Contact</Label
-          >
-          <Input
-            id="contact"
-            v-model="form.contact"
-            placeholder="Value"
-            class="h-11 border-gray-200"
-          />
-        </div>
-
-        <div class="space-y-2">
+      <div class="space-y-2">
+        <div class="flex justify-between items-center">
           <Label
             for="password"
-            class="font-mono text-sm font-semibold text-gray-700"
-            >Password</Label
+            class="font-mono text-xs font-bold uppercase text-gray-500 tracking-wider"
           >
-          <Input
-            id="password"
-            v-model="form.password"
-            type="password"
-            placeholder="Value"
-            class="h-11 border-gray-200"
-          />
+            Password
+          </Label>
+          <NuxtLink
+            to="/recover-password"
+            class="text-[10px] font-mono text-[#007bff] hover:underline uppercase"
+          >
+            Forgot?
+          </NuxtLink>
         </div>
+        <Input
+          id="password"
+          v-model="password"
+          type="password"
+          placeholder="Value"
+          class="h-11 font-mono border-gray-200 focus-visible:ring-[#00c885]"
+        />
+      </div>
 
-        <div class="space-y-2">
+      <div class="flex items-start gap-3 pt-2">
+        <Checkbox
+          id="remember"
+          v-model:checked="rememberMe"
+          class="mt-1 border-gray-300 data-[state=checked]:bg-[#00c885] data-[state=checked]:border-[#00c885]"
+        />
+        <div class="grid gap-1 leading-none">
           <Label
-            for="language"
-            class="font-mono text-sm font-semibold text-gray-700"
-            >Choose language</Label
+            for="remember"
+            class="font-mono text-sm font-bold text-gray-900 cursor-pointer"
           >
-          <Select v-model="form.language">
-            <SelectTrigger class="h-11 border-gray-200 font-mono">
-              <SelectValue placeholder="<ticket id>" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="en">English</SelectItem>
-              <SelectItem value="pt">Portuguese</SelectItem>
-              <SelectItem value="es">Spanish</SelectItem>
-            </SelectContent>
-          </Select>
+            Remember me
+          </Label>
+          <p class="font-mono text-[10px] text-gray-400">
+            Keep my session active
+          </p>
         </div>
+      </div>
 
-        <div class="flex items-start gap-3 pt-2">
-          <Checkbox
-            id="terms"
-            v-model:checked="form.acceptedTerms"
-            class="mt-1"
-          />
-          <div class="grid gap-1 leading-none">
-            <Label
-              for="terms"
-              class="font-mono text-sm font-bold text-gray-900 cursor-pointer"
-            >
-              Label
-            </Label>
-            <p class="font-mono text-xs text-gray-500">Description</p>
-          </div>
-        </div>
+      <div class="pt-2">
+        <Button
+          type="submit"
+          class="w-full h-12 bg-[#007bff] hover:bg-[#0069d9] font-mono uppercase tracking-widest text-sm transition-all"
+        >
+          Login
+        </Button>
+      </div>
 
-        <div class="pt-4">
-          <Button
-            type="submit"
-            class="w-full h-12 bg-[#007bff] hover:bg-[#0069d9] text-base font-medium transition-colors"
+      <div class="pt-4 text-center border-t border-gray-50 mt-4">
+        <p class="font-mono text-[10px] text-gray-400 uppercase tracking-tight">
+          New to Voltaic?
+          <NuxtLink
+            to="/register"
+            class="text-[#007bff] font-bold hover:underline"
           >
-            Register
-          </Button>
-        </div>
+            Create account
+          </NuxtLink>
+        </p>
       </div>
     </form>
   </div>
