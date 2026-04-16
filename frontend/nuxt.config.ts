@@ -21,4 +21,7 @@ export default defineNuxtConfig({
      */
     componentDir: "@/components/ui",
   },
+  tailwindcss: {
+    exposeConfig: true,
+  },
 });
