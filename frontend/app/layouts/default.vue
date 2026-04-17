@@ -5,12 +5,12 @@ import { Label } from "@/components/ui/label";
 const navLinks = [
   { path: "/", label: "Home" },
   { path: "/login", label: "Login" },
-  { path: "/register", label: "Register" },
+  { path: "/signup", label: "Signup" },
 ];
 </script>
 
 <template>
-  <div class="h-screen w-full flex flex-col bg-white font-mono overflow-hidden">
+  <div class="h-screen w-full flex flex-col bg-white font-mono overflow-scroll">
     <nav class="shrink-0 w-full border-b border-gray-100 bg-white">
       <div
         class="container mx-auto flex h-16 max-w-7xl items-center justify-between px-4 md:px-8"

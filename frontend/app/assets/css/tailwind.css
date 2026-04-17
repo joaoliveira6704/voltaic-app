@@ -17,3 +17,7 @@
     @apply bg-background text-foreground;
   }
 }
+.label {
+  @apply font-mono text-xs font-bold uppercase text-red-500 !important;
+  color: red;
+}
