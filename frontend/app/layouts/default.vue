@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 const navLinks = [
   { path: "/", label: "Home" },
   { path: "/login", label: "Login" },
-  { path: "/register", label: "Register" },
+  { path: "/signup", label: "Signup" },
 ];
 </script>
 
