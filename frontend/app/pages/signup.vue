@@ -46,7 +46,7 @@ const handleRegister = () => console.log("Register:", form.value);
             <Input
               id="name"
               v-model="form.name"
-              placeholder="Value"
+              placeholder="John Doe"
               class="h-11 font-mono border-gray-200"
             />
           </div>
@@ -60,7 +60,7 @@ const handleRegister = () => console.log("Register:", form.value);
               id="email"
               v-model="form.email"
               type="email"
-              placeholder="Value"
+              placeholder="example@voltaic.com"
               class="h-11 font-mono border-gray-200"
             />
           </div>
@@ -73,7 +73,7 @@ const handleRegister = () => console.log("Register:", form.value);
             <Input
               id="contact"
               v-model="form.contact"
-              placeholder="Value"
+              placeholder="000-000-000"
               class="h-11 font-mono border-gray-200"
             />
           </div>
@@ -87,7 +87,7 @@ const handleRegister = () => console.log("Register:", form.value);
               id="password"
               v-model="form.password"
               type="password"
-              placeholder="Value"
+              placeholder="********"
               class="h-11 font-mono border-gray-200"
             />
           </div>
@@ -95,17 +95,17 @@ const handleRegister = () => console.log("Register:", form.value);
             <Label class="font-mono text-xs font-bold uppercase text-gray-500"
               >Choose language</Label
             >
-            <Select v-model="form.language">
+            <Select v-model="form.language" class="w-120">
               <SelectTrigger class="h-11 border-gray-200 font-mono"
-                ><SelectValue placeholder="<ticket id>"
+                ><SelectValue placeholder="Select language"
               /></SelectTrigger>
-              <SelectContent>
+              <SelectContent class="bg-white">
                 <SelectItem value="en">English</SelectItem>
                 <SelectItem value="pt">Portuguese</SelectItem>
               </SelectContent>
             </Select>
           </div>
-          <div class="flex items-start gap-3">
+          <div class="flex items-center gap-3">
             <Checkbox
               id="terms"
               v-model:checked="form.acceptedTerms"
@@ -114,10 +114,9 @@ const handleRegister = () => console.log("Register:", form.value);
             <div class="grid gap-1">
               <Label
                 for="terms"
-                class="font-mono text-sm font-bold text-gray-900 cursor-pointer"
-                >Label</Label
+                class="font-mono text-[10px] text-gray-900 cursor-pointer"
+                >I agree with the Terms & Conditions</Label
               >
-              <p class="font-mono text-[10px] text-gray-400">Description</p>
             </div>
           </div>
           <Button
@@ -130,3 +129,4 @@ const handleRegister = () => console.log("Register:", form.value);
     </Card>
   </div>
 </template>
+<style lang="postcss"></style>
