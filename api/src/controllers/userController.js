@@ -11,25 +11,6 @@ export const getUsers = async (req, res, next) => {
   }
 };
 
-export const createUser = async (req, res, next) => {
-  try {
-    const { username, email, firstName, lastName, password, role } = req.body;
-    const newUser = new Users({
-      userId: generateUniqueId(),
-      username,
-      email,
-      firstName,
-      lastName,
-      password,
-      role,
-    });
-    await newUser.save();
-    res.status(201).json({ userId: newUser.userId });
-  } catch (error) {
-    next(error);
-  }
-};
-
 export const deleteUser = async (req, res, next) => {
   try {
     const deletedUser = await Users.findOneAndDelete({ userId: req.params.id });

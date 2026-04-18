@@ -13,12 +13,47 @@ definePageMeta({
   layout: "default",
 });
 
-const handleLogin = () => {
+useHead({
+  title: "Voltaic - Login",
+  meta: [
+    {
+      name: "description",
+      content:
+        "Login to your Voltaic account to manage your EV charging sessions.",
+    },
+  ],
+});
+
+const handleLogin = async () => {
   console.log("Login attempt:", {
     email: email.value,
     password: password.value,
-    rememberMe: rememberMe.value,
   });
+
+  try {
+    const data = await $fetch("http://localhost:3000/api/auth/login", {
+      method: "POST",
+      body: {
+        email: email.value,
+        password: password.value,
+      },
+    });
+
+    console.log("Login successful:", data);
+    alert("Login successful!");
+  } catch (err: unknown) {
+    console.error("Login failed:", err);
+
+    const errorData = err as {
+      message?: string;
+      data?: { message?: string };
+    };
+
+    const errorMessage =
+      errorData?.data?.message || errorData?.message || "Login failed";
+
+    alert("Login failed: " + errorMessage);
+  }
 };
 </script>
 
@@ -31,8 +66,8 @@ const handleLogin = () => {
     </div>
 
     <form
-      @submit.prevent="handleLogin"
       class="w-full max-w-[400px] rounded-xl border border-gray-100 bg-white p-6 shadow-sm md:p-10 space-y-6"
+      @submit.prevent="handleLogin"
     >
       <div class="space-y-2">
         <Label
@@ -45,7 +80,7 @@ const handleLogin = () => {
           id="email"
           v-model="email"
           type="email"
-          placeholder="Value"
+          placeholder="example@voltaic.com"
           class="h-11 font-mono border-gray-200 focus-visible:ring-[#00c885]"
         />
       </div>
@@ -69,7 +104,7 @@ const handleLogin = () => {
           id="password"
           v-model="password"
           type="password"
-          placeholder="Value"
+          placeholder="********"
           class="h-11 font-mono border-gray-200 focus-visible:ring-[#00c885]"
         />
       </div>
@@ -106,7 +141,7 @@ const handleLogin = () => {
         <p class="font-mono text-[10px] text-gray-400 uppercase tracking-tight">
           New to Voltaic?
           <NuxtLink
-            to="/register"
+            to="/signup"
             class="text-[#007bff] font-bold hover:underline"
           >
             Create account
