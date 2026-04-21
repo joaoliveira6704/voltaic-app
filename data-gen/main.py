@@ -45,7 +45,7 @@ print("Users created successfully")
 # Fetch from environment or fallback to localhost if running manually on host machine
 mongo_uri = os.environ.get(
     "MONGO_URI", 
-    "mongodb://localhost:27017/voltaic-db"
+    "mongodb://root:root@localhost:27017/voltaic-db?authSource=admin"
 )
 client = pymongo.MongoClient(mongo_uri)
 db = client["voltaic-db"]
