@@ -31,7 +31,7 @@ const handleLogin = async () => {
   });
 
   try {
-    const data = await $fetch("http://localhost:3000/api/auth/login", {
+    const data = await $fetch("http://0.0.0.0:3000/api/auth/login", {
       method: "POST",
       body: {
         email: email.value,

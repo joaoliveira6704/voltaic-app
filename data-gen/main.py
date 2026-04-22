@@ -1,56 +1,10 @@
-from faker import Faker
-import uuid
-import csv 
-import pymongo
-import os
+from generator import generate_companies, generate_users, generate_stations, generate_tickets
+from db import insert_all
 
-fake = Faker()
+if __name__ == "__main__":
+    companies = generate_companies(count=10)
+    users     = generate_users(count=500, companies=companies)
+    stations  = generate_stations(count=20)
+    tickets   = generate_tickets(count=20, users=users, stations=stations)
 
-file_path = './app/users.csv'
-
-users = []
-
-class User:
-    def __init__(self, userId, username, firstName, lastName, email, password, role, companyId, vehicles, favorites):
-        self.userId = userId
-        self.username = username
-        self.firstName = firstName
-        self.lastName = lastName
-        self.email = email
-        self.password = password
-        self.role = role
-        self.companyId = companyId
-        self.vehicles = vehicles
-        self.favorites = favorites
-
-
-for i in range(20):
-    firstName = fake.first_name()
-    lastName = fake.last_name()
-    username = f"{firstName.lower()}{lastName.lower()}{fake.random_int(min=10, max=99)}"
-        
-    email = f"{firstName}.{lastName}@{fake.free_email_domain()}"
-    password = fake.password(length=12)
-    user_id = str(uuid.uuid4())
-    role = fake.random_element(elements=("client", "admin", "worker", "company-manager"))
-    companyId = None
-    vehicles = []
-    favorites = []
-
-    users.append(User(user_id, username, firstName, lastName, email, password, role, companyId, vehicles, favorites))
-    print(f"User {i+1}: {firstName} {lastName} ({username})\nEmail:{email}\n")
-
-print("Users created successfully")
-
-# Fetch from environment or fallback to localhost if running manually on host machine
-mongo_uri = os.environ.get(
-    "MONGO_URI", 
-    "mongodb://root:root@localhost:27017/voltaic-db?authSource=admin"
-)
-client = pymongo.MongoClient(mongo_uri)
-db = client["voltaic-db"]
-
-# Insert to MongoDB
-db.users.insert_many([user.__dict__ for user in users])
-
-print("Users inserted successfully")
+    insert_all(companies, users, stations, tickets)
