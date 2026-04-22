@@ -2,7 +2,6 @@ import mongoose from "mongoose";
 
 const ticketSchema = new mongoose.Schema(
   {
-    ticketId: { type: String, unique: true, required: true },
     stationId: { type: String, ref: "Station" },
     createdBy: { type: String, ref: "User" },
     title: {
@@ -17,11 +16,11 @@ const ticketSchema = new mongoose.Schema(
       type: String,
       required: false,
     },
-    state: {
+    status: {
       type: String,
       required: true,
       default: "open",
-      enum: ["open", "closed", "resolved"],
+      enum: ["open", "closed", "resolved", "unresolved"],
     },
     closedAt: {
       type: Date,
