@@ -5,7 +5,7 @@ import pymongo
 def get_db():
     mongo_uri = os.environ.get(
         "MONGO_URI",
-        "mongodb://root:root@localhost:27017/voltaic-db?authSource=admin"
+        "mongodb://root:root@localhost:27018/voltaic-db?authSource=admin"
     )
     client = pymongo.MongoClient(mongo_uri)
     return client["voltaic-db"]
