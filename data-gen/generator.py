@@ -140,11 +140,11 @@ def generate_users(count: int = 20, companies: list = None) -> list:
         print(f"User {i+1}: {firstName} {lastName} ({username}) | role: {role}"
               + (f" | company: {company_id}" if company_id else ""))
         
-        rawUsers.append((email, raw_password))
+        rawUsers.append((email, raw_password, role))
 
     with open("users.txt", "w") as f:
-        for email, password in rawUsers:
-            f.write(f"{email}:{password}\n")
+        for email, password, role in rawUsers:
+            f.write(f"{email}:{password}:{role}\n")
 
     print("Users created successfully\n")
     return users
