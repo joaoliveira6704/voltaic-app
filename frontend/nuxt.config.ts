@@ -51,4 +51,11 @@ export default defineNuxtConfig({
   tailwindcss: {
     exposeConfig: true,
   },
+  components: {
+    dirs: [
+      { path: "~/components/ui", pathPrefix: false },
+      { path: "~/components/layout", pathPrefix: false },
+      { path: "~/components", pathPrefix: false },
+    ],
+  },
 });
