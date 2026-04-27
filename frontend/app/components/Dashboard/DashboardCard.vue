@@ -11,6 +11,8 @@ import {
 interface Props {
   title?: string;
   description?: string;
+  button?: boolean;
+  buttonText?: string;
   scrollable?: boolean;
 }
 
@@ -19,15 +21,19 @@ defineProps<Props>();
 
 <template>
   <Card
-    class="h-full w-full flex flex-col border-gray-100 shadow-sm overflow-hidden font-mono"
+    class="h-fit w-full flex flex-col border-gray-100 shadow-sm overflow-hidden font-mono"
   >
-    <CardHeader v-if="title || description" class="shrink-0 pb-4">
+    <CardHeader
+      v-if="title || description"
+      class="shrink-0 pb-4 flex flex-row justify-between"
+    >
       <CardTitle
         v-if="title"
         class="text-xs font-bold uppercase tracking-widest text-gray-400"
       >
         {{ title }}
       </CardTitle>
+      <Button v-if="button" variant="outline">{{ buttonText }}</Button>
       <CardDescription v-if="description" class="text-[10px]">
         {{ description }}
       </CardDescription>

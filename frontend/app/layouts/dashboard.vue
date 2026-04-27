@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 
 const navLinks = [{ path: "/", label: "Map" }]; /* link map page */
 </script>

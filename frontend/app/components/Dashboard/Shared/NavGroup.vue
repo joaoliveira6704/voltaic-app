@@ -1,63 +1,19 @@
 <script setup lang="ts">
-import {
-  LayoutDashboard,
-  Users,
-  Settings,
-  History,
-  Zap,
-  Truck,
-  LifeBuoy,
-  ClipboardList,
-  Ticket,
-  LogOut,
-} from "lucide-vue-next";
+// 1. Import the constant and the types from your utils file
+import { NAVIGATION_MAP, type UserRole } from "@/utils/navigation";
 import { Button } from "@/components/ui/button";
-
-type UserRole = "Admin" | "Company" | "Worker" | "User";
 
 interface Props {
   role: UserRole;
 }
 
-interface NavItem {
-  label: string;
-  icon: Component;
-  path: string;
-}
-
 const props = defineProps<Props>();
 const route = useRoute();
 
-const navigationMap: Record<UserRole, NavItem[]> = {
-  Admin: [
-    { label: "Dashboard", icon: LayoutDashboard, path: "/profile" },
-    { label: "Tickets", icon: Ticket, path: "/profile/users" },
-    { label: "Users", icon: Users, path: "/profile/logs" },
-    { label: "Stations", icon: Zap, path: "/profile/settings" },
-    { label: "Logout", icon: LogOut, path: "/profile/kb" },
-  ],
-  Company: [
-    { label: "Dashboard", icon: LayoutDashboard, path: "/profile" },
-    { label: "Stations", icon: Zap, path: "/profile/stations" },
-    { label: "Tickets", icon: Ticket, path: "/profile/history" },
-    { label: "Personel", icon: Users, path: "/profile/payments" },
-    { label: "Logout", icon: LogOut, path: "/profile/kb" },
-  ],
-  Worker: [
-    { label: "Dashboard", icon: LayoutDashboard, path: "/profile" },
-    { label: "Assigned Tickets", icon: Ticket, path: "/profile/jobs" },
-    { label: "Logout", icon: LogOut, path: "/profile/kb" },
-  ],
-  User: [
-    { label: "Dashboard", icon: LayoutDashboard, path: "/profile" },
-    { label: "Favorite Stations", icon: Zap, path: "/profile/chats" },
-    { label: "History", icon: History, path: "/profile/kb" },
-    { label: "Logout", icon: LogOut, path: "/profile/kb" },
-  ],
-};
-
-// Get the current links based on the passed prop
-const currentLinks = computed(() => navigationMap[props.role] || []);
+/** * 2. We no longer need the massive navigationMap object here!
+ * We just reference the imported NAVIGATION_MAP.
+ */
+const currentLinks = computed(() => NAVIGATION_MAP[props.role] || []);
 </script>
 
 <template>
