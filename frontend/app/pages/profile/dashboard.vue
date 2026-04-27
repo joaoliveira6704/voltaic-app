@@ -6,8 +6,10 @@
         ><DashboardCard><NavGroup :role="userRole" /></DashboardCard
       ></template>
       <template #cell-b
-        ><DashboardCard title="User Info"></DashboardCard
-      ></template>
+        ><DashboardCard title="User Info">
+          <!-- <Info>A</Info> -->{{ userRole }}</DashboardCard
+        ></template
+      >
       <template #cell-c
         ><DashboardCard
           title="Your Fleet"
@@ -29,61 +31,67 @@ definePageMeta({
   layout: "dashboard",
 });
 
-const testVehicles = [
+/* import { useUserStore } from "@/stores/user"; */
+const users = [
   {
-    id: 1,
-    brand: "BMW",
-    model: "iX3",
-    plate: "09 - EL - 53",
-    logoUrl: "https://logos-world.net/wp-content/uploads/2020/04/BMW-Logo.png",
+    username: "jdoe_ev",
+    email: "john.doe@example.com",
+    firstName: "John",
+    lastName: "Doe",
+    role: "user",
+    vehicles: [
+      {
+        plate: "09-EL-53",
+        model: "BMW iX3",
+        color: "Mineral White",
+        connector: "CCS/SAE",
+      },
+      {
+        plate: "AA-22-BB",
+        model: "Tesla Model 3",
+        color: "Solid Black",
+        connector: "Tesla",
+      },
+    ],
   },
   {
-    id: 5,
-    brand: "BMW",
-    model: "iX3",
-    plate: "09 - EL - 53",
-    logoUrl: "https://logos-world.net/wp-content/uploads/2020/04/BMW-Logo.png",
+    username: "admin_central",
+    email: "system.admin@voltaic.com",
+    firstName: "Super",
+    lastName: "Admin",
+    role: "admin",
+    vehicles: [],
   },
   {
-    id: 6,
-    brand: "BMW",
-    model: "iX3",
-    plate: "09 - EL - 53",
-    logoUrl: "https://logos-world.net/wp-content/uploads/2020/04/BMW-Logo.png",
+    username: "porto_fleet_mgr",
+    email: "manager@porto-logistics.pt",
+    firstName: "Ricardo",
+    lastName: "Santos",
+    role: "company",
+    companyId: "65b2f1a8e4b0a12345678901",
+    vehicles: [],
   },
   {
-    id: 7,
-    brand: "BMW",
-    model: "iX3",
-    plate: "09 - EL - 53",
-    logoUrl: "https://logos-world.net/wp-content/uploads/2020/04/BMW-Logo.png",
-  },
-  {
-    id: 2,
-    brand: "Tesla",
-    model: "Model Y",
-    plate: "AA - 22 - BB",
-    logoUrl:
-      "https://logos-world.net/wp-content/uploads/2020/10/Tesla-Logo.png",
-  },
-  {
-    id: 3,
-    brand: "Audi",
-    model: "Q4 e-tron",
-    plate: "99 - ZZ - 11",
-    logoUrl: "https://logos-world.net/wp-content/uploads/2021/03/Audi-Logo.png",
-  },
-  {
-    id: 4,
-    brand: "Mercedes",
-    model: "EQE",
-    plate: "55 - RX - 99",
-    logoUrl:
-      "https://logos-world.net/wp-content/uploads/2020/04/Mercedes-Benz-Logo.png",
+    username: "tech_artur",
+    email: "artur.silva@voltaic.com",
+    firstName: "Artur",
+    lastName: "Silva",
+    role: "worker",
+    companyId: "65b2f1a8e4b0a12345678901",
+    vehicles: [
+      {
+        plate: "99-ZZ-11",
+        model: "Renault Zoe Service",
+        color: "Glacier White",
+        connector: "Type2",
+      },
+    ],
   },
 ];
 
-const userRole = ref("User");
+const activeUserIndex = ref(3); // Change this to 0, 1, 2, or 3 to test roles
+const currentUser = computed(() => users[activeUserIndex.value]);
+const userRole = computed(() => currentUser.value.role);
 </script>
 
 <style lang="scss" scoped></style>

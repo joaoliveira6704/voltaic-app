@@ -7,8 +7,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
-import { Menu, LogOut } from "lucide-vue-next";
 import { NAVIGATION_MAP, type UserRole } from "@/utils/navigation";
 
 interface Props {
@@ -18,7 +16,6 @@ interface Props {
 const props = defineProps<Props>();
 const route = useRoute();
 
-// Get links from our shared utility
 const currentLinks = computed(() => NAVIGATION_MAP[props.role] || []);
 
 const navLinks = computed(() =>
