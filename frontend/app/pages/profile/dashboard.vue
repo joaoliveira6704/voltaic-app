@@ -3,7 +3,7 @@
     <DropDown :role="userRole" />
     <Grid>
       <template #cell-a
-        ><DashboardCard><NavGroup :role="userRole" /></DashboardCard
+        ><DashboardCard><NavGroup :role="currentUser.role" /></DashboardCard
       ></template>
       <template #cell-b
         ><DashboardCard
@@ -18,23 +18,36 @@
           title="Your Fleet"
           :button="true"
           button-text="Add new Vehicle"
-          ><CardScroll
-            ><VehicleCard
-              v-for="vehicle in currentUser.vehicles"
-              :key="vehicle.id"
-              :data="vehicle" /></CardScroll></DashboardCard
-      ></template>
+          ><CardScroll v-if="displayItems.length > 0"
+            ><component
+              :is="cardComponent"
+              v-for="(item, index) in displayItems"
+              :key="index"
+              :data="item"
+            />
+          </CardScroll>
+          <div
+            v-else
+            class="p-10 text-center font-mono text-xs text-neutral-400"
+          >
+            No items to display for {{ userRole }}.
+          </div></DashboardCard
+        ></template
+      >
       <template #cell-d><DashboardCard>D</DashboardCard></template>
     </Grid>
   </div>
 </template>
 
 <script setup>
+/* import { useUserStore } from "@/stores/user"; */
+import VehicleCard from "@/components/Cards/VehicleCard.vue";
+import TicketCard from "@/components/Cards/TicketCard.vue";
+
 definePageMeta({
   layout: "profile",
 });
 
-/* import { useUserStore } from "@/stores/user"; */
 const users = [
   {
     username: "jdoe_ev",
@@ -42,6 +55,7 @@ const users = [
     firstName: "John",
     lastName: "Doe",
     role: "user",
+    avatarUrl: "/default-avatar.jpg",
     vehicles: [
       {
         plate: "09-EL-53",
@@ -63,16 +77,35 @@ const users = [
     firstName: "Super",
     lastName: "Admin",
     role: "admin",
-    vehicles: [],
+    avatarUrl: "/titus.webp",
+    tickets: [
+      {
+        id: "bug ticket",
+        desc: "log error",
+        state: "open",
+      },
+      {
+        id: "bug ticket",
+        desc: "no fav list",
+        state: "open",
+      },
+    ],
   },
   {
     username: "porto_fleet_mgr",
-    email: "manager@porto-logistics.pt",
+    email: "company@porto-logistics.pt",
     firstName: "Ricardo",
     lastName: "Santos",
     role: "company",
     companyId: "65b2f1a8e4b0a12345678901",
-    vehicles: [],
+    avatarUrl: "/beyblade.jpg",
+    tickets: [
+      {
+        id: "9a5d8",
+        station: "Av. Aliados",
+        state: "open",
+      },
+    ],
   },
   {
     username: "tech_artur",
@@ -81,20 +114,39 @@ const users = [
     lastName: "Silva",
     role: "worker",
     companyId: "65b2f1a8e4b0a12345678901",
-    vehicles: [
+    avatarUrl: "/ash-ketchum.png",
+    assignedTickets: [
       {
-        plate: "99-ZZ-11",
-        model: "Renault Zoe Service",
-        color: "Glacier White",
-        connector: "Type2",
+        id: "9a5d8",
+        station: "Av. Aliados",
+        state: "open",
       },
     ],
   },
 ];
 
-const activeUserIndex = ref(0); // Change this to 0, 1, 2, or 3 to test roles
+const activeUserIndex = ref(3); // Change this to 0, 1, 2, or 3 to test roles
 const currentUser = computed(() => users[activeUserIndex.value]);
 const userRole = computed(() => currentUser.value.role);
+
+const cardComponent = computed(() => {
+  const map = {
+    user: VehicleCard,
+    worker: TicketCard,
+    company: TicketCard,
+    admin: TicketCard,
+  };
+  return map[userRole.value];
+});
+
+const displayItems = computed(() => {
+  if (userRole.value === "user") return currentUser.value.vehicles;
+  if (userRole.value === "worker")
+    return currentUser.value.assignedTickets || [];
+  if (userRole.value === "company") return currentUser.value.tickets || [];
+  if (userRole.value === "admin") return currentUser.value.tickets || [];
+  return [];
+});
 </script>
 
 <style lang="scss" scoped></style>

@@ -22,19 +22,16 @@ const logoSrc =
 
 <template>
   <div
-    class="relative w-60 h-fit bg-neutral-200 rounded-xl p-5 flex flex-col justify-between font-mono group"
+    class="relative w-60 h-fit bg-neutral-200 rounded-xl p-5 gap-2 flex flex-col justify-between font-mono group"
   >
-    <div class="flex items-center gap-3">
-      <h3 class="text-md font-bold uppercase tracking-tight text-neutral-900">
-        {{ data.brand }}
-      </h3>
+    <div class="flex items-start gap-3">
       <span class="text-md font-black uppercase text-neutral-800">
         {{ data.model }}
       </span>
     </div>
 
-    <div class="flex items-center gap-4">
-      <div class="flex flex-col gap-1">
+    <div class="flex items-center gap-6">
+      <div class="flex flex-row gap-1 items-center">
         <span class="text-xs font-bold text-neutral-600 uppercase">
           Plate:
         </span>

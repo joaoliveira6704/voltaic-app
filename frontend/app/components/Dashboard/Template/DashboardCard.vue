@@ -25,23 +25,20 @@ defineProps<Props>();
   >
     <CardHeader
       v-if="title || description"
-      class="shrink-0 pb-4 flex flex-row justify-between w-full"
+      class="shrink-0 pb-0 flex flex-row justify-between w-full"
     >
       <CardTitle
         v-if="title"
-        class="text-xs font-bold uppercase tracking-widest text-gray-400"
+        class="text-xs font-bold uppercase tracking-widest text-gray-400 pt-0"
       >
         {{ title }}
       </CardTitle>
       <Button v-if="button" variant="outline">{{ buttonText }}</Button>
-      <CardDescription v-if="description" class="text-[10px]">
-        {{ description }}
-      </CardDescription>
     </CardHeader>
 
     <CardContent
       :class="[
-        'flex-1 min-h-0 p-6 pt-0  w-fit flex-col',
+        'flex-1 min-h-0 p-4 pb-0 pt-0  w-fit flex-col',
         scrollable ? 'overflow-y-auto custom-scrollbar' : 'overflow-hidden',
       ]"
     >
