@@ -11,9 +11,10 @@ withDefaults(defineProps<Props>(), {
 <template>
   <div
     :class="[
-      'grid w-full h-fit p-5 lg:p-20',
+      'grid w-full h-fit p-5 lg:p-15',
       'grid-cols-1 lg:grid-cols-[1fr_4fr]',
-      'lg:grid-rows-[1fr_2fr_2fr]',
+      'lg:grid-rows-[auto_auto_auto]',
+      'h-fit',
       gap,
     ]"
   >

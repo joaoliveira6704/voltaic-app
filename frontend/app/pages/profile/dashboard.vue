@@ -6,10 +6,13 @@
         ><DashboardCard><NavGroup :role="userRole" /></DashboardCard
       ></template>
       <template #cell-b
-        ><DashboardCard title="User Info">
-          <!-- <Info>A</Info> -->{{ userRole }}</DashboardCard
-        ></template
-      >
+        ><DashboardCard
+          title="User Info"
+          :button="true"
+          button-text="Edit profile"
+        >
+          <Info :user="currentUser"></Info></DashboardCard
+      ></template>
       <template #cell-c
         ><DashboardCard
           title="Your Fleet"
@@ -17,7 +20,7 @@
           button-text="Add new Vehicle"
           ><CardScroll
             ><VehicleCard
-              v-for="vehicle in testVehicles"
+              v-for="vehicle in currentUser.vehicles"
               :key="vehicle.id"
               :data="vehicle" /></CardScroll></DashboardCard
       ></template>
@@ -28,7 +31,7 @@
 
 <script setup>
 definePageMeta({
-  layout: "dashboard",
+  layout: "profile",
 });
 
 /* import { useUserStore } from "@/stores/user"; */
@@ -89,7 +92,7 @@ const users = [
   },
 ];
 
-const activeUserIndex = ref(3); // Change this to 0, 1, 2, or 3 to test roles
+const activeUserIndex = ref(0); // Change this to 0, 1, 2, or 3 to test roles
 const currentUser = computed(() => users[activeUserIndex.value]);
 const userRole = computed(() => currentUser.value.role);
 </script>

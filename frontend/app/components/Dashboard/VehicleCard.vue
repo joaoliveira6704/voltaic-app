@@ -22,7 +22,7 @@ const logoSrc =
 
 <template>
   <div
-    class="relative min-w-fit h-fit bg-neutral-200 rounded-xl p-5 flex flex-col justify-between font-mono group"
+    class="relative w-60 h-fit bg-neutral-200 rounded-xl p-5 flex flex-col justify-between font-mono group"
   >
     <div class="flex items-center gap-3">
       <h3 class="text-md font-bold uppercase tracking-tight text-neutral-900">

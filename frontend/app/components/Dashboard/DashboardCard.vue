@@ -21,11 +21,11 @@ defineProps<Props>();
 
 <template>
   <Card
-    class="h-fit w-full flex flex-col border-gray-100 shadow-sm overflow-hidden font-mono"
+    class="h-fit w-full flex flex-col items-center lg:items-start border-gray-100 shadow-sm overflow-hidden font-mono"
   >
     <CardHeader
       v-if="title || description"
-      class="shrink-0 pb-4 flex flex-row justify-between"
+      class="shrink-0 pb-4 flex flex-row justify-between w-full"
     >
       <CardTitle
         v-if="title"

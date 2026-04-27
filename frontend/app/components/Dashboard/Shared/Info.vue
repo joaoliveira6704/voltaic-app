@@ -22,14 +22,14 @@ const props = defineProps<Props>();
 
 <template>
   <div
-    class="flex flex-col md:flex-row items-center md:items-start gap-8 p-6 bg-white rounded-xl border border-neutral-100 font-mono"
+    class="flex flex-col lg:flex-row items-center md:items-start gap-8 bg-yellow-100 rounded-xl font-mono"
   >
     <div class="relative shrink-0">
       <div
         class="w-32 h-32 rounded-full overflow-hidden border-4 border-white shadow-sm bg-neutral-100"
       >
         <img
-          :src="props.user.avatarUrl || '/default-avatar.png'"
+          :src="/* props.user.avatarUrl ||  */ '/default-avatar.jpg'"
           :alt="props.user.name"
           class="w-full h-full object-cover"
         />
@@ -41,12 +41,12 @@ const props = defineProps<Props>();
 
     <div class="flex-1 flex flex-col gap-4 text-neutral-800">
       <h1
-        class="text-3xl font-black tracking-tight text-center md:text-left uppercase"
+        class="text-3xl font-black tracking-tight text-center lg:text-left uppercase"
       >
-        {{ props.user.name }}
+        {{ props.user.firstName }} {{ props.user.lastName }}
       </h1>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-3 mt-2">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-x-12 gap-y-3 mt-2">
         <div class="flex items-center gap-3 group">
           <Mail
             class="w-5 h-5 text-neutral-400 group-hover:text-black transition-colors"
