@@ -6,7 +6,7 @@ const navLinks = [
   { path: "/", label: "Home" },
   { path: "/login", label: "Login" },
   { path: "/signup", label: "Signup" },
-  { path: "/profile/dashboard", label: "Profile" },
+  { path: "/profile", label: "Profile" },
 ];
 </script>
 

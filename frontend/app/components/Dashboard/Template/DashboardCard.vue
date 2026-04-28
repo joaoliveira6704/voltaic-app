@@ -1,13 +1,4 @@
 <script setup lang="ts">
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-  CardFooter,
-} from "@/components/ui/card";
-
 interface Props {
   title?: string;
   description?: string;

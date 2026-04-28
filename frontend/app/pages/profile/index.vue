@@ -1,7 +1,7 @@
 <template>
   <div>
     <DropDown :role="userRole" />
-    <Grid>
+    <Grid :split-cell-d="userRole === 'user'">
       <template #cell-a
         ><DashboardCard><NavGroup :role="currentUser.role" /></DashboardCard
       ></template>
@@ -34,15 +34,28 @@
           </div></DashboardCard
         ></template
       >
-      <template #cell-d><DashboardCard>D</DashboardCard></template>
+      <template v-if="userRole === 'user'" #cell-d-left>
+        <DashboardCard title="History"
+          ><HistoryTable :sessions="currentUser.chargingHistory"></HistoryTable>
+        </DashboardCard>
+      </template>
+      <template v-if="userRole === 'user'" #cell-d-right>
+        <DashboardCard title="Preferences"> </DashboardCard>
+      </template>
+
+      <template v-else #cell-d>
+        <DashboardCard title="System Logs">
+          <p>Full width view for {{ userRole }}</p>
+        </DashboardCard>
+      </template>
     </Grid>
   </div>
 </template>
 
 <script setup>
 /* import { useUserStore } from "@/stores/user"; */
-import VehicleCard from "@/components/Cards/VehicleCard.vue";
-import TicketCard from "@/components/Cards/TicketCard.vue";
+import VehicleCard from "~/components/cards/VehicleCard.vue";
+import TicketCard from "~/components/cards/TicketCard.vue";
 
 definePageMeta({
   layout: "profile",
@@ -53,7 +66,7 @@ const users = [
     username: "jdoe_ev",
     email: "john.doe@example.com",
     firstName: "John",
-    lastName: "Doe",
+    lastName: "Doe User",
     role: "user",
     avatarUrl: "/default-avatar.jpg",
     vehicles: [
@@ -68,6 +81,50 @@ const users = [
         model: "Tesla Model 3",
         color: "Solid Black",
         connector: "Tesla",
+      },
+    ],
+    chargingHistory: [
+      {
+        date: "12/04",
+        vehicleName: "Renault Zoe",
+        stationId: "ST-001",
+        duration: "00:45",
+      },
+      {
+        date: "15/04",
+        vehicleName: "BMW iX3",
+        stationId: "ST-042",
+        duration: "01:20",
+      },
+      {
+        date: "18/04",
+        vehicleName: "BMW iX3",
+        stationId: "ST-042",
+        duration: "00:55",
+      },
+      {
+        date: "20/04",
+        vehicleName: "Tesla Model 3",
+        stationId: "ST-101",
+        duration: "00:30",
+      },
+      {
+        date: "22/04",
+        vehicleName: "BMW iX3",
+        stationId: "ST-005",
+        duration: "02:10",
+      },
+      {
+        date: "25/04",
+        vehicleName: "Tesla Model 3",
+        stationId: "ST-088",
+        duration: "00:40",
+      },
+      {
+        date: "28/04",
+        vehicleName: "BMW iX3",
+        stationId: "ST-042",
+        duration: "01:45",
       },
     ],
   },
@@ -95,7 +152,7 @@ const users = [
     username: "porto_fleet_mgr",
     email: "company@porto-logistics.pt",
     firstName: "Ricardo",
-    lastName: "Santos",
+    lastName: "Santos Company",
     role: "company",
     companyId: "65b2f1a8e4b0a12345678901",
     avatarUrl: "/beyblade.jpg",
@@ -111,7 +168,7 @@ const users = [
     username: "tech_artur",
     email: "artur.silva@voltaic.com",
     firstName: "Artur",
-    lastName: "Silva",
+    lastName: "Silva Worker",
     role: "worker",
     companyId: "65b2f1a8e4b0a12345678901",
     avatarUrl: "/ash-ketchum.png",
@@ -125,7 +182,7 @@ const users = [
   },
 ];
 
-const activeUserIndex = ref(3); // Change this to 0, 1, 2, or 3 to test roles
+const activeUserIndex = ref(0); // Change this to 0, 1, 2, or 3 to test roles
 const currentUser = computed(() => users[activeUserIndex.value]);
 const userRole = computed(() => currentUser.value.role);
 

@@ -54,7 +54,9 @@ export default defineNuxtConfig({
   components: {
     dirs: [
       { path: "~/components/ui", pathPrefix: false },
-      { path: "~/components/layout", pathPrefix: false },
+      { path: "~/components/cards", pathPrefix: false },
+      { path: "@/layouts", pathPrefix: false },
+      { path: "~/components/Dashboard", pathPrefix: false },
       { path: "~/components", pathPrefix: false },
     ],
   },

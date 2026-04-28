@@ -33,9 +33,5 @@ const navLinks = [{ path: "/", label: "Map" }]; /* link map page */
     <main class="flex-1 overflow-hidden">
       <slot />
     </main>
-
-    <footer class="shrink-0 w-full border-t border-gray-100 bg-green-500 py-4">
-      <div></div>
-    </footer>
   </div>
 </template>
