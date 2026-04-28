@@ -1,9 +1,9 @@
-import Tickets from "../models/Tickets.js";
+import ticketModel from "../models/ticket.model.js";
 import generateUniqueId from "../utils/utils.js";
 
 export const getTickets = async (req, res, next) => {
   try {
-    const tickets = await Tickets.find();
+    const tickets = await ticketModel.find();
     console.log(`Found ${tickets.length} tickets in the database.`);
     res.json(tickets);
   } catch (error) {
@@ -15,7 +15,7 @@ export const createTicket = async (req, res, next) => {
   try {
     const { createdBy, title, description, remarks, state } = req.body;
 
-    const newTicket = new Tickets({
+    const newTicket = new ticketModel({
       ticketId: generateUniqueId(),
       createdBy,
       title,
@@ -32,7 +32,7 @@ export const createTicket = async (req, res, next) => {
 
 export const deleteTicket = async (req, res, next) => {
   try {
-    const deletedTicket = await Tickets.findOneAndDelete({
+    const deletedTicket = await ticketModel.findOneAndDelete({
       ticketId: req.params.id,
     });
     if (!deletedTicket) {
@@ -48,7 +48,7 @@ export const deleteTicket = async (req, res, next) => {
 
 export const updateTicket = async (req, res, next) => {
   try {
-    const updatedTicket = await Tickets.findOneAndUpdate(
+    const updatedTicket = await ticketModel.findOneAndUpdate(
       { ticketId: req.params.id },
       req.body,
       { new: true },

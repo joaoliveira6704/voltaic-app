@@ -3,7 +3,7 @@ import {
   getUsers,
   deleteUser,
   updateUser,
-} from "../controllers/userController.js";
+} from "../controllers/user.controller.js";
 
 const router = Router();
 

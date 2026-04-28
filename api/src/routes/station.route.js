@@ -4,7 +4,7 @@ import {
   createStation,
   deleteStation,
   updateStation,
-} from "../controllers/stationController.js";
+} from "../controllers/station.controller.js";
 
 const router = Router();
 

@@ -1,9 +1,9 @@
-import Companies from "../models/Companies.js";
+import companyModel from "../models/company.model.js";
 import generateUniqueId from "../utils/utils.js";
 
 export const getCompanies = async (req, res, next) => {
   try {
-    const companies = await Companies.find();
+    const companies = await companyModel.find();
     console.log(`Found ${companies.length} companies in the database.`);
     res.json(companies);
   } catch (error) {
@@ -14,7 +14,7 @@ export const getCompanies = async (req, res, next) => {
 export const createCompany = async (req, res, next) => {
   try {
     const { name, workingArea } = req.body;
-    const newCompany = new Companies({
+    const newCompany = new companyModel({
       companyId: generateUniqueId(),
       name,
       workingArea,
@@ -28,7 +28,7 @@ export const createCompany = async (req, res, next) => {
 
 export const deleteCompany = async (req, res, next) => {
   try {
-    const deletedCompany = await Companies.findOneAndDelete({
+    const deletedCompany = await companyModel.findOneAndDelete({
       companyId: req.params.id,
     });
     if (!deletedCompany) {
@@ -44,7 +44,7 @@ export const deleteCompany = async (req, res, next) => {
 
 export const updateCompany = async (req, res, next) => {
   try {
-    const updatedCompany = await Companies.findOneAndUpdate(
+    const updatedCompany = await companyModel.findOneAndUpdate(
       { companyId: req.params.id },
       req.body,
       { new: true },

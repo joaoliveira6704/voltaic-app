@@ -3,6 +3,8 @@ import uuid
 import random
 import bcrypt
 
+from concurrent.futures import ThreadPoolExecutor, as_completed
+
 fake = Faker()
 
 SOCKET_TYPES = [
@@ -12,21 +14,18 @@ SOCKET_TYPES = [
 ]
 
 CITIES = [
-    {"name": "New York",      "coords": [-74.0060, 40.7128]},
-    {"name": "Los Angeles",   "coords": [-118.2437, 34.0522]},
-    {"name": "Chicago",       "coords": [-87.6298, 41.8781]},
-    {"name": "Houston",       "coords": [-95.3698, 29.7604]},
-    {"name": "Phoenix",       "coords": [-112.0740, 33.4484]},
-    {"name": "Philadelphia",  "coords": [-75.1652, 39.9526]},
-    {"name": "San Antonio",   "coords": [-98.4936, 29.4241]},
-    {"name": "San Diego",     "coords": [-117.1611, 32.7157]},
+    {"name": "Porto",      "coords": [41.1502195, -8.6103497]},
+    {"name": "Lisboa",   "coords": [38.7077507, -9.1365919]},
+    {"name": "Madrid",       "coords": [40.416782, -3.703507]},
+    {"name": "Faro",       "coords": [37.0162944, -7.935182]},
+    {"name": "Sevilla",       "coords": [37.3886303, -5.9953403]},
 ]
-
 
 # ── Models ────────────────────────────────────────────────────────────────────
 
 class User:
     def __init__(self, userId, username, firstName, lastName, email, password, role, companyId, vehicles, favorites):
+        """ role: "client" | "worker" | "company-manager" | "admin" """
         self.userId = userId
         self.username = username
         self.firstName = firstName
@@ -38,9 +37,9 @@ class User:
         self.vehicles = vehicles
         self.favorites = favorites
 
-
 class Station:
     def __init__(self, stationId, title, location, connector, telemetry, state="available", alive=True):
+        """ state: "available" | "unavailable" | "inactive" """
         self.stationId = stationId
         self.title = title
         self.location = location          # { "type": "Point", "coordinates": [longitude, latitude] }
@@ -49,16 +48,16 @@ class Station:
         self.state = state                # "available" | "unavailable" | "inactive"
         self.alive = alive
 
-
 class Company:
     def __init__(self, companyId, name, workingArea):
+        """ workingArea: { "type": "Point", "coordinates": [longitude, latitude] } """
         self.companyId = companyId
         self.name = name
         self.workingArea = workingArea    # { "type": "Point", "coordinates": [longitude, latitude] }
 
-
 class Ticket:
     def __init__(self, ticketId, createdBy, stationId, title, description, remarks, status):
+        """ status: "open" | "closed" | "resolved" | "unresolved" """
         self.ticketId = ticketId
         self.createdBy = createdBy
         self.stationId = stationId
@@ -68,7 +67,6 @@ class Ticket:
         self.status = status              # "open" | "closed" | "resolved" | "unresolved"
         self.closedAt = None
 
-
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
 def _random_coords(base_coords: list, radius: float = 0.5) -> list:
@@ -77,8 +75,8 @@ def _random_coords(base_coords: list, radius: float = 0.5) -> list:
     lat = base_coords[1] + random.uniform(-radius, radius)
     return [round(lng, 6), round(lat, 6)]
 
-
 def _generate_vehicle() -> dict:
+    """ Generate a random vehicle with realistic attributes. """
     connector = fake.random_element(elements=SOCKET_TYPES)
     return {
         "plate": fake.license_plate(),
@@ -88,10 +86,10 @@ def _generate_vehicle() -> dict:
         "connector": connector,
     }
 
-
 # ── Generators ────────────────────────────────────────────────────────────────
 
 def generate_companies(count: int = 10) -> list:
+    """ Generate a list of companies with random names and working areas. """
     companies = []
 
     for i in range(count):
@@ -110,19 +108,25 @@ def generate_companies(count: int = 10) -> list:
     print("Companies created successfully\n")
     return companies
 
+def _hash_password(raw_password: str) -> str:
+    """ Hash a raw password using bcrypt. """
+    return bcrypt.hashpw(raw_password.encode("utf-8"), bcrypt.gensalt(rounds=12)).decode("utf-8")
 
 def generate_users(count: int = 20, companies: list = None) -> list:
+    """ Generate a list of users with random attributes. """
     users = []
     rawUsers = []
     company_ids = [c.companyId for c in companies] if companies else []
 
+    # Build raw user data first (fast)
+    raw_data = []
     for i in range(count):
+        # Generate realistic user attributes
         firstName = fake.first_name()
         lastName = fake.last_name()
         username = f"{firstName.lower()}{lastName.lower()}{fake.random_int(min=10, max=99)}"
         email = f"{firstName.lower()}.{lastName.lower()}@{fake.free_email_domain()}"
         raw_password = fake.password(length=12)
-        password = bcrypt.hashpw(raw_password.encode("utf-8"), bcrypt.gensalt(rounds=12)).decode("utf-8")
         user_id = str(uuid.uuid4())
         role = fake.random_element(elements=("client", "client", "client", "worker", "company-manager", "admin"))
         company_id = None
@@ -132,16 +136,25 @@ def generate_users(count: int = 20, companies: list = None) -> list:
         if role in ("client", "worker"):
             vehicle_count = fake.random_int(min=1, max=3)
             vehicles = [_generate_vehicle() for _ in range(vehicle_count)]
+        raw_data.append((user_id, username, firstName, lastName, email, raw_password, role, company_id, vehicles))
 
-        favorites = []
+    # Hash all passwords in parallel
+    with ThreadPoolExecutor() as executor:
+        futures = {executor.submit(_hash_password, d[5]): i for i, d in enumerate(raw_data)}
+        hashed = [None] * count
+        for future in as_completed(futures):
+            hashed[futures[future]] = future.result()
 
-        user = User(user_id, username, firstName, lastName, email, password, role, company_id, vehicles, favorites)
+    # Assemble users
+    for i, (user_id, username, firstName, lastName, email, raw_password, role, company_id, vehicles) in enumerate(raw_data):
+        password = hashed[i]
+        user = User(user_id, username, firstName, lastName, email, password, role, company_id, vehicles, [])
         users.append(user)
         print(f"User {i+1}: {firstName} {lastName} ({username}) | role: {role}"
               + (f" | company: {company_id}" if company_id else ""))
-        
         rawUsers.append((email, raw_password, role))
 
+    # Save raw user credentials to a file for testing purposes
     with open("users.txt", "w") as f:
         for email, password, role in rawUsers:
             f.write(f"{email}:{password}:{role}\n")
@@ -149,8 +162,8 @@ def generate_users(count: int = 20, companies: list = None) -> list:
     print("Users created successfully\n")
     return users
 
-
 def generate_stations(count: int = 20) -> list:
+    """ Generate a list of stations with random attributes. """
     stations = []
 
     for i in range(count):
@@ -180,8 +193,8 @@ def generate_stations(count: int = 20) -> list:
     print("Stations created successfully\n")
     return stations
 
-
 def generate_tickets(count: int = 20, users: list = None, stations: list = None) -> list:
+    """ Generate a list of tickets with random attributes. """
     tickets = []
     user_ids = [u.userId for u in users] if users else [str(uuid.uuid4())]
     station_ids = [s.stationId for s in stations] if stations else [str(uuid.uuid4())]
@@ -192,6 +205,7 @@ def generate_tickets(count: int = 20, users: list = None, stations: list = None)
         "Station offline", "Error code displayed", "Billing issue", "App not connecting",
     ]
 
+    # Generate tickets with realistic attributes
     for i in range(count):
         ticket_id = str(uuid.uuid4())
         created_by = fake.random_element(elements=user_ids)

@@ -1,4 +1,4 @@
-import User from "../models/Users.js";
+import userModel from "../models/user.model";
 import jwt from "jsonwebtoken";
 
 const signToken = (id) => {
@@ -18,10 +18,10 @@ export const login = async (req, res) => {
       .json({ message: "Please provide email and password" });
   }
 
-  const user = await User.findOne({ email }).select("+password");
+  const user = await userModel.findOne({ email }).select("+password");
 
   if (!user || !(await user.correctPassword(password, user.password))) {
-    return res.status(401).json({ message: "Incorrect email or password" });
+    return res.status(401).json({ message: "Invalid Credentials" });
   }
 
   const token = signToken(user._id);
@@ -39,7 +39,7 @@ export const register = async (req, res, next) => {
   try {
     const { username, email, firstName, lastName, password, role } = req.body;
 
-    const newUser = new User({
+    const newUser = new userModel({
       username,
       email,
       firstName,

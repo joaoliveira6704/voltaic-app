@@ -1,165 +1,167 @@
-# Project Name
+# Voltaic
 
-> Short description of what this project does.
+Full-stack platform for managing EV charging infrastructure. Includes a REST API, a frontend client, and a data generation toolset for seeding the database.
 
 ---
 
-## Table of Contents
+## Monorepo Structure
 
-- [Getting Started](#getting-started)
-- [Branching Strategy](#branching-strategy)
-- [Git Flow](#git-flow)
-- [Pull Request Process](#pull-request-process)
-- [Branch Protection Rules](#branch-protection-rules)
+```
+voltaic-app/
+├── api/                  # Node.js/Bun REST API
+│   ├── src/
+│   ├── tests/
+│   ├── app.js
+│   ├── server.js
+│   ├── Dockerfile
+│   └── package.json
+│
+├── data-gen/             # Python seed data generator
+│   ├── data/             # External datasets (e.g. open-ev-data.json)
+│   ├── generator.py      # Faker-based model generators
+│   ├── db.py             # MongoDB insertion helpers
+│   ├── main.py           # Entry point
+│   └── requirements.txt
+│
+├── frontend/             # Frontend Service
+│   ├── app/
+│   ├── plugins/
+│   ├── public/
+│   ├── bun.lock
+│   ├── components.json
+│   ├── eslint.config.mjs
+│   ├── nuxt.config.ts
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── README.md
+│   ├── tailwind.config.cjs
+│   ├── tsconfig.json
+│   ├── .env
+│   └── .env.example
+│
+├── .env.example          # Environment variables
+├── compose.yaml          # Docker Compose — full stack
+└── Makefile              # Convenience commands
+```
+
+---
+
+## Prerequisites
+
+- [Docker](https://www.docker.com/) and Docker Compose
+- [Bun](https://bun.sh/) (for local API development) or [Node.js](https://nodejs.org/en/)
+- Python 3.9+ (for local data-gen development)
 
 ---
 
 ## Getting Started
 
-```bash
-# Clone the repository
-git clone https://github.com/your-org/your-repo.git
-cd your-repo
+### Run the full project with one command
 
-# Install dependencies
-npm install
+On mac:
 
-# Start development server
-npm run dev
-```
-
----
-
-## Branching Strategy
-
-This project follows **Git Flow**. The two long-lived branches are:
-
-| Branch    | Purpose                             | Direct push |
-| --------- | ----------------------------------- | ----------- |
-| `main`    | Production-ready code               | Never       |
-| `develop` | Integration branch for ongoing work | Allowed     |
-
-All other branches are short-lived and must be created from — and merged back into — the correct base branch.
-
----
-
-## Git Flow
-
-### Branch Types
-
-| Branch  | Naming convention                 | Branches from | Merges into        |
-| ------- | --------------------------------- | ------------- | ------------------ |
-| Feature | `feature/<ticket-or-description>` | `develop`     | `develop`          |
-| Bug fix | `bugfix/<ticket-or-description>`  | `develop`     | `develop`          |
-| Release | `release/<version>`               | `develop`     | `main` + `develop` |
-| Hotfix  | `hotfix/<ticket-or-description>`  | `main`        | `main` + `develop` |
-
-### Starting a New Feature
+- If you use bun:
 
 ```bash
-# Always start from an up-to-date develop
-git checkout develop
-git pull origin develop
-
-# Create your feature branch
-git checkout -b feature/my-feature
-
-# Work, commit, push
-git add .
-git commit -m "feat: add my feature"
-git push origin feature/my-feature
+make mac-bun-dev
 ```
 
-Then open a Pull Request from `feature/my-feature` → `develop`.
-
-### Creating a Release
+- If you use node:
 
 ```bash
-git checkout develop
-git pull origin develop
-git checkout -b release/1.2.0
-
-# Bump version, update changelog, final fixes...
-git commit -m "chore: prepare release 1.2.0"
-git push origin release/1.2.0
+make mac-node-dev
 ```
 
-Open a PR from `release/1.2.0` → `main`, then a second PR from `release/1.2.0` → `develop` to back-merge any release fixes.
+On windows:
 
-### Hotfixing Production
+- If you use bun:
 
 ```bash
-# Branch directly off main
-git checkout main
-git pull origin main
-git checkout -b hotfix/critical-bug
-
-git commit -m "fix: patch critical bug"
-git push origin hotfix/critical-bug
+make win-bun-dev
 ```
 
-Open a PR into `main` **and** a separate PR into `develop` so the fix is not lost.
-
----
-
-## Pull Request Process
-
-1. Push your branch and open a PR against the correct target branch (usually `develop`).
-2. Fill in the [PR template](.github/pull_request_template.md) — description, type of change, testing steps, and checklist.
-3. Request at least one reviewer.
-4. Address all review comments before merging.
-5. Squash or merge once approved — do not merge your own PR without a review.
-
-> PRs that do not follow the template or are missing a reviewer will not be merged.
-
----
-
-## Branch Protection Rules
-
-### `main`
-
-- Requires a Pull Request — **direct pushes are disabled**
-- PR must come from `develop`
-- Requires at least **1 approving review**
-
-### `develop`
-
-- Requires a Pull Request from a `feature/*`, `bugfix/*`, `release/*`, or `hotfix/*` branch
-- Requires at least **1 approving review**
-- Status checks must pass before merging
-
-> Any attempt to push directly to `main` will be rejected by the remote.
-
----
-
-## Commit Message Convention
-
-This project uses [Conventional Commits](https://www.conventionalcommits.org/):
-
-```
-<type>(<scope>): <short summary>
-```
-
-| Type       | When to use                                     |
-| ---------- | ----------------------------------------------- |
-| `feat`     | A new feature                                   |
-| `fix`      | A bug fix                                       |
-| `chore`    | Build process, tooling, or dependency updates   |
-| `docs`     | Documentation only                              |
-| `refactor` | Code change that is neither a fix nor a feature |
-| `test`     | Adding or updating tests                        |
-| `ci`       | CI/CD configuration changes                     |
-
-**Examples:**
+- If you use node:
 
 ```bash
-git commit -m "feat(auth): add OAuth2 login"
-git commit -m "fix(api): handle null response from payment service"
-git commit -m "docs: update README with Git Flow instructions"
+make win-node-dev
+```
+
+### Run the full stack with Docker
+
+```bash
+docker compose up --build
+```
+
+This starts MongoDB, the API, and a Mongo Express instance.
+
+### Stop and clean up
+
+```bash
+docker compose down -v
 ```
 
 ---
 
-## Questions?
+## Services
 
-Open an issue or reach out to the maintainers.
+### API — `api/`
+
+Node.js/Bun REST API serving the Voltaic backend.
+
+```bash
+cd api
+cp .env.example .env
+bun install
+bun run app.js
+```
+
+Configure via `api/.env`. See `api/.env.example` for available variables.
+
+### Frontend — `frontend/`
+
+```bash
+cd frontend
+cp .env.example .env
+```
+
+Refer to `frontend/.env.example` for required environment variables.
+
+### Data Generator — `data-gen/`
+
+Seeds MongoDB with companies, users, stations, tickets, and EV vehicle data.
+
+```bash
+cd data-gen
+pip install -r requirements.txt
+cp .env.example .env
+python main.py
+```
+
+See [`data-gen/README.md`](data-gen/README.md) for full documentation on generated collections and configuration.
+
+---
+
+## Makefile
+
+Common tasks are available via `make`. Run `make help` (or just `make`) to list available targets.
+
+---
+
+## Environment Variables
+
+Each service has its own `.env.example` file at its root. Copy it to `.env` and fill in the values before running locally.
+
+| Service  | File                    |
+| -------- | ----------------------- |
+| Docker   | `.env.example`          |
+| API      | `api/.env.example`      |
+| Frontend | `frontend/.env.example` |
+| Data Gen | `data-gen/.env.example` |
+
+---
+
+## Contributing
+
+1. Create a branch from `develop`
+2. Make your changes
+3. Open a pull request — CI runs via `.github/`

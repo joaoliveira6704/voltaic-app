@@ -1,9 +1,9 @@
-import Stations from "../models/Stations.js";
+import stationModel from "../models/station.model.js";
 import generateUniqueId from "../utils/utils.js";
 
 export const getStations = async (req, res, next) => {
   try {
-    const stations = await Stations.find();
+    const stations = await stationModel.find();
     console.log(`Found ${stations.length} stations in the database.`);
     res.json(stations);
   } catch (error) {
@@ -14,7 +14,7 @@ export const getStations = async (req, res, next) => {
 export const createStation = async (req, res, next) => {
   try {
     const { title, location, connector, state, alive } = req.body;
-    const newStation = new Stations({
+    const newStation = new stationModel({
       stationId: generateUniqueId(),
       title,
       location,
@@ -31,7 +31,7 @@ export const createStation = async (req, res, next) => {
 
 export const deleteStation = async (req, res, next) => {
   try {
-    const deletedStation = await Stations.findOneAndDelete({
+    const deletedStation = await stationModel.findOneAndDelete({
       stationId: req.params.id,
     });
     if (!deletedStation) {
@@ -47,7 +47,7 @@ export const deleteStation = async (req, res, next) => {
 
 export const updateStation = async (req, res, next) => {
   try {
-    const updatedStation = await Stations.findOneAndUpdate(
+    const updatedStation = await stationModel.findOneAndUpdate(
       { stationId: req.params.id },
       req.body,
       { new: true },

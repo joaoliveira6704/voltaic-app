@@ -1,9 +1,9 @@
-import Logs from "../models/Logs.js";
+import logModel from "../models/log.model.js";
 import generateUniqueId from "../utils/utils.js";
 
 export const getLogs = async (req, res, next) => {
   try {
-    const logs = await Logs.find();
+    const logs = await logModel.find();
     console.log(`Found ${logs.length} logs in the database.`);
     res.json(logs);
   } catch (error) {
@@ -15,7 +15,7 @@ export const createLog = async (req, res, next) => {
   try {
     const { type, action, details } = req.body;
 
-    const newLog = new Logs({
+    const newLog = new logModel({
       type,
       action,
       details,
@@ -29,7 +29,7 @@ export const createLog = async (req, res, next) => {
 
 export const deleteLog = async (req, res, next) => {
   try {
-    const deletedLog = await Logs.findOneAndDelete({ userId: req.params.id });
+    const deletedLog = await logModel.findOneAndDelete({ userId: req.params.id });
     if (!deletedLog) {
       const err = new Error("Log not found");
       err.status = 404;
