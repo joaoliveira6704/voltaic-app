@@ -20,4 +20,4 @@ const companySchema = new mongoose.Schema(
 
 companySchema.index({ workingArea: "2dsphere" });
 
-export default mongoose.model("Company", companySchema);
+export default mongoose.model("companies", companySchema);

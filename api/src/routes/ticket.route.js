@@ -4,7 +4,7 @@ import {
   createTicket,
   deleteTicket,
   updateTicket,
-} from "../controllers/ticketController.js";
+} from "../controllers/ticket.controller.js";
 
 const router = Router();
 

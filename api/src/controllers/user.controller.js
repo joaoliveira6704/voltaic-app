@@ -1,9 +1,9 @@
-import Users from "../models/Users.js";
+import userModel from "../models/user.model.js";
 import generateUniqueId from "../utils/utils.js";
 
 export const getUsers = async (req, res, next) => {
   try {
-    const users = await Users.find();
+    const users = await userModel.find();
     console.log(`Found ${users.length} users in the database.`);
     res.json(users);
   } catch (error) {
@@ -13,7 +13,9 @@ export const getUsers = async (req, res, next) => {
 
 export const deleteUser = async (req, res, next) => {
   try {
-    const deletedUser = await Users.findOneAndDelete({ userId: req.params.id });
+    const deletedUser = await userModel.findOneAndDelete({
+      userId: req.params.id,
+    });
     if (!deletedUser) {
       const err = new Error("User not found");
       err.status = 404;
@@ -27,7 +29,7 @@ export const deleteUser = async (req, res, next) => {
 
 export const updateUser = async (req, res, next) => {
   try {
-    const updatedUser = await Users.findOneAndUpdate(
+    const updatedUser = await userModel.findOneAndUpdate(
       { userId: req.params.id },
       req.body,
       { new: true },

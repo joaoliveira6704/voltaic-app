@@ -1,11 +1,12 @@
 import express from "express";
-import userRoutes from "./src/routes/userRoutes.js";
-import companyRoutes from "./src/routes/companyRoutes.js";
-import logRoutes from "./src/routes/logRoutes.js";
-import stationRoutes from "./src/routes/stationRoutes.js";
-import ticketRoutes from "./src/routes/ticketRoutes.js";
-import errorHandler from "./src/middleware/errorHandler.js";
-import authRoutes from "./src/routes/authRoutes.js";
+import userRoute from "./src/routes/user.route.js";
+import companyRoute from "./src/routes/company.route.js";
+import logRoute from "./src/routes/log.route.js";
+import stationRoute from "./src/routes/station.route.js";
+import ticketRoute from "./src/routes/ticket.route.js";
+import errorHandler from "./src/middleware/error.middleware.js";
+import authRoute from "./src/routes/auth.route.js";
+import vehicleRoute from "./src/routes/vehicle.route.js";
 
 const app = express();
 
@@ -21,12 +22,13 @@ app.use((req, res, next) => {
 });
 
 app.use(express.json());
-app.use("/api/auth", authRoutes);
-app.use("/api/users", userRoutes);
-app.use("/api/companies", companyRoutes);
-app.use("/api/logs", logRoutes);
-app.use("/api/stations", stationRoutes);
-app.use("/api/tickets", ticketRoutes);
+app.use("/api/auth", authRoute);
+app.use("/api/users", userRoute);
+app.use("/api/companies", companyRoute);
+app.use("/api/logs", logRoute);
+app.use("/api/stations", stationRoute);
+app.use("/api/tickets", ticketRoute);
+app.use("/api/vehicles", vehicleRoute);
 app.get("/api/status", (req, res) => res.json({ status: "Alive" }));
 
 app.use(errorHandler);

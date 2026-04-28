@@ -75,4 +75,4 @@ const stationSchema = new mongoose.Schema(
 
 stationSchema.index({ location: "2dsphere" });
 
-export default mongoose.model("Station", stationSchema);
+export default mongoose.model("stations", stationSchema);
