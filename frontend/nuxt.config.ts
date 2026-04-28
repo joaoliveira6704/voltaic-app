@@ -57,6 +57,7 @@ export default defineNuxtConfig({
       { path: "~/components/cards", pathPrefix: false },
       { path: "@/layouts", pathPrefix: false },
       { path: "~/components/Dashboard", pathPrefix: false },
+      { path: "~/components/stations", pathPrefix: false },
       { path: "~/components", pathPrefix: false },
     ],
   },

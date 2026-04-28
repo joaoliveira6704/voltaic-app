@@ -40,19 +40,12 @@
         </DashboardCard>
       </template>
       <template v-if="userRole === 'user'" #cell-d-right>
-        <DashboardCard title="Preferences"> <UserSettings /></DashboardCard>
+        <DashboardCard title="Preferences"> </DashboardCard>
       </template>
 
-      <template v-if="userRole === `company`" #cell-d>
-        <DashboardCard title="Real-time Network">
-          <ScrollableGrid>
-            <StationsLabel
-              v-for="station in stationNetwork"
-              :key="station.id"
-              :status="station.status"
-              :label="station.name"
-            />
-          </ScrollableGrid>
+      <template v-else #cell-d>
+        <DashboardCard title="System Logs">
+          <p>Full width view for {{ userRole }}</p>
         </DashboardCard>
       </template>
     </Grid>
@@ -189,7 +182,7 @@ const users = [
   },
 ];
 
-const activeUserIndex = ref(2); // Change this to 0, 1, 2, or 3 to test roles
+const activeUserIndex = ref(0); // Change this to 0, 1, 2, or 3 to test roles
 const currentUser = computed(() => users[activeUserIndex.value]);
 const userRole = computed(() => currentUser.value.role);
 
@@ -211,24 +204,6 @@ const displayItems = computed(() => {
   if (userRole.value === "admin") return currentUser.value.tickets || [];
   return [];
 });
-
-const stationNetwork = [
-  { id: "PRT-01", name: "Boavista Hub", status: "available" },
-  { id: "PRT-02", name: "Aliados Central", status: "ticket" },
-  { id: "PRT-03", name: "Matosinhos Port", status: "available" },
-  { id: "PRT-04", name: "Campanhã St.", status: "off" },
-  { id: "PRT-05", name: "Gaia Riverside", status: "available" },
-  { id: "PRT-06", name: "Foz charging", status: "available" },
-  { id: "PRT-07", name: "Antas Hub", status: "ticket" },
-  { id: "PRT-08", name: "Trindade Metro", status: "available" },
-  { id: "PRT-09", name: "S. Bento St.", status: "available" },
-  { id: "PRT-10", name: "Marquês Sq.", status: "off" },
-  { id: "PRT-11", name: "Boavista Hub B", status: "available" },
-  { id: "PRT-12", name: "Dragão Stadium", status: "ticket" },
-  { id: "PRT-13", name: "Arrábida Mall", status: "available" },
-  { id: "PRT-14", name: "NorteShopping", status: "available" },
-  { id: "PRT-15", name: "Pólo Univ.", status: "off" },
-];
 </script>
 
 <style lang="scss" scoped></style>

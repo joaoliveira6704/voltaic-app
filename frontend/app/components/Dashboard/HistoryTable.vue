@@ -3,7 +3,7 @@ import { MapPin } from "lucide-vue-next";
 
 interface ChargingSession {
   date: string;
-  vehicleName: string;
+  plate: string;
   stationId: string;
   duration: string;
 }
@@ -30,14 +30,24 @@ const recentSessions = computed(() => {
     <Table class="w-full min-w-full table-fixed">
       <TableHeader>
         <TableRow class="hover:bg-transparent border-b border-neutral-100">
-          <TableHead class="px-6 text-neutral-500 font-bold"> Date </TableHead>
-          <TableHead class="px-6 text-neutral-500 font-bold">
+          <TableHead
+            class="px-6 text-neutral-500 font-bold underline underline-offset-4 decoration-neutral-300"
+          >
+            Date
+          </TableHead>
+          <TableHead
+            class="px-6 text-neutral-500 font-bold underline underline-offset-4 decoration-neutral-300"
+          >
             Vehicle
           </TableHead>
-          <TableHead class="text-neutral-500 font-bold text-center">
+          <TableHead
+            class="text-neutral-500 font-bold underline underline-offset-4 decoration-neutral-300 text-center"
+          >
             Station
           </TableHead>
-          <TableHead class="px-6 text-neutral-500 font-bold text-right">
+          <TableHead
+            class="px-6 text-neutral-500 font-bold underline underline-offset-4 decoration-neutral-300 text-right"
+          >
             Duration
           </TableHead>
         </TableRow>
