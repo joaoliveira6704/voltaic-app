@@ -22,7 +22,14 @@ export default defineNuxtConfig({
         "clsx",
         "tailwind-merge",
         "lucide-vue-next",
+        "gsap",
+        "gsap/ScrollTrigger",
       ],
+    },
+  },
+  runtimeConfig: {
+    public: {
+      apiBaseUrl: process.env.NUXT_PUBLIC_API_BASE_URL,
     },
   },
   devServer: {

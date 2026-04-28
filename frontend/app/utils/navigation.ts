@@ -9,7 +9,7 @@ import {
 } from "lucide-vue-next";
 import type { Component } from "vue";
 
-export type UserRole = "admin" | "company" | "worker" | "user";
+export type UserRole = "admin" | "company" | "worker" | "client";
 
 export interface NavItem {
   label: string;
@@ -37,7 +37,7 @@ export const NAVIGATION_MAP: Record<UserRole, NavItem[]> = {
     { label: "Assigned Tickets", icon: Ticket, path: "" },
     { label: "Logout", icon: LogOut, path: "/" },
   ],
-  user: [
+  client: [
     { label: "Dashboard", icon: LayoutDashboard, path: "/profile" },
     { label: "Favorite Stations", icon: Zap, path: "" },
     { label: "History", icon: History, path: "" },

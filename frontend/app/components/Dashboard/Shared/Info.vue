@@ -1,12 +1,14 @@
 <script setup lang="ts">
-import { Mail, Phone, MapPin, Globe } from "lucide-vue-next";
+import { Mail, MapPin, Globe } from "lucide-vue-next";
 
 // 1. Define the interface for the user data
 interface UserData {
-  name: string;
+  firstName: string;
+  lastName: string;
+  username: string;
   email: string;
-  phone: string;
-  location: string;
+  location?: string;
+  role: string;
   avatarUrl?: string;
   language?: string;
 }
@@ -30,7 +32,7 @@ const props = defineProps<Props>();
       >
         <img
           :src="props.user.avatarUrl || '/default-avatar.jpg'"
-          :alt="props.user.name"
+          :alt="props.user.firstName + ' ' + props.user.lastName"
           class="w-full h-full object-cover"
         />
       </div>
@@ -42,6 +44,7 @@ const props = defineProps<Props>();
       >
         {{ props.user.firstName }} {{ props.user.lastName }}
       </h1>
+      <p>@{{ props.user.username }} | {{ props.user.role }}</p>
 
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-x-12 gap-y-3 mt-2">
         <div class="flex items-center gap-3 group">
@@ -58,7 +61,7 @@ const props = defineProps<Props>();
             class="w-5 h-5 text-neutral-400 group-hover:text-black transition-colors"
           />
           <span class="text-sm font-bold capitalize tracking-tight">
-            {{ props.user.location }}
+            {{ props.user.location || "Unknown Location" }}
           </span>
         </div>
 

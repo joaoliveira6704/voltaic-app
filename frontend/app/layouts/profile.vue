@@ -5,7 +5,7 @@ const navLinks = [{ path: "/", label: "Map" }]; /* link map page */
 </script>
 
 <template>
-  <div class="h-screen w-full flex flex-col bg-white font-mono overflow-hidden">
+  <div class="h-screen w-full flex flex-col bg-white font-mono">
     <nav class="shrink-0 w-full border-b border-gray-100 bg-white">
       <div
         class="container mx-auto flex h-16 max-w-7xl items-center justify-between px-4 md:px-8"
@@ -30,7 +30,7 @@ const navLinks = [{ path: "/", label: "Map" }]; /* link map page */
       </div>
     </nav>
 
-    <main class="flex-1 overflow-hidden">
+    <main class="flex-1">
       <slot />
     </main>
   </div>
