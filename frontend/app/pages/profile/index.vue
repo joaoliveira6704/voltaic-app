@@ -47,23 +47,19 @@ const cardComponent = computed(() => {
   return map[userRole.value] || VehicleCard;
 });
 
-const stationNetwork = [
-  { id: "PRT-01", name: "Boavista Hub", status: "available" },
-  { id: "PRT-02", name: "Aliados Central", status: "ticket" },
-  { id: "PRT-03", name: "Matosinhos Port", status: "available" },
-  { id: "PRT-04", name: "Campanhã St.", status: "off" },
-  { id: "PRT-05", name: "Gaia Riverside", status: "available" },
-  { id: "PRT-06", name: "Foz charging", status: "available" },
-  { id: "PRT-07", name: "Antas Hub", status: "ticket" },
-  { id: "PRT-08", name: "Trindade Metro", status: "available" },
-  { id: "PRT-09", name: "S. Bento St.", status: "available" },
-  { id: "PRT-10", name: "Marquês Sq.", status: "off" },
-  { id: "PRT-11", name: "Boavista Hub B", status: "available" },
-  { id: "PRT-12", name: "Dragão Stadium", status: "ticket" },
-  { id: "PRT-13", name: "Arrábida Mall", status: "available" },
-  { id: "PRT-14", name: "NorteShopping", status: "available" },
-  { id: "PRT-15", name: "Pólo Univ.", status: "off" },
-];
+const showLogoutDialog = ref(false);
+const router = useRouter();
+
+const confirmLogout = () => {
+  const userCookie = useCookie("user");
+  const tokenCookie = useCookie("token"); // or whatever your auth cookie is named
+
+  userCookie.value = null;
+  tokenCookie.value = null;
+
+  showLogoutDialog.value = false;
+  router.push("/login");
+};
 </script>
 
 <template>
@@ -76,15 +72,17 @@ const stationNetwork = [
       <template #cell-b
         ><DashboardCard
           title="User Info"
-          :button="true"
+          :edit-button="true"
+          :logout-button="true"
           button-text="Edit profile"
+          @logout="showLogoutDialog = true"
         >
           <Info :user="currentUser"></Info></DashboardCard
       ></template>
       <template #cell-c
         ><DashboardCard
           title="Your Fleet"
-          :button="true"
+          :edit-button="true"
           button-text="Add new Vehicle"
           ><CardScroll v-if="displayItems.length > 0"
             ><component
