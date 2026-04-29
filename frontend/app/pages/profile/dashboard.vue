@@ -5,7 +5,6 @@ import TicketCard from "~/components/cards/TicketCard.vue";
 
 definePageMeta({
   layout: "profile",
-  middleware: ["auth"],
 });
 
 const userCookie = useCookie("user");

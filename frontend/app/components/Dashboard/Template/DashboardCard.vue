@@ -14,27 +14,32 @@ defineEmits(["btnClick"]);
 
 <template>
   <Card
-    class="h-fit w-full flex flex-col items-center lg:items-start border-gray-100 shadow-sm overflow-hidden font-mono"
+    class="h-fit w-full flex flex-col items-center lg:items-start border-gray-100 shadow-[0px_0px_10px_2px_rgba(0,0,0,0.1)] overflow-hidden font-mono"
   >
-    <CardHeader
-      v-if="title || description"
-      class="shrink-0 pb-0 flex flex-row justify-between w-full"
-    >
-      <CardTitle
-        v-if="title"
-        class="text-xs font-bold uppercase tracking-widest text-gray-400 pt-0"
+    <div class="flex flex-col gap-3 w-full">
+      <CardHeader
+        v-if="title || description"
+        class="shrink-0 pb-0 flex flex-row justify-between w-full items-center"
       >
-        {{ title }}
-      </CardTitle>
+        <CardTitle
+          v-if="title"
+          class="text-xs font-bold uppercase tracking-widest text-gray-400 pt-0"
+        >
+          {{ title }}
+        </CardTitle>
 
-      <Button
-        v-if="hasBtn"
-        class="hover:bg-green-600 hover:text-white"
-        variant="outline"
-        @click="$emit('btnClick')"
-        >{{ buttonText }}</Button
-      >
-    </CardHeader>
+        <Button
+          v-if="hasBtn"
+          class="hover:bg-green-600 hover:text-white"
+          variant="outline"
+          @click="$emit('btnClick')"
+          >{{ buttonText }}</Button
+        >
+      </CardHeader>
+      <div class="px-16">
+        <hr class="w-full" />
+      </div>
+    </div>
 
     <CardContent
       :class="[

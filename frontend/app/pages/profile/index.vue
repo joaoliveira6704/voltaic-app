@@ -16,21 +16,33 @@ useHead({
 
 definePageMeta({
   layout: "profile",
-  middleware: ["auth"],
 });
 
-const userCookie = useCookie("user");
+const config = useRuntimeConfig();
+const router = useRouter();
+const isEditModalOpen = ref(false);
 
-const currentUser = computed(() => {
-  return userCookie.value || null;
-});
+// 1. Fetch current user first
+const { data: currentUser, refresh: refreshUser } = await useAsyncData(
+  "currentUser",
+  async () => {
+    try {
+      return await $fetch(`${config.public.apiBaseUrl}/api/users/me`, {
+        headers: { Authorization: `Bearer ${useCookie("token").value}` },
+      });
+    } catch (e) {
+      console.error("Fetch error:", e);
+      return null;
+    }
+  },
+);
 
-const userRole = computed(() => currentUser.value.role);
+// 2. Derived state
+const userRole = computed(() => currentUser.value?.role);
 
 const displayItems = computed(() => {
   const user = currentUser.value;
   if (!user) return [];
-
   if (userRole.value === "client") return user.vehicles || [];
   if (userRole.value === "worker") return user.assignedTickets || [];
   if (userRole.value === "company" || userRole.value === "admin")
@@ -48,7 +60,26 @@ const cardComponent = computed(() => {
   return map[userRole.value] || VehicleCard;
 });
 
-const router = useRouter();
+// 3. Fetch charging history, watching currentUser
+const { data: chargingHistory } = await useAsyncData(
+  "chargingHistory",
+  async () => {
+    const userId = currentUser.value?.id || currentUser.value?.userId;
+    if (!userId) return null;
+    try {
+      return await $fetch(
+        `${config.public.apiBaseUrl}/api/usage/user/${userId}`,
+        {
+          headers: { Authorization: `Bearer ${useCookie("token").value}` },
+        },
+      );
+    } catch (e) {
+      console.error("Fetch error:", e);
+      return [];
+    }
+  },
+  { watch: [currentUser] },
+);
 
 const handleLogoutAttempt = () => {
   Swal.fire({
@@ -77,45 +108,30 @@ const performLogoutLogic = () => {
   router.push("/login");
 };
 
-const config = useRuntimeConfig();
+const openEditModal = () => {
+  isEditModalOpen.value = true;
+};
 
-const { data: chargingHistory } = await useAsyncData(
-  "chargingHistory",
-  async () => {
-    // Safely access the value of the computed ref
-    const userId = currentUser.value?.id || currentUser.value?.userId;
+const refreshCurrentUser = async () => {
+  await refreshUser();
+};
 
-    if (!userId) return null;
-
-    try {
-      return await $fetch(
-        `${config.public.apiBaseUrl}/api/usage/user/${userId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${useCookie("token").value}`,
-          },
-        },
-      );
-    } catch (e) {
-      console.error("Fetch error:", e);
-      return [];
-    }
-  },
-  {
-    // Remove the 'props' dependency if this is a page and not a component
-    // Or ensure props are defined via defineProps() at the top
-    watch: [currentUser],
-    immediate: true,
-  },
-);
+console.log("Current User:", currentUser.value);
+console.log("User Role:", userRole.value);
 </script>
 
 <template>
+  <EditProfileModal
+    :is-open="isEditModalOpen"
+    :user="currentUser"
+    @close="isEditModalOpen = false"
+    @updated="refreshCurrentUser"
+  />
   <div>
     <DropDown :role="userRole" />
     <Grid :split-cell-d="userRole === 'client'">
       <template #cell-a
-        ><DashboardCard
+        ><DashboardCard title="Profile"
           ><NavGroup
             :role="currentUser.role"
             @logout="handleLogoutAttempt" /></DashboardCard
@@ -127,6 +143,7 @@ const { data: chargingHistory } = await useAsyncData(
           :logout-button="true"
           button-text="Edit profile"
           @logout="handleLogoutAttempt"
+          @btn-click="openEditModal"
         >
           <Info :user="currentUser" /></DashboardCard
       ></template>

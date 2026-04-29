@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Button } from "@/components/ui/button";
+import { Map } from "lucide-vue-next";
 
 const navLinks = [{ path: "/", label: "Map" }]; /* link map page */
 </script>
@@ -20,11 +21,14 @@ const navLinks = [{ path: "/", label: "Map" }]; /* link map page */
             :key="link.path"
             variant="ghost"
             as-child
-            class="text-xs"
+            class="text-sm"
           >
-            <NuxtLink :to="link.path" active-class="text-[#007bff]">{{
+            <!-- <NuxtLink :to="link.path" active-class="text-[#007bff]">{{
               link.label
-            }}</NuxtLink>
+            }}</NuxtLink> -->
+            <NuxtLink :to="link.path" active-class="text-[#007bff]">
+              <Map class="w-10 h-10" />
+            </NuxtLink>
           </Button>
         </div>
       </div>

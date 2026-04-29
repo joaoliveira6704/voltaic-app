@@ -72,3 +72,29 @@ export const getUserById = async (req, res, next) => {
     next(error);
   }
 };
+
+export const updateOwnUser = async (req, res, next) => {
+  try {
+    console.log("Updating user: ", req.user.userId);
+
+    const updatedUser = await userModel.findOneAndUpdate(
+      { userId: req.user.userId },
+      req.body,
+      { new: true },
+    );
+
+    if (!updatedUser) {
+      const err = new Error("User not found");
+      err.status = 404;
+      return next(err);
+    }
+
+    res.json(updatedUser);
+  } catch (error) {
+    if (error.code === 11000) {
+      error.status = 400;
+      error.message = "Email or username already exists";
+    }
+    next(error);
+  }
+};
