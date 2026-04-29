@@ -98,10 +98,9 @@ const stationNetwork = [
             v-else
             class="p-10 text-center font-mono text-xs text-neutral-400"
           >
-            No items to display for {{ userRole }}.
+            No items to display for @{{ currentUser.username }}.
           </div>
-          {{ userRole }}</DashboardCard
-        ></template
+        </DashboardCard></template
       >
       <template v-if="userRole === 'client'" #cell-d-left>
         <DashboardCard title="History"
