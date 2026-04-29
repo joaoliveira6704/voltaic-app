@@ -21,7 +21,7 @@ const userSchema = new mongoose.Schema(
     companyId: { type: String, required: false, ref: "Company" },
     vehicles: [
       {
-        plate: { type: String, required: true },
+        plate: { type: String, required: true, unique: true },
         model: { type: String, required: true },
         color: { type: String, required: true },
         connector: {
@@ -43,6 +43,7 @@ const userSchema = new mongoose.Schema(
             "Other",
           ],
         },
+        slug: { type: String, required: true },
       },
     ],
     favorites: [

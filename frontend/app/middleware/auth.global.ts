@@ -3,6 +3,10 @@ const PUBLIC_ROUTES = ["/login", "/signup", "/recover-password"];
 export default defineNuxtRouteMiddleware(async (_to, _from) => {
   const token = useCookie("token");
 
+  if (_to.path === "/") {
+    return;
+  }
+
   // No token — only allow public routes
   if (!token.value) {
     if (!PUBLIC_ROUTES.includes(_to.path)) return navigateTo("/login");

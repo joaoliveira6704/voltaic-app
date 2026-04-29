@@ -41,6 +41,7 @@ export default defineNuxtConfig({
     "@nuxtjs/tailwindcss",
     "@nuxt/image",
     "@nuxt/eslint",
+    "@pinia/nuxt",
   ],
   shadcn: {
     /**

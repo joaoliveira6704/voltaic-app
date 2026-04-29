@@ -1,13 +1,12 @@
 <script setup lang="ts">
-import { Pencil, Trash2, Trash } from "lucide-vue-next";
-/* import { type NavItem } from "@/utils/navigation"; // Reusing your NavItem definition */
+import { Pencil, Trash2 } from "lucide-vue-next";
 
 interface VehicleData {
   id: number;
-  brand: string; // e.g., 'BMW'
-  model: string; // e.g., 'iX3'
-  plate: string; // e.g., '09 - EL - 53'
-  slug?: string; // e.g., 'bmw' (used for logo fetching)
+  brand: string;
+  model: string;
+  plate: string;
+  slug?: string;
 }
 
 interface Props {
@@ -16,6 +15,8 @@ interface Props {
 
 const props = defineProps<Props>();
 
+const emit = defineEmits(["delete", "edit"]);
+
 const logoSrc = computed(
   () => `https://www.carlogos.org/car-logos/${props.data.slug}-logo.png`,
 );
@@ -23,16 +24,20 @@ const logoSrc = computed(
 
 <template>
   <div
-    class="relative w-60 h-fit bg-neutral-200 rounded-xl p-5 gap-2 flex flex-col justify-between font-mono group"
+    class="relative hover:bg-green-600/20 transition-all duration-300 w-60 h-fit bg-neutral-200 rounded-xl p-5 gap-2 flex flex-col justify-between font-mono group"
   >
     <Pencil
-      class="absolute top-2 right-8 w-5 hover:text-blue-600 cursor-pointer transition-all duration-300"
+      @click="emit('edit')"
+      class="absolute top-2 right-8 w-4 hover:text-blue-600 cursor-pointer transition-all duration-300"
     ></Pencil>
     <Trash2
-      class="absolute top-2 right-2 w-5 hover:text-red-500 cursor-pointer transition-all duration-300"
+      @click="emit('delete')"
+      class="absolute top-2 right-2 w-4 hover:text-red-500 cursor-pointer transition-all duration-300"
     ></Trash2>
     <div class="flex flex-col content-center items-start gap-3">
-      <span class="text-md font-black uppercase text-neutral-800">
+      <span
+        class="text-md font-black uppercase text-neutral-800 line-clamp-2 h-12"
+      >
         {{ props.data.model }}
       </span>
 
