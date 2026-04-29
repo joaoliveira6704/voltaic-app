@@ -11,7 +11,7 @@ def get_db():
     client = pymongo.MongoClient(mongo_uri)
     return client["voltaic-db"]
 
-def insert_all(companies, users, stations, tickets):
+def insert_all(companies, users, stations, tickets, station_usage):
     """ Insert all data into the database. """
     db = get_db()
 
@@ -26,6 +26,9 @@ def insert_all(companies, users, stations, tickets):
 
     db.tickets.insert_many([t.__dict__ for t in tickets])
     print(f"Inserted {len(tickets)} tickets")
+
+    db.stations_usage.insert_many([su.__dict__ for su in station_usage])
+    print(f"Inserted {len(station_usage)} station usage records")
 
 def insert_ev_data(filepath: str = "data/open-ev-data.json"):
     """ Insert EV data from a JSON file into the database. """

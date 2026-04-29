@@ -25,7 +25,7 @@ const logoSrc = computed(
   <div
     class="relative w-60 h-fit bg-neutral-200 rounded-xl p-5 gap-2 flex flex-col justify-between font-mono group"
   >
-    <img :src="logoSrc" alt="" srcset="" />
+    <img :src="logoSrc" :alt="$props.data.slug" class="w-20" />
     <div>
       <div class="flex items-start gap-3">
         <span class="text-md font-black uppercase text-neutral-800">

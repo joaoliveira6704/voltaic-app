@@ -10,6 +10,7 @@ export default defineNuxtConfig({
       link: [{ rel: "icon", type: "image/x-icon", href: "/voltaic-logo.svg" }],
     },
   },
+  css: ["sweetalert2/dist/sweetalert2.min.css"],
   devtools: { enabled: true },
   vite: {
     optimizeDeps: {

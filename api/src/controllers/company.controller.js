@@ -59,3 +59,17 @@ export const updateCompany = async (req, res, next) => {
     next(error);
   }
 };
+
+export const getCompanyById = async (req, res, next) => {
+  try {
+    const company = await companyModel.findOne({ companyId: req.params.id });
+    if (!company) {
+      const err = new Error("Company not found");
+      err.status = 404;
+      return next(err);
+    }
+    res.json(company);
+  } catch (error) {
+    next(error);
+  }
+};

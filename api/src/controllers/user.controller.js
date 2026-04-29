@@ -44,3 +44,31 @@ export const updateUser = async (req, res, next) => {
     next(error);
   }
 };
+
+export const getCurrentUser = async (req, res, next) => {
+  try {
+    const user = await userModel.findOne({ userId: req.user.userId });
+    if (!user) {
+      const err = new Error("User not found");
+      err.status = 404;
+      return next(err);
+    }
+    res.json(user);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getUserById = async (req, res, next) => {
+  try {
+    const user = await userModel.findOne({ userId: req.params.id });
+    if (!user) {
+      const err = new Error("User not found");
+      err.status = 404;
+      return next(err);
+    }
+    res.json(user);
+  } catch (error) {
+    next(error);
+  }
+};

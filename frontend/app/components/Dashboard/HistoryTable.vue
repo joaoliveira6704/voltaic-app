@@ -2,27 +2,28 @@
 import { MapPin } from "lucide-vue-next";
 
 interface ChargingSession {
-  date: string;
-  plate: string;
+  stationUsageId: string;
+  userId: string;
   stationId: string;
-  duration: string;
+  startTime: string;
+  endTime?: string;
+  plate: string;
 }
 
 interface Props {
   sessions: ChargingSession[];
 }
 
-const props = defineProps<Props>();
+defineProps<Props>();
 
-/**
- * We take the last 5 items.
- * .slice(-5) grabs the end of the array.
- * .reverse() ensures the most recent is at the top.
- */
-const recentSessions = computed(() => {
-  if (!props.sessions) return [];
-  return [...props.sessions].slice(-5).reverse();
-});
+const duration = (session: ChargingSession) => {
+  if (!session.endTime) return "In Progress";
+  const start = new Date(session.startTime);
+  const end = new Date(session.endTime);
+  const diffMs = end.getTime() - start.getTime();
+  const diffHrs = Math.round(diffMs / 3600000);
+  return `${diffHrs} hrs`;
+};
 </script>
 
 <template>
@@ -55,15 +56,21 @@ const recentSessions = computed(() => {
 
       <TableBody>
         <TableRow
-          v-for="(session, index) in recentSessions"
-          :key="index"
+          v-for="session in sessions"
+          :key="session.stationUsageId"
           class="border-b border-neutral-50 last:border-0 hover:bg-neutral-50/50"
         >
           <TableCell class="px-6 py-4 text-neutral-800 text-xs">
-            &lt;{{ session.date }}&gt;
+            {{ new Date(session.startTime).getDay() }}
+            {{
+              new Date(session.startTime).toLocaleString("default", {
+                month: "short",
+              })
+            }}
+            {{ new Date(session.startTime).getFullYear() }}
           </TableCell>
           <TableCell class="px-6 py-4 text-neutral-800 text-xs">
-            &lt;{{ session.vehicleName }}&gt;
+            {{ session.plate }}
           </TableCell>
           <TableCell class="py-4 text-center">
             <div class="flex justify-center">
@@ -73,7 +80,7 @@ const recentSessions = computed(() => {
           <TableCell
             class="px-6 py-4 text-right text-neutral-800 text-xs tabular-nums"
           >
-            &lt;{{ session.duration }}&gt;
+            {{ duration(session) }}
           </TableCell>
         </TableRow>
       </TableBody>

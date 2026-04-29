@@ -2,15 +2,14 @@
 interface Props {
   title?: string;
   description?: string;
-  editButton?: boolean;
-  logoutButton?: boolean;
+  hasBtn?: boolean;
   buttonText?: string;
   scrollable?: boolean;
 }
 
 defineProps<Props>();
 
-const emit = defineEmits(["edit", "logout"]);
+defineEmits(["btnClick"]);
 </script>
 
 <template>
@@ -27,20 +26,14 @@ const emit = defineEmits(["edit", "logout"]);
       >
         {{ title }}
       </CardTitle>
-      <div class="flex gap-2">
-        <Button
-          v-if="editButton"
-          variant="outline"
-          class="hover:bg-green-600 hover:text-white"
-          >{{ buttonText }}</Button
-        >
-        <Button
-          v-if="logoutButton"
-          class="text-white bg-red-600 hover:bg-red-700"
-          @click="emit('logout')"
-          >Logout</Button
-        >
-      </div>
+
+      <Button
+        v-if="hasBtn"
+        class="hover:bg-green-600 hover:text-white"
+        variant="outline"
+        @click="$emit('btnClick')"
+        >{{ buttonText }}</Button
+      >
     </CardHeader>
 
     <CardContent

@@ -62,3 +62,17 @@ export const updateStation = async (req, res, next) => {
     next(error);
   }
 };
+
+export const getStationById = async (req, res, next) => {
+  try {
+    const station = await stationModel.findOne({ stationId: req.params.id });
+    if (!station) {
+      const err = new Error("Station not found");
+      err.status = 404;
+      return next(err);
+    }
+    res.json(station);
+  } catch (error) {
+    next(error);
+  }
+};

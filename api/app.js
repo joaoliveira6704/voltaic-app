@@ -7,6 +7,7 @@ import ticketRoute from "./src/routes/ticket.route.js";
 import errorHandler from "./src/middleware/error.middleware.js";
 import authRoute from "./src/routes/auth.route.js";
 import vehicleRoute from "./src/routes/vehicle.route.js";
+import usageRoute from "./src/routes/usage.route.js";
 
 const app = express();
 
@@ -29,6 +30,7 @@ app.use("/api/logs", logRoute);
 app.use("/api/stations", stationRoute);
 app.use("/api/tickets", ticketRoute);
 app.use("/api/vehicles", vehicleRoute);
+app.use("/api/usage", usageRoute);
 app.get("/api/status", (req, res) => res.json({ status: "Alive" }));
 
 app.use(errorHandler);

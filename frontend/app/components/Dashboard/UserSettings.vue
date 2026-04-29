@@ -10,13 +10,11 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 
-// 1. Local state for toggles
 const darkMode = ref(false);
 const hidePlates = ref(false);
 const language = ref("en");
 
-// 2. Emit changes to the parent/store if needed
-const emit = defineEmits(["update:settings"]);
+defineEmits(["update:settings"]);
 
 const handleSave = () => {
   console.log("Settings Saved:", {
@@ -59,7 +57,7 @@ const handleSave = () => {
         <SelectTrigger class="w-full font-mono border-neutral-200">
           <SelectValue placeholder="Select Language" />
         </SelectTrigger>
-        <SelectContent class="font-mono">
+        <SelectContent class="font-mono bg-white">
           <SelectItem value="en">English (US)</SelectItem>
           <SelectItem value="pt">Portuguese (PT)</SelectItem>
           <SelectItem value="es">Spanish (ES)</SelectItem>
@@ -67,7 +65,7 @@ const handleSave = () => {
       </Select>
     </div>
 
-    <div class="mt-auto pt-6">
+    <div class="mt-auto pt-3">
       <Button
         class="w-full bg-[#007AFF] hover:bg-blue-700 text-white font-bold py-6 rounded-lg transition-all active:scale-[0.98]"
         @click="handleSave"

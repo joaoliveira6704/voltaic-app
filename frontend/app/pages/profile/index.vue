@@ -2,6 +2,7 @@
 import { computed } from "vue";
 import VehicleCard from "~/components/cards/VehicleCard.vue";
 import TicketCard from "~/components/cards/TicketCard.vue";
+import Swal from "sweetalert2";
 
 useHead({
   title: "Voltaic - Profile",
@@ -47,19 +48,66 @@ const cardComponent = computed(() => {
   return map[userRole.value] || VehicleCard;
 });
 
-const showLogoutDialog = ref(false);
 const router = useRouter();
 
-const confirmLogout = () => {
+const handleLogoutAttempt = () => {
+  Swal.fire({
+    title: "Confirm Logout",
+    text: "Are you sure you want to log out? You will need to sign in again.",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#dc2626", // Matching your red-600
+    confirmButtonText: "Yes, Logout",
+    reverseButtons: true, // Puts cancel on the left, confirm on the right
+    background: "#ffffff",
+    customClass: {
+      popup: "font-mono text-sm", // Keeping your app's font style
+      cancelButton: "bg-white text-black hover:bg-gray-300",
+    },
+  }).then((result) => {
+    if (result.isConfirmed) {
+      performLogoutLogic();
+    }
+  });
+};
+
+const performLogoutLogic = () => {
   const userCookie = useCookie("user");
-  const tokenCookie = useCookie("token"); // or whatever your auth cookie is named
-
   userCookie.value = null;
-  tokenCookie.value = null;
-
-  showLogoutDialog.value = false;
   router.push("/login");
 };
+
+const config = useRuntimeConfig();
+
+const { data: chargingHistory } = await useAsyncData(
+  "chargingHistory",
+  async () => {
+    // Safely access the value of the computed ref
+    const userId = currentUser.value?.id || currentUser.value?.userId;
+
+    if (!userId) return null;
+
+    try {
+      return await $fetch(
+        `${config.public.apiBaseUrl}/api/usage/user/${userId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${useCookie("token").value}`,
+          },
+        },
+      );
+    } catch (e) {
+      console.error("Fetch error:", e);
+      return [];
+    }
+  },
+  {
+    // Remove the 'props' dependency if this is a page and not a component
+    // Or ensure props are defined via defineProps() at the top
+    watch: [currentUser],
+    immediate: true,
+  },
+);
 </script>
 
 <template>
@@ -67,22 +115,25 @@ const confirmLogout = () => {
     <DropDown :role="userRole" />
     <Grid :split-cell-d="userRole === 'client'">
       <template #cell-a
-        ><DashboardCard><NavGroup :role="currentUser.role" /></DashboardCard
+        ><DashboardCard
+          ><NavGroup
+            :role="currentUser.role"
+            @logout="handleLogoutAttempt" /></DashboardCard
       ></template>
       <template #cell-b
         ><DashboardCard
           title="User Info"
-          :edit-button="true"
+          :has-btn="true"
           :logout-button="true"
           button-text="Edit profile"
-          @logout="showLogoutDialog = true"
+          @logout="handleLogoutAttempt"
         >
-          <Info :user="currentUser"></Info></DashboardCard
+          <Info :user="currentUser" /></DashboardCard
       ></template>
       <template #cell-c
         ><DashboardCard
           title="Your Fleet"
-          :edit-button="true"
+          :has-btn="true"
           button-text="Add new Vehicle"
           ><CardScroll v-if="displayItems.length > 0"
             ><component
@@ -102,7 +153,7 @@ const confirmLogout = () => {
       >
       <template v-if="userRole === 'client'" #cell-d-left>
         <DashboardCard title="History"
-          ><HistoryTable :sessions="currentUser.chargingHistory"></HistoryTable>
+          ><HistoryTable :sessions="chargingHistory" />
         </DashboardCard>
       </template>
       <template v-if="userRole === 'client'" #cell-d-right>
