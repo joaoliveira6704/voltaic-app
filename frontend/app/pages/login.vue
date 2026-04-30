@@ -5,9 +5,24 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 
+const config = useRuntimeConfig();
 const email = ref("");
 const password = ref("");
 const rememberMe = ref(true);
+
+interface LoginResponse {
+  token: string;
+  data: {
+    user: {
+      id: string;
+      username: string;
+      email: string;
+      firstName: string;
+      lastName: string;
+      role: string;
+    };
+  };
+}
 
 definePageMeta({
   layout: "default",
@@ -31,16 +46,22 @@ const handleLogin = async () => {
   });
 
   try {
-    const data = await $fetch("http://0.0.0.0:3000/api/auth/login", {
-      method: "POST",
-      body: {
-        email: email.value,
-        password: password.value,
+    const response = await $fetch<LoginResponse>(
+      `${config.public.apiBaseUrl}/api/auth/login`,
+      {
+        method: "POST",
+        body: {
+          email: email.value,
+          password: password.value,
+        },
       },
-    });
+    );
 
-    console.log("Login successful:", data);
+    console.log("Login successful:", response);
     alert("Login successful!");
+    document.cookie = `token=${response.token}; path=/; max-age=86400; secure; sameSite=Lax`;
+    document.cookie = `user=${JSON.stringify(response.data.user)}; path=/; max-age=86400; secure; sameSite=Lax`;
+    window.location.href = "/profile";
   } catch (err: unknown) {
     console.error("Login failed:", err);
 

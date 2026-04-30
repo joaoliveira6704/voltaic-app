@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 
 const ticketSchema = new mongoose.Schema(
   {
+    ticketId: { type: String, required: true, unique: true, trim: true },
     stationId: { type: String, ref: "Station" },
     createdBy: { type: String, ref: "User" },
     title: {

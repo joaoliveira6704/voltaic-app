@@ -67,6 +67,15 @@ class Ticket:
         self.status = status              # "open" | "closed" | "resolved" | "unresolved"
         self.closedAt = None
 
+class StationUsage:
+    def __init__(self, stationUsageId, userId, stationId, startTime, endTime, plate):
+        self.stationUsageId = stationUsageId
+        self.userId = userId
+        self.stationId = stationId
+        self.startTime = startTime
+        self.endTime = endTime
+        self.plate = plate
+
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
 def _random_coords(base_coords: list, radius: float = 0.5) -> list:
@@ -77,13 +86,15 @@ def _random_coords(base_coords: list, radius: float = 0.5) -> list:
 
 def _generate_vehicle() -> dict:
     """ Generate a random vehicle with realistic attributes. """
+    currentMake = fake.random_element(elements=["Tesla", "Nissan", "BMW", "Audi", "Hyundai", "Kia", "Chevrolet", "Ford"])
+    currentModel = fake.random_element(elements=["Model 3", "Leaf", "i3", "e-tron", "Ioniq", "EV6", "Bolt", "Mustang Mach-E"])  
     connector = fake.random_element(elements=SOCKET_TYPES)
     return {
         "plate": fake.license_plate(),
-        "model": f"{fake.random_element(['Tesla', 'Nissan', 'BMW', 'Audi', 'Hyundai', 'Kia', 'Chevrolet', 'Ford'])} "
-                 f"{fake.random_element(['Model 3', 'Leaf', 'i3', 'e-tron', 'Ioniq', 'EV6', 'Bolt', 'Mustang Mach-E'])}",
+        "model": f"{currentMake} {currentModel}",
         "color": fake.color_name(),
         "connector": connector,
+        "slug": f"{currentMake.lower()}"
     }
 
 # ── Generators ────────────────────────────────────────────────────────────────
@@ -111,6 +122,8 @@ def generate_companies(count: int = 10) -> list:
 def _hash_password(raw_password: str) -> str:
     """ Hash a raw password using bcrypt. """
     return bcrypt.hashpw(raw_password.encode("utf-8"), bcrypt.gensalt(rounds=12)).decode("utf-8")
+
+userIdPlate = []
 
 def generate_users(count: int = 20, companies: list = None) -> list:
     """ Generate a list of users with random attributes. """
@@ -160,7 +173,10 @@ def generate_users(count: int = 20, companies: list = None) -> list:
             f.write(f"{email}:{password}:{role}\n")
 
     print("Users created successfully\n")
+    userIdPlate.extend([(u.userId, v["plate"]) for u in users for v in u.vehicles])
     return users
+
+stationIds = []
 
 def generate_stations(count: int = 20) -> list:
     """ Generate a list of stations with random attributes. """
@@ -188,6 +204,7 @@ def generate_stations(count: int = 20) -> list:
 
         station = Station(station_id, title, location, connector, telemetry, state, alive)
         stations.append(station)
+        stationIds.append(station_id)
         print(f"Station {i+1}: {title} | state: {state} | maxPower: {connector['maxPower']}kW")
 
     print("Stations created successfully\n")
@@ -225,3 +242,19 @@ def generate_tickets(count: int = 20, users: list = None, stations: list = None)
 
     print("Tickets created successfully\n")
     return tickets
+
+def generate_station_usage(count: int = 20, users: list = None, stations: list = None) -> list:
+    """ Generate a list of station usage records with random attributes. """
+    station_usage = []
+    user_ids = [u.userId for u in users] if users else [str(uuid.uuid4())]
+    station_ids = [s.stationId for s in stations] if stations else [str(uuid.uuid4())]
+    plates = [v["plate"] for u in users for v in u.vehicles]
+    for i in range(count):
+        stationUsageId = str(uuid.uuid4())
+        user_id = fake.random_element(elements=user_ids)
+        station_id = fake.random_element(elements=station_ids)
+        start_time = fake.date_time_this_year().isoformat()
+        end_time = fake.date_time_this_year().isoformat()
+        plate = fake.random_element(elements=plates)
+        station_usage.append(StationUsage(stationUsageId, user_id, station_id, start_time, end_time, plate))
+    return station_usage

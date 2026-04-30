@@ -11,7 +11,7 @@ const navLinks = [
 </script>
 
 <template>
-  <div class="h-screen w-full flex flex-col bg-white font-mono overflow-scroll">
+  <div class="h-screen w-full flex flex-col bg-white font-mono">
     <nav class="shrink-0 w-full border-b border-gray-100 bg-white">
       <div
         class="container mx-auto flex h-16 max-w-7xl items-center justify-between px-4 md:px-8"
@@ -36,7 +36,7 @@ const navLinks = [
       </div>
     </nav>
 
-    <main class="flex-1 overflow-scroll">
+    <main class="flex-1 overflow-y-scroll">
       <slot />
     </main>
 

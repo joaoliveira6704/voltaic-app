@@ -62,3 +62,12 @@ export const register = async (req, res, next) => {
     next(error);
   }
 };
+
+export const validateToken = (req, res) => {
+  // If the code reaches here, the 'protect' middleware already verified the token
+  res.status(200).json({
+    valid: true,
+    userId: req.user.userId,
+    role: req.user.role,
+  });
+};

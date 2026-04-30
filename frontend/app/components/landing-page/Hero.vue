@@ -3,6 +3,8 @@ import { gsap } from "gsap";
 
 const heroRef = ref<HTMLElement | null>(null);
 
+const { t } = useI18n();
+
 let ctx: gsap.Context;
 
 onMounted(() => {
@@ -37,20 +39,19 @@ onUnmounted(() => {
         <h1
           class="hero-content text-6xl font-extrabold leading-tight text-gray-900"
         >
-          Charge Smarter,<br />
-          <span class="text-green-500 underline decoration-green-200"
-            >Drive Further</span
-          >
+          {{ t("landing.hero.chargeSmarter") }},<br />
+          <span class="text-green-500 underline decoration-green-200">{{
+            t("landing.hero.driveFurther")
+          }}</span>
         </h1>
         <p class="hero-content mt-6 text-lg text-gray-600 max-w-md">
-          Discover nearby charging stations, manage your vehicles, and take
-          control of your EV experience with Voltaic.
+          {{ t("landing.hero.subtitle") }}
         </p>
         <div class="hero-content mt-8 flex gap-4">
           <button
             class="bg-black text-white px-8 py-4 rounded-xl flex items-center gap-2"
           >
-            Get Started
+            {{ t("landing.cta.button") }}
           </button>
         </div>
       </div>
@@ -63,7 +64,9 @@ onUnmounted(() => {
         <div
           class="absolute top-10 right-0 bg-white p-4 rounded-2xl shadow-xl border border-green-100"
         >
-          <p class="text-xs text-gray-400">Network Coverage</p>
+          <p class="text-xs text-gray-400">
+            {{ t("landing.hero.networkCoverage") }}
+          </p>
           <p class="text-xl font-bold text-green-600">10,000+ Posts</p>
         </div>
       </div>

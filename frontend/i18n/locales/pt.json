@@ -1,0 +1,108 @@
+{
+  "userInfo": "Informações do Utilizador",
+  "editProfile": "Editar Perfil",
+  "unknownLocation": "Localização Desconhecida",
+  "yourFleet": "A Sua Frota",
+  "addNewVehicle": "Adicionar novo Veículo",
+  "plate": "Matrícula",
+  "history": "Histórico",
+  "date": "Data",
+  "vehicle": "Veículo",
+  "station": "Posto",
+  "duration": "Duração",
+  "preferences": "Preferências",
+  "darkMode": "Modo Escuro",
+  "hidePlates": "Ocultar Matrículas",
+  "language": "Idioma",
+  "saveChanges": "Guardar Alterações",
+  "noVehicles": "Sem Veículos para Apresentar em",
+  "realTimeNetwork": "Rede em Tempo Real",
+  "en": "Inglês (US)",
+  "pt": "Português (PT)",
+  "es": "Espanhol (ES)",
+  "modal": {
+    "editProfile": {
+      "title": "Editar Perfil",
+      "firstName": "Nome",
+      "lastName": "Apelido",
+      "username": "Nome de utilizador",
+      "email": "E-mail",
+      "passwordSection": "Alterar palavra-passe",
+      "currentPassword": "Palavra-passe atual",
+      "newPassword": "Nova palavra-passe",
+      "noChanges": "Sem alterações",
+      "fieldsModified": "{n} campo modificado",
+      "fieldsModifiedPlural": "{n} campos modificados",
+      "cancel": "Cancelar",
+      "save": "Guardar",
+      "errors": {
+        "currentPasswordRequired": "A palavra-passe atual é obrigatória para definir uma nova.",
+        "passwordTooShort": "A nova palavra-passe deve ter pelo menos 8 caracteres.",
+        "invalidEmail": "Por favor, introduza um endereço de e-mail válido."
+      }
+    },
+    "addVehicle": {
+      "title": "Adicionar Veículo",
+      "vehicleLabel": "Veículo",
+      "searchPlaceholder": "Pesquisar marca, modelo ou ano...",
+      "autoPopulated": "Preenchimento automático",
+      "model": "Modelo",
+      "connector": "Conector",
+      "slug": "Slug",
+      "yourDetails": "Os seus detalhes",
+      "plate": "Matrícula",
+      "platePlaceholder": "AA-00-BB",
+      "color": "Cor",
+      "colorPlaceholder": "ex: Branco Glaciar",
+      "noVehicleSelected": "Nenhum veículo selecionado",
+      "noVehiclesFound": "Nenhum veículo encontrado.",
+      "cancel": "Cancelar",
+      "add": "Adicionar",
+      "errors": {
+        "plateRequired": "A matrícula é obrigatória.",
+        "vehicleRequired": "Por favor, selecione um veículo da lista.",
+        "colorRequired": "A cor é obrigatória."
+      }
+    }
+  },
+  "landing": {
+    "head": {
+      "title": "Voltaic - Landing Page",
+      "description": "A Voltaic é uma empresa de carregamento de veículos elétricos feita para si."
+    },
+    "hero": {
+      "chargeSmarter": "Carregue Melhor",
+      "driveFurther": "Vá Mais Longe",
+      "subtitle": "Descubra postos de carregamento próximos, gira os seus veículos e assuma o controlo da sua experiência elétrica com a Voltaic.",
+      "networkCoverage": "Cobertura da Rede"
+    },
+    "stats": {
+      "activeUsers": "Utilizadores Ativos",
+      "chargingStations": "Postos de Carregamento",
+      "uptimeGuarantee": "Garantia de Disponibilidade",
+      "companiesRegistered": "Empresas Registadas"
+    },
+    "features": {
+      "sectionTitle": "Tudo o que Precisa",
+      "sectionTitleHighlight": "Num Só Lugar",
+      "realTimeAvailability": {
+        "title": "Disponibilidade em Tempo Real",
+        "description": "Atualizações em direto sobre a disponibilidade dos postos e tempos de espera na ponta dos seus dedos."
+      },
+      "interactiveMap": {
+        "title": "Mapa Interativo",
+        "description": "Encontre postos próximos com filtros por tipo de carregador, localização e muito mais."
+      },
+      "companyManagedStations": {
+        "title": "Postos Geridos pela Empresa",
+        "description": "Para cada posto listado, garantimos que é mantido e fiável para a sua viagem."
+      }
+    },
+    "cta": {
+      "title": "Junte-se à Revolução EV",
+      "titleHighlight": "Carregue de Forma Inteligente, Vá Mais Longe",
+      "subtitle": "Junte-se a milhares de condutores que carregam de forma mais inteligente todos os dias.",
+      "button": "Começar Agora"
+    }
+  }
+}

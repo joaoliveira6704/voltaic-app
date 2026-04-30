@@ -1,5 +1,4 @@
 <script setup lang="ts">
-// 1. Import the constant and the types from your utils file
 import { NAVIGATION_MAP, type UserRole } from "@/utils/navigation";
 import { Button } from "@/components/ui/button";
 
@@ -9,11 +8,17 @@ interface Props {
 
 const props = defineProps<Props>();
 const route = useRoute();
+const emit = defineEmits(["logout"]);
 
-/** * 2. We no longer need the massive navigationMap object here!
- * We just reference the imported NAVIGATION_MAP.
- */
 const currentLinks = computed(() => NAVIGATION_MAP[props.role] || []);
+
+// Helper to handle the click logic
+const handleLinkClick = (action: string, event: Event) => {
+  if (action === "logout") {
+    event.preventDefault(); // Stop NuxtLink from navigating
+    emit("logout");
+  }
+};
 </script>
 
 <template>
@@ -23,9 +28,12 @@ const currentLinks = computed(() => NAVIGATION_MAP[props.role] || []);
       :key="link.label"
       :variant="route.path === link.path ? 'secondary' : 'ghost'"
       as-child
-      class="w-full justify-start gap-3 h-11 px-4 transition-all group"
+      class="w-full justify-start gap-3 h-11 px-4 transition-all group cursor-pointer"
     >
-      <NuxtLink :to="link.path">
+      <NuxtLink
+        :to="link.path || ''"
+        @click="(e) => handleLinkClick(link.action || '', e)"
+      >
         <component
           :is="link.icon"
           :class="[

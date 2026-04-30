@@ -10,6 +10,7 @@ export default defineNuxtConfig({
       link: [{ rel: "icon", type: "image/x-icon", href: "/voltaic-logo.svg" }],
     },
   },
+  css: ["sweetalert2/dist/sweetalert2.min.css"],
   devtools: { enabled: true },
   vite: {
     optimizeDeps: {
@@ -22,7 +23,14 @@ export default defineNuxtConfig({
         "clsx",
         "tailwind-merge",
         "lucide-vue-next",
+        "gsap",
+        "gsap/ScrollTrigger",
       ],
+    },
+  },
+  runtimeConfig: {
+    public: {
+      apiBaseUrl: process.env.NUXT_PUBLIC_API_BASE_URL,
     },
   },
   devServer: {
@@ -33,7 +41,24 @@ export default defineNuxtConfig({
     "@nuxtjs/tailwindcss",
     "@nuxt/image",
     "@nuxt/eslint",
+    "@pinia/nuxt",
+    "@nuxtjs/i18n",
   ],
+  i18n: {
+    strategy: "no_prefix",
+    detectBrowserLanguage: {
+      useCookie: true,
+      cookieKey: "i18n_redirected",
+      redirectOn: "root",
+    },
+    locales: [
+      { code: "en", name: "English", file: "en.json" },
+      { code: "pt", name: "Português", file: "pt.json" },
+      { code: "es", name: "Español", file: "es.json" },
+    ],
+    defaultLocale: "en",
+    langDir: "locales/",
+  },
   shadcn: {
     /**
      * Prefix for all the imported component.

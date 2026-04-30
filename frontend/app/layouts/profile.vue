@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { Button } from "@/components/ui/button";
+import { Map } from "lucide-vue-next";
 
 const navLinks = [{ path: "/", label: "Map" }]; /* link map page */
 </script>
 
 <template>
-  <div class="h-screen w-full flex flex-col bg-white font-mono overflow-hidden">
+  <div class="h-screen w-full flex flex-col bg-white font-mono">
     <nav class="shrink-0 w-full border-b border-gray-100 bg-white">
       <div
         class="container mx-auto flex h-16 max-w-7xl items-center justify-between px-4 md:px-8"
@@ -20,17 +21,20 @@ const navLinks = [{ path: "/", label: "Map" }]; /* link map page */
             :key="link.path"
             variant="ghost"
             as-child
-            class="text-xs"
+            class="text-sm"
           >
-            <NuxtLink :to="link.path" active-class="text-[#007bff]">{{
+            <!-- <NuxtLink :to="link.path" active-class="text-[#007bff]">{{
               link.label
-            }}</NuxtLink>
+            }}</NuxtLink> -->
+            <NuxtLink :to="link.path" active-class="text-[#007bff]">
+              <Map class="w-10 h-10" />
+            </NuxtLink>
           </Button>
         </div>
       </div>
     </nav>
 
-    <main class="flex-1 overflow-hidden">
+    <main class="flex-1">
       <slot />
     </main>
   </div>

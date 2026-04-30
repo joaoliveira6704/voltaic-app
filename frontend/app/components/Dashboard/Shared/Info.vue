@@ -1,14 +1,21 @@
 <script setup lang="ts">
-import { Mail, Phone, MapPin, Globe } from "lucide-vue-next";
+import { Mail, MapPin, Globe } from "lucide-vue-next";
+import { createAvatar } from "@dicebear/core";
+import { bottts } from "@dicebear/collection";
+import type { Preferences } from "~/stores/user";
 
 // 1. Define the interface for the user data
 interface UserData {
-  name: string;
+  firstName: string;
+  lastName: string;
+  username: string;
   email: string;
-  phone: string;
-  location: string;
+  companyId: string;
+  location?: string;
+  role: string;
   avatarUrl?: string;
   language?: string;
+  preferences?: Preferences;
 }
 
 // 2. Define the Props
@@ -18,6 +25,43 @@ interface Props {
 
 // 3. Set the props
 const props = defineProps<Props>();
+const { t } = useI18n();
+const config = useRuntimeConfig();
+
+const { data: companyName } = await useAsyncData(
+  `company-${props.user.companyId}`,
+  async () => {
+    try {
+      const response = await $fetch<{ name: string }>(
+        `${config.public.apiBaseUrl}/api/companies/${props.user.companyId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${useCookie("token").value}`,
+          },
+        },
+      );
+      return response.name;
+    } catch {
+      return "Unknown Company";
+    }
+  },
+  {
+    // Only run if the user isn't a client or admin (logic from your template)
+    watch: [() => props.user.companyId],
+    immediate: props.user.role !== "client" && props.user.role !== "admin",
+  },
+);
+
+const avatar = createAvatar(bottts, {
+  seed: `${props.user.username}`,
+  backgroundColor: ["#F0F0F0"],
+});
+
+const avatarUrl: string = avatar.toDataUri();
+
+const sendEmail = () => {
+  window.location.href = `mailto:${props.user.email}`;
+};
 </script>
 
 <template>
@@ -29,22 +73,39 @@ const props = defineProps<Props>();
         class="w-32 h-32 rounded-full overflow-hidden border-4 border-white shadow-sm bg-neutral-100"
       >
         <img
-          :src="props.user.avatarUrl || '/default-avatar.jpg'"
-          :alt="props.user.name"
+          :src="avatarUrl"
+          :alt="props.user.firstName + ' ' + props.user.lastName"
           class="w-full h-full object-cover"
         />
       </div>
     </div>
 
     <div class="flex-1 flex flex-col gap-4 text-neutral-800">
-      <h1
-        class="text-3xl font-black tracking-tight text-center lg:text-left uppercase"
-      >
-        {{ props.user.firstName }} {{ props.user.lastName }}
-      </h1>
+      <div>
+        <h1
+          class="text-3xl font-black tracking-tight text-center lg:text-left uppercase"
+        >
+          {{ props.user.firstName }} {{ props.user.lastName }}
+        </h1>
+        <h2 class="font-semibold">
+          <template
+            v-if="
+              props.user.role !== 'client' &&
+              props.user.role !== 'admin' &&
+              companyName
+            "
+          >
+            {{ companyName }} - {{ props.user.role.toLocaleUpperCase() }}
+          </template>
+        </h2>
+      </div>
+      <p>@{{ props.user.username }}</p>
 
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-x-12 gap-y-3 mt-2">
-        <div class="flex items-center gap-3 group">
+        <div
+          class="flex items-center gap-3 group cursor-pointer"
+          @click="sendEmail"
+        >
           <Mail
             class="w-5 h-5 text-neutral-400 group-hover:text-black transition-colors"
           />
@@ -58,7 +119,7 @@ const props = defineProps<Props>();
             class="w-5 h-5 text-neutral-400 group-hover:text-black transition-colors"
           />
           <span class="text-sm font-bold capitalize tracking-tight">
-            {{ props.user.location }}
+            {{ props.user.location || "Unknown Location" }}
           </span>
         </div>
 
@@ -67,7 +128,7 @@ const props = defineProps<Props>();
             class="w-5 h-5 text-neutral-400 group-hover:text-black transition-colors"
           />
           <span class="text-sm font-bold tracking-tight">
-            {{ props.user.language || "English (US)" }}
+            {{ t(props.user.preferences?.language || "en") }}
           </span>
         </div>
       </div>

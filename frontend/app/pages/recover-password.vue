@@ -10,6 +10,10 @@ definePageMeta({
   layout: false,
 });
 
+useHead({
+  title: "Voltaic - Recover Password",
+});
+
 const handleRecovery = () => {
   if (email.value) {
     console.log("Recovery email sent to:", email.value);
@@ -82,7 +86,7 @@ const handleRecovery = () => {
               stroke-linecap="round"
               stroke-linejoin="round"
             >
-              <polyline points="20 6 9 17 4 12"></polyline>
+              <polyline points="20 6 9 17 4 12" />
             </svg>
           </div>
           <p class="font-mono text-sm font-bold text-gray-900 uppercase">
