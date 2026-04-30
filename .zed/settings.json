@@ -1,0 +1,54 @@
+{
+  "languages": {
+    "Vue.js": {
+      "language_servers": ["vue-language-server", "!vtsls", "..."],
+      "format_on_save": "on",
+      "formatter": {
+        "code_actions": {
+          "source.fixAll.eslint": true,
+        },
+      },
+    },
+    "TypeScript": {
+      "language_servers": ["vtsls", "..."],
+      "formatter": {
+        "code_actions": {
+          "source.fixAll.eslint": true,
+        },
+      },
+    },
+    "JavaScript": {
+      "formatter": {
+        "code_actions": {
+          "source.fixAll.eslint": true,
+        },
+      },
+    },
+  },
+  "lsp": {
+    "vue-language-server": {
+      "initialization_options": {
+        "typescript": {
+          "tsdk": "frontend/node_modules/typescript/lib",
+        },
+        "vue": {
+          "hybridMode": false,
+        },
+      },
+    },
+    "vtsls": {
+      "initialization_options": {
+        "typescript": {
+          "tsdk": "frontend/node_modules/typescript/lib",
+        },
+      },
+    },
+    "tailwindcss-language-server": {
+      "settings": {
+        "tailwindCSS": {
+          "emmetCompletions": true,
+        },
+      },
+    },
+  },
+}

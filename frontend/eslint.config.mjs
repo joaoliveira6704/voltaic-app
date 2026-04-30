@@ -13,7 +13,6 @@ export default withNuxt({
         },
         svg: "always",
         math: "always",
-        br: "never", // Disallows <br /> -> Enforces <br>
       },
     ],
   },

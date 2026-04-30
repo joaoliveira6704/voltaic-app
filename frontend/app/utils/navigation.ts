@@ -6,6 +6,7 @@ import {
   Zap,
   Ticket,
   LogOut,
+  Shield,
 } from "lucide-vue-next";
 import type { Component } from "vue";
 
@@ -17,6 +18,12 @@ export interface NavItem {
   path?: string | null;
   action?: string | null;
 }
+
+export const ROLE_EXTRA_LINK: Partial<Record<UserRole, NavItem>> = {
+  admin: { label: "Admin Page", icon: Shield, path: "/admin" },
+  "company-manager": { label: "Manager Page", icon: Users, path: "/manager" },
+  worker: { label: "Worker Page", icon: Ticket, path: "/worker" },
+};
 
 export const NAVIGATION_MAP: Record<UserRole, NavItem[]> = {
   admin: [
