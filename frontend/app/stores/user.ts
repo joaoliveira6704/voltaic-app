@@ -97,10 +97,9 @@ export const useUserStore = defineStore("user", () => {
     currentUser.value = { ...currentUser.value, vehicles: updatedList };
 
     try {
-      await $fetch(`${apiBase()}/api/users/me`, {
-        method: "PATCH",
+      await $fetch(`${apiBase()}/api/users/me/vehicles/${plate}`, {
+        method: "DELETE",
         headers: { Authorization: `Bearer ${token()}` },
-        body: { vehicles: updatedList },
       });
     } catch (e) {
       console.error("Failed to sync deletion:", e);
@@ -111,17 +110,17 @@ export const useUserStore = defineStore("user", () => {
   async function addVehicle(vehicle: Vehicle) {
     if (!currentUser.value) return;
 
-    const updatedList = [...(currentUser.value.vehicles ?? []), vehicle];
-
-    // Optimistic update
-    currentUser.value = { ...currentUser.value, vehicles: updatedList };
-
     try {
-      await $fetch(`${apiBase()}/api/users/me`, {
-        method: "PATCH",
+      await $fetch(`${apiBase()}/api/users/me/vehicles`, {
+        method: "POST",
         headers: { Authorization: `Bearer ${token()}` },
-        body: { vehicles: updatedList },
+        body: { ...vehicle },
       });
+
+      const updatedList = [...(currentUser.value.vehicles ?? []), vehicle];
+
+      // Optimistic update
+      currentUser.value = { ...currentUser.value, vehicles: updatedList };
     } catch (e) {
       console.error("Failed to sync new vehicle:", e);
       // Roll back on failure

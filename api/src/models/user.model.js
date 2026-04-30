@@ -21,9 +21,10 @@ const userSchema = new mongoose.Schema(
     companyId: { type: String, required: false, ref: "Company" },
     vehicles: [
       {
-        plate: { type: String, required: true, unique: true },
+        plate: { type: String, required: true },
         model: { type: String, required: true },
         color: { type: String, required: true },
+        slug: { type: String, required: true },
         connector: {
           type: String,
           required: true,
@@ -41,9 +42,9 @@ const userSchema = new mongoose.Schema(
             "Mennekes",
             "Dual_Mennekes",
             "Other",
+            "ccs2",
           ],
         },
-        slug: { type: String, required: true },
       },
     ],
     favorites: [
@@ -61,6 +62,27 @@ userSchema.pre("save", async function () {
   if (!this.isModified("password")) return;
 
   this.password = await bcrypt.hash(this.password, 12);
+});
+
+// Remove 'next' from arguments and make the function async
+userSchema.pre("save", async function () {
+  // 1. Only run if vehicles are modified
+  if (!this.isModified("vehicles")) return;
+
+  // 2. Get and clean the plates
+  const plates = this.vehicles.map((v) => v.plate.toLowerCase().trim());
+
+  // 3. Check for duplicates
+  const hasDuplicates = plates.some((plate, index) => {
+    return plates.indexOf(plate) !== index;
+  });
+
+  if (hasDuplicates) {
+    const err = new Error("Duplicate plate detected in your vehicle list.");
+    err.status = 400;
+    // Just throw the error; Mongoose catches it and sends it to your controller's catch block
+    throw err;
+  }
 });
 
 // Method to compare passwords
