@@ -19,6 +19,11 @@ const userSchema = new mongoose.Schema(
       enum: ["client", "admin", "worker", "company-manager"],
     },
     companyId: { type: String, required: false, ref: "Company" },
+    preferences: {
+      darkMode: { type: Boolean, required: false, default: false },
+      hidePlates: { type: Boolean, required: false, default: false },
+      language: { type: String, required: false, default: "en" },
+    },
     vehicles: [
       {
         plate: { type: String, required: true },
@@ -43,6 +48,7 @@ const userSchema = new mongoose.Schema(
             "Dual_Mennekes",
             "Other",
             "ccs2",
+            "nacs",
           ],
         },
       },

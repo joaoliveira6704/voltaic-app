@@ -11,7 +11,7 @@ const emit = defineEmits(["close", "added"]);
 
 const vehicleStore = useVehicleStore();
 const userStore = useUserStore();
-
+const { t } = useI18n();
 const isSubmitting = ref(false);
 const errors = ref<string[]>([]);
 const searchQuery = ref("");
@@ -73,10 +73,12 @@ function resetForm() {
 
 const validate = () => {
   const errs: string[] = [];
-  if (!form.value.plate.trim()) errs.push("License plate is required.");
+  if (!form.value.plate.trim())
+    errs.push(t("modal.addVehicle.errors.plateRequired"));
   if (!selectedCatalogVehicle.value)
-    errs.push("Please select a vehicle from the list.");
-  if (!form.value.color.trim()) errs.push("Color is required.");
+    errs.push(t("modal.addVehicle.errors.vehicleRequired"));
+  if (!form.value.color.trim())
+    errs.push(t("modal.addVehicle.errors.colorRequired"));
   return errs;
 };
 
@@ -155,7 +157,7 @@ function handleSearchInput() {
               id="add-vehicle-modal-title"
               class="font-mono text-xs font-semibold tracking-widest text-neutral-800 uppercase"
             >
-              Add Vehicle
+              {{ t("modal.addVehicle.title") }}
             </h2>
             <button
               class="flex items-center justify-center w-7 h-7 border border-neutral-200 text-neutral-400 hover:text-neutral-800 hover:border-neutral-400 transition-colors"
@@ -183,14 +185,14 @@ function handleSearchInput() {
               <label
                 class="font-mono text-[10px] tracking-widest text-neutral-400 uppercase"
               >
-                Vehicle
+                {{ t("modal.addVehicle.vehicleLabel") }}
               </label>
               <div class="relative">
                 <input
                   v-model="searchQuery"
                   type="text"
                   class="w-full border border-neutral-200 bg-neutral-50 px-3 py-2 font-mono text-xs text-neutral-800 placeholder-neutral-300 outline-none focus:border-neutral-400 transition-colors"
-                  placeholder="Search make, model or year…"
+                  :placeholder="t('modal.addVehicle.searchPlaceholder')"
                   autocomplete="off"
                   @input="handleSearchInput"
                   @focus="isDropdownOpen = true"
@@ -198,7 +200,7 @@ function handleSearchInput() {
                 <!-- Loading indicator -->
                 <span
                   v-if="vehicleStore.isLoading"
-                  class="absolute right-3 top-1/2 -translate-y-1/2 inline-block w-3 h-3 border border-neutral-300 border-t-neutral-600 rounded-full animate-spin"
+                  class="absolute right-3 top-1/2 -translate-y-1/2 inline-block w-4 h-4 border-2 border-neutral-300 border-t-neutral-600 rounded-full animate-spin"
                 />
                 <!-- Clear / check icon -->
                 <template v-else-if="searchQuery">
@@ -277,7 +279,7 @@ function handleSearchInput() {
                     <p
                       class="px-3 py-2.5 font-mono text-[10px] text-neutral-400 tracking-wide"
                     >
-                      No vehicles found.
+                      {{ t("modal.addVehicle.noVehiclesFound") }}
                     </p>
                   </div>
                 </Transition>
@@ -291,7 +293,7 @@ function handleSearchInput() {
                 <span
                   class="font-mono text-[10px] tracking-widest text-neutral-300 uppercase whitespace-nowrap"
                 >
-                  Auto-populated
+                  {{ t("modal.addVehicle.autoPopulated") }}
                 </span>
                 <div class="flex-1 h-px bg-neutral-100" />
               </div>
@@ -301,7 +303,7 @@ function handleSearchInput() {
                 <div class="flex flex-col gap-1.5">
                   <label
                     class="font-mono text-[10px] tracking-widest text-neutral-400 uppercase"
-                    >Model</label
+                    >{{ t("modal.addVehicle.model") }}</label
                   >
                   <input
                     :value="form.model"
@@ -316,7 +318,7 @@ function handleSearchInput() {
                 <div class="flex flex-col gap-1.5">
                   <label
                     class="font-mono text-[10px] tracking-widest text-neutral-400 uppercase"
-                    >Connector</label
+                    >{{ t("modal.addVehicle.connector") }}</label
                   >
                   <input
                     :value="form.connector"
@@ -332,7 +334,7 @@ function handleSearchInput() {
               <div class="flex flex-col gap-1.5">
                 <label
                   class="font-mono text-[10px] tracking-widest text-neutral-400 uppercase"
-                  >Slug</label
+                  >{{ t("modal.addVehicle.slug") }}</label
                 >
                 <input
                   :value="form.slug"
@@ -350,7 +352,7 @@ function handleSearchInput() {
               <span
                 class="font-mono text-[10px] tracking-widest text-neutral-300 uppercase whitespace-nowrap"
               >
-                Your details
+                {{ t("modal.addVehicle.yourDetails") }}
               </span>
               <div class="flex-1 h-px bg-neutral-100" />
             </div>
@@ -360,13 +362,13 @@ function handleSearchInput() {
               <div class="flex flex-col gap-1.5">
                 <label
                   class="font-mono text-[10px] tracking-widest text-neutral-400 uppercase"
-                  >Plate</label
+                  >{{ t("modal.addVehicle.plate") }}</label
                 >
                 <input
                   v-model="form.plate"
                   type="text"
                   class="w-full border border-neutral-200 bg-neutral-50 px-3 py-2 font-mono text-xs text-neutral-800 placeholder-neutral-300 outline-none focus:border-neutral-400 transition-colors uppercase"
-                  placeholder="AA-00-BB"
+                  :placeholder="t('modal.addVehicle.platePlaceholder')"
                   autocomplete="off"
                 />
               </div>
@@ -375,13 +377,13 @@ function handleSearchInput() {
               <div class="flex flex-col gap-1.5">
                 <label
                   class="font-mono text-[10px] tracking-widest text-neutral-400 uppercase"
-                  >Color</label
+                  >{{ t("modal.addVehicle.color") }}</label
                 >
                 <input
                   v-model="form.color"
                   type="text"
                   class="w-full border border-neutral-200 bg-neutral-50 px-3 py-2 font-mono text-xs text-neutral-800 placeholder-neutral-300 outline-none focus:border-neutral-400 transition-colors"
-                  placeholder="e.g. Glacier White"
+                  :placeholder="t('modal.addVehicle.colorPlaceholder')"
                   autocomplete="off"
                 />
               </div>
@@ -450,7 +452,7 @@ function handleSearchInput() {
                 {{
                   selectedCatalogVehicle
                     ? vehicleLabel(selectedCatalogVehicle)
-                    : "No vehicle selected"
+                    : t("modal.addVehicle.noVehicleSelected")
                 }}
               </span>
               <div class="flex gap-2">
@@ -459,7 +461,7 @@ function handleSearchInput() {
                   class="px-4 py-1.5 font-mono text-[11px] tracking-widest uppercase border border-neutral-200 text-neutral-500 hover:border-neutral-400 hover:text-neutral-800 transition-colors"
                   @click="handleClose"
                 >
-                  Cancel
+                  {{ t("modal.addVehicle.cancel") }}
                 </button>
                 <button
                   type="submit"
@@ -475,7 +477,7 @@ function handleSearchInput() {
                     v-if="isSubmitting"
                     class="inline-block w-3 h-3 border border-neutral-400 border-t-neutral-700 rounded-full animate-spin"
                   />
-                  <span v-else>Add</span>
+                  <span v-else>{{ t("modal.addVehicle.add") }} </span>
                 </button>
               </div>
             </div>

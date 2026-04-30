@@ -1,14 +1,17 @@
 <script setup>
 import { ref, computed, watch } from "vue";
+import { useUserStore } from "~/stores/user";
 
 const props = defineProps({
   isOpen: { type: Boolean, default: false },
-  user: { type: Object, default: null },
 });
 
-const emit = defineEmits(["close", "updated"]);
+const emit = defineEmits(["close"]);
 
-const config = useRuntimeConfig();
+const userStore = useUserStore();
+const user = computed(() => userStore.currentUser);
+
+const { t } = useI18n();
 
 const isSubmitting = ref(false);
 const showCurrentPassword = ref(false);
@@ -27,11 +30,11 @@ const form = ref({
 watch(
   () => props.isOpen,
   (val) => {
-    if (val && props.user) {
-      form.value.firstName = props.user.firstName || "";
-      form.value.lastName = props.user.lastName || "";
-      form.value.username = props.user.username || "";
-      form.value.email = props.user.email || "";
+    if (val && user.value) {
+      form.value.firstName = user.value.firstName || "";
+      form.value.lastName = user.value.lastName || "";
+      form.value.username = user.value.username || "";
+      form.value.email = user.value.email || "";
       form.value.currentPassword = "";
       form.value.newPassword = "";
       errors.value = [];
@@ -40,10 +43,10 @@ watch(
 );
 
 const originalData = computed(() => ({
-  firstName: props.user?.firstName || "",
-  lastName: props.user?.lastName || "",
-  username: props.user?.username || "",
-  email: props.user?.email || "",
+  firstName: user.value?.firstName || "",
+  lastName: user.value?.lastName || "",
+  username: user.value?.username || "",
+  email: user.value?.email || "",
 }));
 
 const changedFields = computed(() => {
@@ -67,11 +70,11 @@ const validate = () => {
   const errs = [];
   const f = form.value;
   if (f.newPassword && !f.currentPassword)
-    errs.push("Current password is required to set a new password.");
+    errs.push(t("modal.editProfile.errors.currentPasswordRequired"));
   if (f.newPassword && f.newPassword.length < 8)
-    errs.push("New password must be at least 8 characters.");
+    errs.push(t("modal.editProfile.errors.passwordTooShort"));
   if (f.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(f.email))
-    errs.push("Please enter a valid email address.");
+    errs.push(t("modal.editProfile.errors.invalidEmail"));
   return errs;
 };
 
@@ -90,24 +93,14 @@ const handleSave = async () => {
 
   isSubmitting.value = true;
   try {
-    const token = useCookie("token").value;
-    await $fetch(`${config.public.apiBaseUrl}/api/users/me`, {
-      method: "PATCH",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: changedFields.value,
-    });
-    emit("updated");
+    await userStore.editUserProfile(changedFields.value);
     emit("close");
   } catch (e) {
     const message =
       e?.data?.message ||
       e?.data?.error ||
       "Something went wrong. Please try again.";
-    const serverErrors = Array.isArray(message) ? message : [message];
-    errors.value = serverErrors;
+    errors.value = Array.isArray(message) ? message : [message];
   } finally {
     isSubmitting.value = false;
   }
@@ -147,7 +140,7 @@ const handleBackdropClick = (e) => {
               id="modal-title"
               class="font-mono text-xs font-semibold tracking-widest text-neutral-800 uppercase"
             >
-              Edit Profile
+              {{ t("modal.editProfile.title") }}
             </h2>
             <button
               class="flex items-center justify-center w-7 h-7 border border-neutral-200 text-neutral-400 hover:text-neutral-800 hover:border-neutral-400 transition-colors"
@@ -175,8 +168,9 @@ const handleBackdropClick = (e) => {
               <div class="flex flex-col gap-1.5">
                 <label
                   class="font-mono text-[10px] tracking-widest text-neutral-400 uppercase"
-                  >First name</label
                 >
+                  {{ t("modal.editProfile.firstName") }}
+                </label>
                 <input
                   v-model="form.firstName"
                   type="text"
@@ -188,8 +182,9 @@ const handleBackdropClick = (e) => {
               <div class="flex flex-col gap-1.5">
                 <label
                   class="font-mono text-[10px] tracking-widest text-neutral-400 uppercase"
-                  >Last name</label
                 >
+                  {{ t("modal.editProfile.lastName") }}
+                </label>
                 <input
                   v-model="form.lastName"
                   type="text"
@@ -204,8 +199,9 @@ const handleBackdropClick = (e) => {
             <div class="flex flex-col gap-1.5">
               <label
                 class="font-mono text-[10px] tracking-widest text-neutral-400 uppercase"
-                >Username</label
               >
+                {{ t("modal.editProfile.username") }}
+              </label>
               <div class="relative">
                 <span
                   class="absolute left-3 top-1/2 -translate-y-1/2 font-mono text-xs text-neutral-400 pointer-events-none select-none"
@@ -225,8 +221,9 @@ const handleBackdropClick = (e) => {
             <div class="flex flex-col gap-1.5">
               <label
                 class="font-mono text-[10px] tracking-widest text-neutral-400 uppercase"
-                >Email</label
               >
+                {{ t("modal.editProfile.email") }}
+              </label>
               <input
                 v-model="form.email"
                 type="email"
@@ -241,8 +238,9 @@ const handleBackdropClick = (e) => {
               <div class="flex-1 h-px bg-neutral-100" />
               <span
                 class="font-mono text-[10px] tracking-widest text-neutral-300 uppercase whitespace-nowrap"
-                >Password change</span
               >
+                {{ t("modal.editProfile.passwordSection") }}
+              </span>
               <div class="flex-1 h-px bg-neutral-100" />
             </div>
 
@@ -250,8 +248,9 @@ const handleBackdropClick = (e) => {
             <div class="flex flex-col gap-1.5">
               <label
                 class="font-mono text-[10px] tracking-widest text-neutral-400 uppercase"
-                >Current password</label
               >
+                {{ t("modal.editProfile.currentPassword") }}
+              </label>
               <div class="relative">
                 <input
                   v-model="form.currentPassword"
@@ -300,8 +299,9 @@ const handleBackdropClick = (e) => {
             <div class="flex flex-col gap-1.5">
               <label
                 class="font-mono text-[10px] tracking-widest text-neutral-400 uppercase"
-                >New password</label
               >
+                {{ t("modal.editProfile.newPassword") }}
+              </label>
               <div class="relative">
                 <input
                   v-model="form.newPassword"
@@ -378,8 +378,9 @@ const handleBackdropClick = (e) => {
                   </svg>
                   <span
                     class="font-mono text-[10px] leading-relaxed tracking-wide text-red-600"
-                    >{{ error }}</span
                   >
+                    {{ error }}
+                  </span>
                 </div>
                 <button
                   type="button"
@@ -410,7 +411,7 @@ const handleBackdropClick = (e) => {
                 {{
                   hasChanges
                     ? `${Object.keys(changedFields).length} field${Object.keys(changedFields).length > 1 ? "s" : ""} modified`
-                    : "No changes"
+                    : t("modal.editProfile.noChanges")
                 }}
               </span>
               <div class="flex gap-2">
@@ -419,7 +420,7 @@ const handleBackdropClick = (e) => {
                   class="px-4 py-1.5 font-mono text-[11px] tracking-widest uppercase border border-neutral-200 text-neutral-500 hover:border-neutral-400 hover:text-neutral-800 transition-colors"
                   @click="handleClose"
                 >
-                  Cancel
+                  {{ t("modal.editProfile.cancel") }}
                 </button>
                 <button
                   type="submit"
@@ -435,7 +436,7 @@ const handleBackdropClick = (e) => {
                     v-if="isSubmitting"
                     class="inline-block w-3 h-3 border border-neutral-400 border-t-neutral-700 rounded-full animate-spin"
                   />
-                  <span v-else>Save</span>
+                  <span v-else>{{ t("modal.editProfile.save") }}</span>
                 </button>
               </div>
             </div>

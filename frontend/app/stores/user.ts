@@ -4,11 +4,23 @@ import Swal from "sweetalert2";
 
 interface User {
   userId: string;
+  firstName: string;
+  lastName: string;
+  email: string;
   username: string;
+  currentPassword: string;
+  newPassword?: string;
   role: "client" | "worker" | "company" | "admin";
   vehicles: Vehicle[];
   assignedTickets?: any[];
   tickets?: any[];
+  preferences?: Preferences;
+}
+
+export interface Preferences {
+  darkMode: boolean;
+  language: "en" | "pt" | "es";
+  hidePlates: boolean;
 }
 
 interface Vehicle {
@@ -22,6 +34,7 @@ interface Vehicle {
 export const useUserStore = defineStore("user", () => {
   const currentUser = ref<User | null>(null);
   const chargingHistory = ref<any[] | null>(null);
+  const { setLocale, setLocaleCookie } = useI18n();
 
   // ── Getters ──────────────────────────────────────────────────────────────
 
@@ -50,10 +63,49 @@ export const useUserStore = defineStore("user", () => {
       currentUser.value = await $fetch<User>(`${apiBase()}/api/users/me`, {
         headers: { Authorization: `Bearer ${token()}` },
       });
+
+      if (currentUser.value.preferences?.language) {
+        // use await if you want to ensure locale is loaded before proceeding
+        await setLocale(currentUser.value.preferences.language);
+        await setLocaleCookie(currentUser.value.preferences.language);
+      }
     } catch (e) {
       console.error("Failed to fetch user:", e);
       currentUser.value = null;
     }
+  }
+
+  async function editUserProfile(
+    changes: Partial<
+      Pick<
+        User,
+        | "firstName"
+        | "lastName"
+        | "username"
+        | "email"
+        | "newPassword"
+        | "currentPassword"
+        | "preferences"
+      > & {
+        currentPassword: string;
+        newPassword: string;
+      }
+    >,
+  ) {
+    await $fetch(`${apiBase()}/api/users/me`, {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${token()}`,
+        "Content-Type": "application/json",
+      },
+      body: changes,
+    });
+
+    if (changes.preferences?.language) {
+      await setLocale(changes.preferences.language);
+    }
+
+    await fetchCurrentUser();
   }
 
   async function fetchChargingHistory() {
@@ -167,5 +219,6 @@ export const useUserStore = defineStore("user", () => {
     deleteVehicle,
     confirmLogout,
     addVehicle,
+    editUserProfile,
   };
 });

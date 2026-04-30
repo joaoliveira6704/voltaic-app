@@ -75,7 +75,10 @@ export const getUserById = async (req, res, next) => {
 
 export const updateOwnUser = async (req, res, next) => {
   try {
-    const user = await userModel.findOne({ userId: req.user.userId });
+    // 1. Fetch user (ensure password is selected for comparison)
+    const user = await userModel
+      .findOne({ userId: req.user.userId })
+      .select("+password");
 
     if (!user) {
       const err = new Error("User not found");
@@ -83,14 +86,49 @@ export const updateOwnUser = async (req, res, next) => {
       return next(err);
     }
 
-    Object.assign(user, req.body);
-    const updatedUser = await user.save(); // This triggers the duplicate check!
+    const { newPassword, currentPassword, ...otherUpdates } = req.body;
+
+    // 2. Handle Password Change Logic
+    if (newPassword) {
+      if (!currentPassword) {
+        const err = new Error(
+          "Current password is required to set a new password",
+        );
+        err.status = 400;
+        return next(err);
+      }
+
+      // Check if current password is correct
+      const isPasswordValid = await user.correctPassword(
+        currentPassword,
+        user.password,
+      );
+      if (!isPasswordValid) {
+        const err = new Error("The current password you entered is incorrect");
+        err.status = 401;
+        return next(err);
+      }
+
+      // Set the new password (Mongoose 'pre-save' hook will hash this)
+      user.password = newPassword;
+    }
+
+    // 3. Update other fields
+    // Use Object.assign on the document to keep it reactive
+    Object.assign(user, otherUpdates);
+
+    // 4. Save and trigger validation/hooks
+    const updatedUser = await user.save();
+
+    // 5. Security: Don't send the password back in the response
+    updatedUser.password = undefined;
 
     res.json(updatedUser);
   } catch (error) {
     if (error.code === 11000) {
       error.status = 400;
-      error.message = "Email or username already exists";
+      const field = Object.keys(error.keyValue)[0];
+      error.message = `${field.charAt(0).toUpperCase() + field.slice(1)} already exists`;
     }
     next(error);
   }
@@ -146,6 +184,38 @@ export const removeVehicle = async (req, res, next) => {
       return next(err);
     }
 
+    res.json(updatedUser);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const editVehicle = async (req, res, next) => {
+  try {
+    const { plate } = req.params; // Get plate from URL
+    const { model, color, connector, slug } = req.body;
+
+    const updatedUser = await userModel.findOneAndUpdate(
+      {
+        userId: req.user.userId,
+        "vehicles.plate": plate,
+      },
+      {
+        $set: {
+          "vehicles.$.model": model,
+          "vehicles.$.color": color,
+          "vehicles.$.connector": connector,
+          "vehicles.$.slug": slug,
+        },
+      },
+      { new: true },
+    );
+    if (!updatedUser) {
+      let err = new Error();
+      err.status = 404;
+      err.message = "Vehicle not found";
+      return next(err);
+    }
     res.json(updatedUser);
   } catch (error) {
     next(error);

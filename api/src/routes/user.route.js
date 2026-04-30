@@ -8,6 +8,7 @@ import {
   addVehicle,
   getUserById,
   removeVehicle,
+  editVehicle,
 } from "../controllers/user.controller.js";
 import { protect } from "../middleware/auth.middleware.js";
 
@@ -20,6 +21,7 @@ router.get("/me", protect, getCurrentUser);
 router.get("/:id", protect, getUserById);
 router.patch("/me", protect, updateOwnUser);
 router.post("/me/vehicles", protect, addVehicle);
+router.patch("/me/vehicles/:plate", protect, editVehicle);
 router.delete("/me/vehicles/:plate", protect, removeVehicle);
 
 export default router;

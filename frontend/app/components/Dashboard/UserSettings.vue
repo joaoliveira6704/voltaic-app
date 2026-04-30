@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, computed, watch } from "vue";
 import { Switch } from "@/components/ui/switch";
 import {
   Select,
@@ -9,68 +9,97 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import type { Preferences } from "@/stores/user";
 
-const darkMode = ref(false);
-const hidePlates = ref(false);
-const language = ref("en");
+const userStore = useUserStore();
+const { t } = useI18n();
+const darkMode = ref(userStore.currentUser?.preferences?.darkMode ?? false);
+const hidePlates = ref(userStore.currentUser?.preferences?.hidePlates ?? false);
+const language = ref(userStore.currentUser?.preferences?.language ?? "en");
 
-defineEmits(["update:settings"]);
+const emit = defineEmits(["saveUserSettings"]);
+
+const preferences = computed(
+  (): Preferences => ({
+    darkMode: darkMode.value,
+    hidePlates: hidePlates.value,
+    language: language.value,
+  }),
+);
 
 const handleSave = () => {
-  console.log("Settings Saved:", {
-    dark: darkMode.value,
-    hide: hidePlates.value,
-    lang: language.value,
-  });
+  const preferencesData = preferences.value;
+
+  console.log("Settings saving:", preferencesData);
+
+  emit("saveUserSettings", preferencesData);
+
+  userStore.editUserProfile({ preferences: preferencesData });
+
+  language.value = preferencesData.language;
 };
 </script>
 
 <template>
-  <div class="flex flex-col gap-6 py-2 font-mono h-full">
-    <div class="flex items-center justify-between group">
-      <span class="text-sm font-bold text-neutral-700 uppercase tracking-tight">
-        Dark Mode
-      </span>
-      <Switch
-        v-model:checked="darkMode"
-        class="data-[state=checked]:bg-blue-600"
-      />
-    </div>
+  <div
+    class="flex flex-col gap-6 py-2 font-mono h-full w-full items-center justify-center text-center mx-auto"
+  >
+    <div class="flex flex-row justify-around gap-10">
+      <div class="flex gap-2 items-center justify-between group">
+        <span
+          class="text-sm font-bold text-neutral-700 uppercase tracking-tight"
+        >
+          {{ t("darkMode") }}
+        </span>
+        <Switch
+          v-model="darkMode"
+          class="data-[state=unchecked]:bg-neutral-300 data-[state=checked]:bg-blue-600 [&>[data-slot=switch-thumb]]:bg-white"
+        />
+      </div>
 
-    <div class="flex items-center justify-between group">
-      <span class="text-sm font-bold text-neutral-700 uppercase tracking-tight">
-        Hide plates
-      </span>
-      <Switch
-        v-model:checked="hidePlates"
-        class="data-[state=checked]:bg-blue-600"
-      />
+      <div class="flex gap-2 items-center justify-between group">
+        <span
+          class="text-sm font-bold text-neutral-700 uppercase tracking-tight"
+        >
+          {{ t("hidePlates") }}
+        </span>
+        <Switch
+          v-model="hidePlates"
+          class="data-[state=unchecked]:bg-neutral-300 data-[state=checked]:bg-blue-600 [&>[data-slot=switch-thumb]]:bg-white"
+        />
+      </div>
     </div>
 
     <div class="flex flex-col gap-2 mt-2">
       <label
         class="text-[10px] font-bold text-neutral-400 uppercase tracking-widest"
       >
-        Language
+        {{ t("language") }}
       </label>
       <Select v-model="language">
         <SelectTrigger class="w-full font-mono border-neutral-200">
           <SelectValue placeholder="Select Language" />
         </SelectTrigger>
         <SelectContent class="font-mono bg-white">
-          <SelectItem value="en">English (US)</SelectItem>
-          <SelectItem value="pt">Portuguese (PT)</SelectItem>
-          <SelectItem value="es">Spanish (ES)</SelectItem>
+          <SelectItem value="en" class="cursor-pointer hover:bg-gray-200">{{
+            t("en")
+          }}</SelectItem>
+          <SelectItem value="pt" class="cursor-pointer hover:bg-gray-200">{{
+            t("pt")
+          }}</SelectItem>
+          <SelectItem value="es" class="cursor-pointer hover:bg-gray-200">{{
+            t("es")
+          }}</SelectItem>
         </SelectContent>
       </Select>
     </div>
 
-    <div class="mt-auto pt-3">
+    <div class="mt-auto pt-3 w-full">
       <Button
-        class="w-full bg-[#007AFF] hover:bg-blue-700 text-white font-bold py-6 rounded-lg transition-all active:scale-[0.98]"
+        class="w-full max-w-[300px] bg-[#007AFF] hover:bg-blue-700 text-white font-bold py-6 rounded-lg transition-all active:scale-[0.98]"
         @click="handleSave"
       >
-        Delete log history
+        {{ t("saveChanges") }}
       </Button>
     </div>
   </div>

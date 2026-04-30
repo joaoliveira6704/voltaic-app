@@ -17,6 +17,8 @@ useHead({
 
 definePageMeta({ layout: "profile" });
 
+const { t } = useI18n();
+
 const userStore = useUserStore(); // Pinia must be called before any awaits
 const { currentUser, chargingHistory, userRole, displayItems } =
   storeToRefs(userStore);
@@ -57,17 +59,17 @@ const cardComponent = computed(() => {
     <DropDown :role="userRole" />
     <Grid :split-cell-d="userRole === 'client'">
       <template #cell-a>
-        <DashboardCard title="Profile">
+        <DashboardCard :title="t('profile')">
           <NavGroup :role="currentUser.role" @logout="confirmLogout" />
         </DashboardCard>
       </template>
 
       <template #cell-b>
         <DashboardCard
-          title="User Info"
+          :title="t('userInfo')"
           :has-btn="true"
           :logout-button="true"
-          button-text="Edit profile"
+          :button-text="t('editProfile')"
           @logout="confirmLogout"
           @btn-click="isEditModalOpen = true"
         >
@@ -77,9 +79,9 @@ const cardComponent = computed(() => {
 
       <template #cell-c>
         <DashboardCard
-          title="Your Fleet"
+          :title="t('yourFleet')"
           :has-btn="true"
-          button-text="Add new Vehicle"
+          :button-text="t('addNewVehicle')"
           @btn-click="isAddVehicleModal = true"
         >
           <CardScroll v-if="displayItems.length > 0">
@@ -95,25 +97,25 @@ const cardComponent = computed(() => {
             v-else
             class="p-10 text-center font-mono text-xs text-neutral-400"
           >
-            No items to display for @{{ currentUser.username }}.
+            {{ t("noVehicles") }} @{{ currentUser.username }}.
           </div>
         </DashboardCard>
       </template>
 
       <template v-if="userRole === 'client'" #cell-d-left>
-        <DashboardCard title="History">
+        <DashboardCard :title="t('history')">
           <HistoryTable :sessions="chargingHistory" />
         </DashboardCard>
       </template>
 
       <template v-if="userRole === 'client'" #cell-d-right>
-        <DashboardCard title="Preferences">
+        <DashboardCard :title="t('preferences')">
           <UserSettings />
         </DashboardCard>
       </template>
 
       <template v-if="userRole === 'company'" #cell-d>
-        <DashboardCard title="Real-time Network">
+        <DashboardCard :title="t('realTimeNetwork')">
           <ScrollableGrid>
             <StationsLabel
               v-for="station in stationNetwork"

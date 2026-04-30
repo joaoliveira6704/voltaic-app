@@ -42,7 +42,23 @@ export default defineNuxtConfig({
     "@nuxt/image",
     "@nuxt/eslint",
     "@pinia/nuxt",
+    "@nuxtjs/i18n",
   ],
+  i18n: {
+    strategy: "no_prefix",
+    detectBrowserLanguage: {
+      useCookie: true,
+      cookieKey: "i18n_redirected",
+      redirectOn: "root",
+    },
+    locales: [
+      { code: "en", name: "English", file: "en.json" },
+      { code: "pt", name: "Português", file: "pt.json" },
+      { code: "es", name: "Español", file: "es.json" },
+    ],
+    defaultLocale: "en",
+    langDir: "locales/",
+  },
   shadcn: {
     /**
      * Prefix for all the imported component.

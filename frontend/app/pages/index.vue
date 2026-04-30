@@ -1,19 +1,18 @@
 <script setup lang="ts">
 import Hero from "@/components/landing-page/Hero.vue";
 import FeatureCard from "@/components/landing-page/FeatureCard.vue";
-import { onMounted, nextTick } from "vue";
+import { onMounted, nextTick, computed } from "vue";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
+const { t } = useI18n();
+
 useHead({
-  title: "Voltaic - Landing Page",
-  meta: [
-    {
-      name: "description",
-      content: "Voltaic is a electric vehicle charger company built for you.",
-    },
-  ],
+  title: t("landing.head.title"),
+  meta: [{ name: "description", content: t("landing.head.description") }],
 });
+
+definePageMeta({ layout: "default" });
 
 if (import.meta.client) {
   gsap.registerPlugin(ScrollTrigger);
@@ -45,33 +44,32 @@ onMounted(async () => {
 
 type IconName = "Zap" | "Map" | "Shield";
 
-const features: { title: string; description: string; icon: IconName }[] = [
+const features = computed<
+  { title: string; description: string; icon: IconName }[]
+>(() => [
   {
-    title: "Real-Time Availability",
-    description:
-      "Live updates on station availability and wait times at your fingertips.",
+    title: t("landing.features.realTimeAvailability.title"),
+    description: t("landing.features.realTimeAvailability.description"),
     icon: "Zap",
   },
   {
-    title: "Interactive Map",
-    description:
-      "Find nearby stations with filters for charger type, location, and more.",
+    title: t("landing.features.interactiveMap.title"),
+    description: t("landing.features.interactiveMap.description"),
     icon: "Map",
   },
   {
-    title: "Company Managed Stations",
-    description:
-      "For every station listed, we ensure it's maintained and reliable for your journey.",
+    title: t("landing.features.companyManagedStations.title"),
+    description: t("landing.features.companyManagedStations.description"),
     icon: "Shield",
   },
-];
+]);
 
-const stats: { id: number; number: string; label: string }[] = [
-  { id: 1, number: "2000+", label: "Active Users" },
-  { id: 2, number: "10K+", label: "Charging Stations" },
-  { id: 3, number: "99.9%", label: "Uptime Guarantee" },
-  { id: 4, number: "200+", label: "Companies Registered" },
-];
+const stats = computed<{ id: number; number: string; label: string }[]>(() => [
+  { id: 1, number: "2000+", label: t("landing.stats.activeUsers") },
+  { id: 2, number: "10K+", label: t("landing.stats.chargingStations") },
+  { id: 3, number: "99.9%", label: t("landing.stats.uptimeGuarantee") },
+  { id: 4, number: "200+", label: t("landing.stats.companiesRegistered") },
+]);
 </script>
 
 <template>
@@ -90,9 +88,10 @@ const stats: { id: number; number: string; label: string }[] = [
     <section id="features" class="reveal py-24 px-10 max-w-7xl mx-auto">
       <div class="text-center mb-16">
         <h2 class="text-4xl font-bold">
-          Everything You Need <br /><span class="text-green-500"
-            >All in One Place</span
-          >
+          {{ t("landing.features.sectionTitle") }} <br />
+          <span class="text-green-500">{{
+            t("landing.features.sectionTitleHighlight")
+          }}</span>
         </h2>
       </div>
       <div class="grid md:grid-cols-3 gap-8">
@@ -111,18 +110,17 @@ const stats: { id: number; number: string; label: string }[] = [
         class="max-w-7xl mx-auto bg-green-600 rounded-[3rem] p-16 text-center text-white relative overflow-hidden"
       >
         <h2 class="text-4xl font-bold mb-6">
-          Join the EV Revolution <br /><span class="text-green-200"
-            >Charge Smarter, Drive Further</span
-          >
+          {{ t("landing.cta.title") }} <br />
+          <span class="text-green-200">{{
+            t("landing.cta.titleHighlight")
+          }}</span>
         </h2>
-        <p class="mb-10 opacity-90">
-          Join thousands of drivers who charge smarter every day.
-        </p>
+        <p class="mb-10 opacity-90">{{ t("landing.cta.subtitle") }}</p>
         <div class="flex justify-center gap-4">
           <button
             class="bg-white text-green-600 px-8 py-4 rounded-xl font-bold hover:bg-green-100 transition"
           >
-            Get Started
+            {{ t("landing.cta.button") }}
           </button>
         </div>
       </div>

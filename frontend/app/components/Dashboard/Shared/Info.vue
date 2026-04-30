@@ -2,6 +2,7 @@
 import { Mail, MapPin, Globe } from "lucide-vue-next";
 import { createAvatar } from "@dicebear/core";
 import { bottts } from "@dicebear/collection";
+import type { Preferences } from "~/stores/user";
 
 // 1. Define the interface for the user data
 interface UserData {
@@ -14,6 +15,7 @@ interface UserData {
   role: string;
   avatarUrl?: string;
   language?: string;
+  preferences?: Preferences;
 }
 
 // 2. Define the Props
@@ -23,7 +25,7 @@ interface Props {
 
 // 3. Set the props
 const props = defineProps<Props>();
-
+const { t } = useI18n();
 const config = useRuntimeConfig();
 
 const { data: companyName } = await useAsyncData(
@@ -56,6 +58,10 @@ const avatar = createAvatar(bottts, {
 });
 
 const avatarUrl: string = avatar.toDataUri();
+
+const sendEmail = () => {
+  window.location.href = `mailto:${props.user.email}`;
+};
 </script>
 
 <template>
@@ -96,7 +102,10 @@ const avatarUrl: string = avatar.toDataUri();
       <p>@{{ props.user.username }}</p>
 
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-x-12 gap-y-3 mt-2">
-        <div class="flex items-center gap-3 group">
+        <div
+          class="flex items-center gap-3 group cursor-pointer"
+          @click="sendEmail"
+        >
           <Mail
             class="w-5 h-5 text-neutral-400 group-hover:text-black transition-colors"
           />
@@ -119,7 +128,7 @@ const avatarUrl: string = avatar.toDataUri();
             class="w-5 h-5 text-neutral-400 group-hover:text-black transition-colors"
           />
           <span class="text-sm font-bold tracking-tight">
-            {{ props.user.language || "English (US)" }}
+            {{ t(props.user.preferences?.language || "en") }}
           </span>
         </div>
       </div>
