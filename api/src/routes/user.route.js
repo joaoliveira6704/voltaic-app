@@ -10,13 +10,13 @@ import {
   removeVehicle,
   editVehicle,
 } from "../controllers/user.controller.js";
-import { protect } from "../middleware/auth.middleware.js";
+import { protect, requireRole } from "../middleware/auth.middleware.js";
 
 const router = Router();
 
 router.get("/", getUsers);
 router.put("/:id", protect, updateUser);
-router.delete("/:id", protect, deleteUser);
+router.delete("/:id", protect, requireRole("admin", "client"), deleteUser);
 router.get("/me", protect, getCurrentUser);
 router.get("/:id", protect, getUserById);
 router.patch("/me", protect, updateOwnUser);
