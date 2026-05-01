@@ -5,7 +5,17 @@ const userSchema = new mongoose.Schema(
   {
     userId: { type: String, required: true, unique: true, trim: true },
     username: { type: String, required: true, unique: true, trim: true },
-    email: { type: String, required: true, unique: true },
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+      validate: {
+        validator: function (value) {
+          return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+        },
+        message: "Invalid email address",
+      },
+    },
     firstName: { type: String, required: true },
     lastName: { type: String, required: true },
     password: {

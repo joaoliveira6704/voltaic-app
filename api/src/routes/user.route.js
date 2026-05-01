@@ -15,8 +15,9 @@ import { protect, requireRole } from "../middleware/auth.middleware.js";
 const router = Router();
 
 router.get("/", getUsers);
-router.put("/:id", protect, updateUser);
-router.delete("/:id", protect, requireRole("admin", "client"), deleteUser);
+router.post("/");
+router.patch("/:id", protect, updateUser);
+router.delete("/:id", protect, requireRole("admin"), deleteUser);
 router.get("/me", protect, getCurrentUser);
 router.get("/:id", protect, getUserById);
 router.patch("/me", protect, updateOwnUser);
