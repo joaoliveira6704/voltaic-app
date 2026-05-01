@@ -21,6 +21,8 @@ router.delete("/:id", protect, requireRole("admin"), deleteUser);
 router.get("/me", protect, getCurrentUser);
 router.get("/:id", protect, getUserById);
 router.patch("/me", protect, updateOwnUser);
+router.patch("/users/:id/role", protect, requireRole("admin"), updateRole);
+router.patch("/users/:id", protect, requireRole("admin"), updateUser);
 router.post("/me/vehicles", protect, addVehicle);
 router.patch("/me/vehicles/:plate", protect, editVehicle);
 router.delete("/me/vehicles/:plate", protect, removeVehicle);

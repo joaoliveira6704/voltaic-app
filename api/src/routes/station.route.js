@@ -6,14 +6,14 @@ import {
   updateStation,
   getStationById,
 } from "../controllers/station.controller.js";
-import { protect } from "../middleware/auth.middleware";
+import { protect, requireRole } from "../middleware/auth.middleware";
 
 const router = Router();
 
 router.get("/", getStations);
-router.post("/", createStation);
+router.post("/", protect, requireRole("admin"), createStation);
 router.delete("/:id", deleteStation);
-router.patch("/:id", updateStation);
+router.patch("/:id", protect, requireRole("admin"), updateStation);
 router.get("/:id", protect, getStationById);
 
 export default router;

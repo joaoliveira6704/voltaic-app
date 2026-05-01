@@ -31,6 +31,7 @@ app.use("/api/stations", stationRoute);
 app.use("/api/tickets", ticketRoute);
 app.use("/api/vehicles", vehicleRoute);
 app.use("/api/usage", usageRoute);
+
 app.get("/api/status", (req, res) => res.json({ status: "Alive" }));
 
 app.use(errorHandler);

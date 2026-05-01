@@ -16,11 +16,6 @@ const router = Router();
 
 router.use(protect, requireRole("admin"));
 
-router.patch("/users", updateUser);
-router.delete("/users/:id", deleteUser);
-router.patch("/users/:id/role", updateRole);
-router.post("/companies", createCompany);
-router.post("/stations", createStation);
 router.patch("/stations/:id", updateStation);
 
 export default router;
