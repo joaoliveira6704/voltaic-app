@@ -33,6 +33,7 @@ interface Vehicle {
 
 export const useUserStore = defineStore("user", () => {
   const currentUser = ref<User | null>(null);
+  const isLoaded = ref(false);
   const chargingHistory = ref<any[] | null>(null);
   const { setLocale, setLocaleCookie } = useI18n();
 
@@ -60,18 +61,20 @@ export const useUserStore = defineStore("user", () => {
 
   async function fetchCurrentUser() {
     try {
-      currentUser.value = await $fetch<User>(`${apiBase()}/api/users/me`, {
+      const data = await $fetch<User>(`${apiBase()}/api/users/me`, {
         headers: { Authorization: `Bearer ${token()}` },
       });
+      currentUser.value = data;
 
-      if (currentUser.value.preferences?.language) {
-        // use await if you want to ensure locale is loaded before proceeding
-        await setLocale(currentUser.value.preferences.language);
-        await setLocaleCookie(currentUser.value.preferences.language);
+      if (data.preferences?.language) {
+        await setLocale(data.preferences.language);
+        await setLocaleCookie(data.preferences.language);
       }
     } catch (e) {
       console.error("Failed to fetch user:", e);
       currentUser.value = null;
+    } finally {
+      isLoaded.value = true;
     }
   }
 
@@ -160,6 +163,7 @@ export const useUserStore = defineStore("user", () => {
   }
 
   async function addVehicle(vehicle: Vehicle) {
+    console.log("adding vehicle: ", vehicle);
     if (!currentUser.value) return;
 
     try {
@@ -211,6 +215,7 @@ export const useUserStore = defineStore("user", () => {
 
   return {
     currentUser,
+    isLoaded,
     chargingHistory,
     userRole,
     displayItems,

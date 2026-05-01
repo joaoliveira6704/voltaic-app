@@ -1,11 +1,9 @@
-// utils/navigation.ts
 import {
   LayoutDashboard,
   Users,
   History,
   Zap,
   Ticket,
-  LogOut,
   Shield,
 } from "lucide-vue-next";
 import type { Component } from "vue";
@@ -19,36 +17,42 @@ export interface NavItem {
   action?: string | null;
 }
 
-export const ROLE_EXTRA_LINK: Partial<Record<UserRole, NavItem>> = {
-  admin: { label: "Admin Page", icon: Shield, path: "/admin" },
-  "company-manager": { label: "Manager Page", icon: Users, path: "/manager" },
-  worker: { label: "Worker Page", icon: Ticket, path: "/worker" },
-};
+type TFunction = (key: string) => string;
 
-export const NAVIGATION_MAP: Record<UserRole, NavItem[]> = {
+export const getRoleExtraLink = (
+  t: TFunction,
+): Partial<Record<UserRole, NavItem>> => ({
+  admin: { label: t("nav.admin"), icon: Shield, path: "/admin" },
+  "company-manager": {
+    label: t("nav.companyManager"),
+    icon: Users,
+    path: "/manager",
+  },
+  worker: { label: t("nav.worker"), icon: Ticket, path: "/worker" },
+});
+
+export const getNavigationMap = (
+  t: TFunction,
+): Record<UserRole, NavItem[]> => ({
   admin: [
-    { label: "Dashboard", icon: LayoutDashboard, path: "/profile" },
-    { label: "Tickets", icon: Ticket, path: "" },
-    { label: "Users", icon: Users, path: "" },
-    { label: "Stations", icon: Zap, path: "" },
-    { label: "Logout", icon: LogOut, action: "logout" },
+    { label: "Dashboard", icon: LayoutDashboard, path: "/admin" },
+    { label: t("nav.users"), icon: Users, path: "/admin/users" },
+    { label: t("nav.stations"), icon: Zap, path: "/admin/stations" },
+    { label: t("nav.tickets"), icon: Ticket, path: "/admin/tickets" },
   ],
   "company-manager": [
     { label: "Dashboard", icon: LayoutDashboard, path: "/profile" },
-    { label: "Stations", icon: Zap, path: "" },
-    { label: "Tickets", icon: Ticket, path: "" },
-    { label: "Personnel", icon: Users, path: "" },
-    { label: "Logout", icon: LogOut, action: "logout" },
+    { label: t("nav.stations"), icon: Zap, path: "" },
+    { label: t("nav.tickets"), icon: Ticket, path: "" },
+    { label: t("nav.personnel"), icon: Users, path: "" },
   ],
   worker: [
     { label: "Dashboard", icon: LayoutDashboard, path: "/profile" },
-    { label: "Assigned Tickets", icon: Ticket, path: "" },
-    { label: "Logout", icon: LogOut, action: "logout" },
+    { label: t("nav.assignedTickets"), icon: Ticket, path: "" },
   ],
   client: [
-    { label: "Dashboard", icon: LayoutDashboard, path: "/profile" },
-    { label: "Favorite Stations", icon: Zap, path: "" },
-    { label: "History", icon: History, path: "" },
-    { label: "Logout", icon: LogOut, action: "logout" },
+    { label: t("nav.map"), icon: LayoutDashboard, path: "/map" },
+    { label: t("nav.favoriteStations"), icon: Zap, path: "" },
+    { label: t("nav.history"), icon: History, path: "" },
   ],
-};
+});

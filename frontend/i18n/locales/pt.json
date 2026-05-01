@@ -21,6 +21,19 @@
   "en": "Inglês (US)",
   "pt": "Português (PT)",
   "es": "Espanhol (ES)",
+  "nav": {
+    "admin": "Administrador",
+    "companyManager": "Gestor de Empresa",
+    "worker": "Trabalhador",
+    "users": "Utilizadores",
+    "stations": "Postos",
+    "tickets": "Tickets",
+    "personnel": "Personal",
+    "assignedTickets": "Tickets Atribuídos",
+    "map": "Mapa",
+    "favoriteStations": "Postos Favoritos",
+    "history": "Histórico"
+  },
   "modal": {
     "editProfile": {
       "title": "Editar Perfil",

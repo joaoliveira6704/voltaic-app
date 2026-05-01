@@ -15,8 +15,6 @@ useHead({
     ],
 });
 
-definePageMeta({ layout: "profile" });
-
 const { t } = useI18n();
 
 const userStore = useUserStore(); // Pinia must be called before any awaits
@@ -31,42 +29,22 @@ await useAsyncData("chargingHistory", () => fetchChargingHistory());
 
 const isEditModalOpen = ref(false);
 const isAddVehicleModal = ref(false);
-
-const cardComponent = computed(() => {
-    const map = {
-        client: VehicleCard,
-        worker: TicketCard,
-        company: TicketCard,
-        admin: TicketCard,
-    };
-    return map[userRole.value] || VehicleCard;
-});
 </script>
 
 <template>
-    <EditProfileModal
-        :is-open="isEditModalOpen"
-        :user="currentUser"
-        @close="isEditModalOpen = false"
-        @updated="fetchCurrentUser"
-    />
-    <AddVehicleModal
-        :is-open="isAddVehicleModal"
-        @close="isAddVehicleModal = false"
-        @added="userStore.fetchCurrentUser()"
-    />
-    <div>
-        <DropDown :role="userRole" />
-        <Grid :split-cell-d="userRole === 'client'">
-            <template #cell-a>
-                <DashboardCard :title="t('profile')">
-                    <NavGroup
-                        :role="currentUser.role"
-                        @logout="confirmLogout"
-                    />
-                </DashboardCard>
-            </template>
-
+    <div class="flex-1 py-2 pr-4 min-w-0 overflow-y-auto">
+        <EditProfileModal
+            :is-open="isEditModalOpen"
+            :user="currentUser"
+            @close="isEditModalOpen = false"
+            @updated="fetchCurrentUser"
+        />
+        <AddVehicleModal
+            :is-open="isAddVehicleModal"
+            @close="isAddVehicleModal = false"
+            @added="userStore.fetchCurrentUser()"
+        />
+        <Grid :split-cell-d="true">
             <template #cell-b>
                 <DashboardCard
                     :title="t('userInfo')"
@@ -87,13 +65,12 @@ const cardComponent = computed(() => {
                     :button-text="t('addNewVehicle')"
                     @btn-click="isAddVehicleModal = true"
                 >
-                    <CardScroll v-if="displayItems.length > 0">
-                        <component
-                            :is="cardComponent"
-                            v-for="item in displayItems"
-                            :key="item.plate || item._id"
-                            :data="item"
-                            @delete="deleteVehicle(item.plate)"
+                    <CardScroll v-if="currentUser.vehicles.length > 0">
+                        <VehicleCard
+                            v-for="vehicle in currentUser.vehicles"
+                            :key="vehicle.plate || vehicle._id"
+                            :data="vehicle"
+                            @delete="deleteVehicle(vehicle.plate)"
                         />
                     </CardScroll>
                     <div
@@ -105,13 +82,13 @@ const cardComponent = computed(() => {
                 </DashboardCard>
             </template>
 
-            <template v-if="userRole === 'client'" #cell-d-left>
+            <template #cell-d-left>
                 <DashboardCard :title="t('history')">
                     <HistoryTable :sessions="chargingHistory" />
                 </DashboardCard>
             </template>
 
-            <template v-if="userRole === 'client'" #cell-d-right>
+            <template #cell-d-right>
                 <DashboardCard :title="t('preferences')">
                     <UserSettings />
                 </DashboardCard>

@@ -1,20 +1,12 @@
 <script setup lang="ts">
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
+import { Map } from "lucide-vue-next";
 
+const navLinks = [{ path: "/", label: "Map" }]; /* link map page */
+const { t } = useI18n();
 const userStore = useUserStore();
 
-const navLinks = userStore.currentUser
-    ? [
-          { path: "/", label: "Home" },
-          { path: "/profile", label: "Profile" },
-          { path: "/admin", label: "Admin" },
-      ]
-    : [
-          { path: "/", label: "Home" },
-          { path: "/login", label: "Login" },
-          { path: "/signup", label: "Signup" },
-      ];
+const currentUser = userStore.currentUser;
 </script>
 
 <template>
@@ -33,43 +25,30 @@ const navLinks = userStore.currentUser
                         :key="link.path"
                         variant="ghost"
                         as-child
-                        class="text-xs"
+                        class="text-sm"
                     >
-                        <NuxtLink
-                            :to="link.path"
-                            active-class="text-[#007bff]"
-                            >{{ link.label }}</NuxtLink
-                        >
+                        <!-- <NuxtLink :to="link.path" active-class="text-[#007bff]">{{
+              link.label
+            }}</NuxtLink> -->
+                        <NuxtLink :to="link.path" active-class="text-[#007bff]">
+                            <Map class="w-10 h-10" />
+                        </NuxtLink>
                     </Button>
                 </div>
             </div>
         </nav>
 
-        <main class="flex-1 overflow-y-scroll">
-            <slot />
-        </main>
+        <main class="flex pl-4 w-full h-screen gap-5 overflow-y-auto">
+            <div class="flex flex-col py-4 pl-2 justify-between">
+                <DashboardCard :title="t('profile')">
+                    <NavGroup :role="currentUser?.role" />
+                </DashboardCard>
 
-        <footer class="shrink-0 w-full border-t border-gray-100 bg-white py-4">
-            <div
-                class="container mx-auto max-w-7xl px-4 md:px-8 flex justify-between items-center"
-            >
-                <Label
-                    class="text-[10px] text-gray-400 uppercase tracking-widest"
-                    >© 2026 Voltaic</Label
-                >
-                <div class="flex gap-4">
-                    <Button
-                        variant="link"
-                        class="p-0 h-auto text-[10px] text-gray-400"
-                        >Privacy</Button
-                    >
-                    <Button
-                        variant="link"
-                        class="p-0 h-auto text-[10px] text-gray-400"
-                        >Terms</Button
-                    >
-                </div>
+                <DashboardCard :hasTitle="false">
+                    <LowerCard />
+                </DashboardCard>
             </div>
-        </footer>
+            <slot class="flex-1 min-w-0 overflow-y-auto" />
+        </main>
     </div>
 </template>

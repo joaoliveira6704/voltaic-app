@@ -13,8 +13,6 @@ useHead({
     ],
 });
 
-definePageMeta({ layout: "profile" });
-
 const { t } = useI18n();
 
 const userStore = useUserStore();
@@ -25,7 +23,7 @@ await useAsyncData("currentUser", () => fetchCurrentUser());
 </script>
 
 <template>
-    <div>
+    <div class="flex-1 min-w-0 overflow-y-auto">
         <EditProfileModal
             :is-open="isEditModalOpen"
             :user="currentUser"
@@ -40,7 +38,7 @@ await useAsyncData("currentUser", () => fetchCurrentUser());
         <DropDown :role="userRole" />
         <Grid :split-cell-d="userRole === 'admin'">
             <template #cell-a>
-                <DashboardCard :title="t('profile')">
+                <DashboardCard title="Admin">
                     <NavGroup :role="currentUser.role" />
                 </DashboardCard>
             </template>
