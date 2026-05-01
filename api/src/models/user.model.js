@@ -1,5 +1,7 @@
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
+import validator from "validator";
+import isEmail from "validator/lib/isEmail";
 
 const userSchema = new mongoose.Schema(
   {
@@ -10,9 +12,7 @@ const userSchema = new mongoose.Schema(
       required: true,
       unique: true,
       validate: {
-        validator: function (value) {
-          return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
-        },
+        validator: validator.isEmail,
         message: "Invalid email address",
       },
     },
@@ -24,12 +24,12 @@ const userSchema = new mongoose.Schema(
       select: false,
       validate: {
         validator: function (value) {
-          return (
-            value.length > 8 &&
-            /[A-Z]/.test(value) &&
-            /[a-z]/.test(value) &&
-            /[^a-zA-Z0-9]/.test(value)
-          );
+          return validator.isStrongPassword(value, {
+            minLength: 8,
+            minLowercase: 1,
+            minUppercase: 1,
+            minSymbols: 1,
+          });
         },
         message: `Password must contain at least 8 characters, with one uppercase, one lowercase and a special character`,
       },
