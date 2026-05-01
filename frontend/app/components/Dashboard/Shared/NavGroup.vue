@@ -12,17 +12,17 @@ const route = useRoute();
 
 const roleMap: Partial<Record<UserRole, NavItem>> = {
     admin: {
-        label: "Admin",
+        label: t("nav.admin"),
         icon: Shield,
         path: "/admin",
     },
     worker: {
-        label: "Worker",
+        label: t("nav.worker"),
         icon: Wrench,
         path: "/worker",
     },
     "company-manager": {
-        label: "Company Manager",
+        label: t("nav.companyManager"),
         icon: Wrench,
         path: "/company-manager",
     },
@@ -52,12 +52,12 @@ const navigationLinks = computed(() => {
 </script>
 <template>
     <nav class="flex flex-col gap-2">
-        <!-- 3. Iterate over the computed results -->
         <NuxtLink
             v-for="link in navigationLinks"
             :key="link.label"
             :to="link.path"
             class="flex items-center gap-3 px-4 py-2 hover:bg-gray-100 rounded-md"
+            :class="{ 'bg-gray-100': link.path === route.path }"
         >
             <component :is="link.icon" class="h-4 w-4" />
             <span class="text-sm font-medium">{{ link.label }}</span>

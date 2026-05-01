@@ -18,11 +18,12 @@
   "saveChanges": "Guardar Cambios",
   "noVehicles": "No hay vehículos para mostrar en",
   "realTimeNetwork": "Red en Tiempo Real",
-  "en": "Inglés (US)",
-  "pt": "Portugués (PT)",
-  "es": "Español (ES)",
   "nav": {
-    "admin": "Admin",
+    "login": "Login",
+    "signup": "Crear Conta",
+    "home": "Página Inicial",
+    "profile": "Perfil",
+    "admin": "Administração",
     "companyManager": "Gestor de Empresa",
     "worker": "Trabajador",
     "users": "Usuarios",
@@ -118,5 +119,29 @@
       "subtitle": "Únete a miles de conductores que cargan de forma más inteligente cada día.",
       "button": "Empezar"
     }
+  },
+  "admin": {
+    "users": {
+      "title": "Gestionar Usuarios",
+      "subtitle": "Ver y gestionar todas las cuentas de usuario",
+      "columns": {
+        "name": "Nombre",
+        "email": "Correo electrónico",
+        "role": "Rol",
+        "status": "Estado",
+        "actions": "Acciones"
+      },
+      "noUsers": "No se encontraron usuarios",
+      "searchPlaceholder": "Buscar usuarios...",
+      "filters": {
+        "role": "Filtrar por rol",
+        "status": "Filtrar por estado"
+      }
+    }
+  },
+  "lang": {
+    "en": "Inglés (US)",
+    "pt": "Português (PT)",
+    "es": "Español (ES)"
   }
 }

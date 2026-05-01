@@ -2,9 +2,8 @@
 <script setup>
 import { useUserStore } from "~/stores/user";
 import { storeToRefs } from "pinia";
-
 useHead({
-    title: "Voltaic - Profile",
+    title: "Voltaic - Admin",
     meta: [
         {
             name: "description",
@@ -16,14 +15,15 @@ useHead({
 const { t } = useI18n();
 
 const userStore = useUserStore();
-const { currentUser, userRole } = storeToRefs(userStore);
-const { fetchCurrentUser } = userStore;
+const { users, currentUser, userRole } = storeToRefs(userStore);
+const { fetchCurrentUser, fetchUsers } = userStore;
 
 await useAsyncData("currentUser", () => fetchCurrentUser());
+await useAsyncData("users", () => fetchUsers());
 </script>
 
 <template>
-    <div class="flex-1 min-w-0 overflow-y-auto">
+    <div class="flex-1 py-2 pr-4 min-w-0 overflow-y-auto">
         <EditProfileModal
             :is-open="isEditModalOpen"
             :user="currentUser"
@@ -44,14 +44,11 @@ await useAsyncData("currentUser", () => fetchCurrentUser());
             </template>
 
             <template #cell-b>
-                <DashboardCard :title="t('realTimeNetwork')">
+                <DashboardCard :title="t('nav.admin')">
                     <ScrollableGrid>
-                        <StationsLabel
-                            v-for="station in stationNetwork"
-                            :key="station.id"
-                            :status="station.status"
-                            :label="station.name"
-                        />
+                        <div v-for="user in users" :key="user.userId">
+                            <div>{{ user.username }}</div>
+                        </div>
                     </ScrollableGrid>
                 </DashboardCard>
             </template>

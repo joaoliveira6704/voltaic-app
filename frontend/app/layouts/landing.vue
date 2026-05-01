@@ -5,6 +5,8 @@ import { Label } from "@/components/ui/label";
 const userStore = useUserStore();
 console.log(userStore.currentUser);
 
+const { t } = useI18n();
+
 const isLoaded = computed(() => userStore.isLoaded);
 
 const navLinks = computed(() => {
@@ -15,17 +17,17 @@ const navLinks = computed(() => {
 
     if (!user) {
         return [
-            { path: "/", label: "Home" },
-            { path: "/login", label: "Login" },
-            { path: "/signup", label: "Signup" },
+            { path: "/", label: t("nav.home") },
+            { path: "/login", label: t("nav.login") },
+            { path: "/signup", label: t("nav.signup") },
         ];
     }
 
     if (userRole === "admin") {
         return [
-            { path: "/", label: "Home" },
-            { path: "/profile", label: "Profile" },
-            { path: "/admin", label: "Admin" },
+            { path: "/", label: t("nav.home") },
+            { path: "/profile", label: t("nav.profile") },
+            { path: "/admin", label: t("nav.admin") },
         ];
     }
 

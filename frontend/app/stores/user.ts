@@ -32,6 +32,7 @@ interface Vehicle {
 }
 
 export const useUserStore = defineStore("user", () => {
+  const users = ref<User[]>([]);
   const currentUser = ref<User | null>(null);
   const isLoaded = ref(false);
   const chargingHistory = ref<any[] | null>(null);
@@ -58,6 +59,17 @@ export const useUserStore = defineStore("user", () => {
   const apiBase = () => useRuntimeConfig().public.apiBaseUrl;
 
   // ── Actions ───────────────────────────────────────────────────────────────
+
+  async function fetchUsers() {
+    try {
+      const data = await $fetch<User[]>(`${apiBase()}/api/users`, {
+        headers: { Authorization: `Bearer ${token()}` },
+      });
+      users.value = data;
+    } catch (e) {
+      console.error("Failed to fetch users:", e);
+    }
+  }
 
   async function fetchCurrentUser() {
     try {
@@ -225,5 +237,7 @@ export const useUserStore = defineStore("user", () => {
     confirmLogout,
     addVehicle,
     editUserProfile,
+    fetchUsers,
+    users,
   };
 });
