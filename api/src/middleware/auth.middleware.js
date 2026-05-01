@@ -44,3 +44,17 @@ export const requireRole =
       return res.status(403).json({ message: "Forbidden" });
     next();
   };
+
+export const checkCompanyOwnership = async (req, res, next) => {
+  if (req.user.role === "admin") return next();
+
+  if (req.user.companyId.toString() !== req.params.id) {
+    const error = new Error(
+      "Access denied. You can only edit your own company.",
+    );
+    error.status = 403;
+    return next(error);
+  }
+
+  next();
+};

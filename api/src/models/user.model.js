@@ -6,7 +6,18 @@ import isEmail from "validator/lib/isEmail";
 const userSchema = new mongoose.Schema(
   {
     userId: { type: String, required: true, unique: true, trim: true },
-    username: { type: String, required: true, unique: true, trim: true },
+    username: {
+      type: String,
+      required: true,
+      unique: true,
+      trim: true,
+      validate: {
+        validator: function (value) {
+          return validator.isLength({ min: 8, max: 20 });
+        },
+        message: `Username must beat least 8 characters long`,
+      },
+    },
     email: {
       type: String,
       required: true,
@@ -16,7 +27,10 @@ const userSchema = new mongoose.Schema(
         message: "Invalid email address",
       },
     },
-    firstName: { type: String, required: true },
+    firstName: {
+      type: String,
+      required: true,
+    },
     lastName: { type: String, required: true },
     password: {
       type: String,

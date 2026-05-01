@@ -134,6 +134,24 @@ export const updateOwnUser = async (req, res, next) => {
   }
 };
 
+export const updateRole = async (req, res, next) => {
+  try {
+    const updatedUser = await userModel.findOneAndUpdate(
+      { userId: req.params.id },
+      { role },
+      { new: true },
+    );
+    if (!updatedUser) {
+      const err = new Error("User not found");
+      err.status = 404;
+      return next(err);
+    }
+    res.json(updatedUser);
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const addVehicle = async (req, res, next) => {
   try {
     const { plate, model, color, connector, slug } = req.body;
