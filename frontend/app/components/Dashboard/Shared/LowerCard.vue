@@ -7,6 +7,7 @@ import { bottts } from "@dicebear/collection";
 const userStore = useUserStore();
 
 const currentUser = userStore.currentUser;
+const route = useRoute();
 
 const avatarUrl = computed(() => {
     const username = userStore.currentUser?.username;
@@ -30,7 +31,12 @@ const handleLogout = () => {
 <template>
     <nav class="flex flex-col w-full gap-1 font-mono">
         <Button
-            class="w-full flex justify-start gap-3 h-11 px-4 transition-all group cursor-pointer hover:bg-gray-400 filter grayscale hover:grayscale-0"
+            class="w-full flex justify-start gap-3 h-11 px-4 transition-all hover:bg-gray-100 group cursor-pointer"
+            :class="
+                route.path.startsWith('/profile')
+                    ? 'bg-gray-100 hover:bg-gray-200'
+                    : 'filter grayscale hover:grayscale-0'
+            "
         >
             <NuxtLink
                 to="/profile"
@@ -45,17 +51,13 @@ const handleLogout = () => {
         </Button>
 
         <Button
-            class="w-full flex justify-start gap-3 h-11 px-4 transition-all group cursor-pointer hover:bg-gray-400 filter grayscale hover:grayscale-0"
+            class="w-full flex justify-start gap-3 h-11 px-4 transition-all group cursor-pointer hover:bg-gray-100 filter grayscale hover:grayscale-0"
+            @click="handleLogout"
         >
-            <NuxtLink
-                @click="handleLogout"
-                class="flex gap-3 items-center justify-center"
-            >
-                <LogOut class="h-4 w-4 shrink-0 transition-colors" />
-                <span class="text-xs font-bold uppercase tracking-tight">
-                    Logout
-                </span>
-            </NuxtLink>
+            <LogOut class="h-4 w-4 shrink-0 transition-colors" />
+            <span class="text-xs font-bold uppercase tracking-tight">
+                Logout
+            </span>
         </Button>
     </nav>
 </template>

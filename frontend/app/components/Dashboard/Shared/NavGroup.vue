@@ -29,7 +29,7 @@ const roleMap: Partial<Record<UserRole, NavItem>> = {
 };
 
 const navigationLinks = computed(() => {
-    const userRole: UserRole = userStore.userRole;
+    const userRole: UserRole = userStore.userRole ?? "client";
     const navMap = getNavigationMap(t);
 
     let role: UserRole = "client";
