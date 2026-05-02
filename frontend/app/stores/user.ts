@@ -8,10 +8,11 @@ interface User {
   lastName: string;
   email: string;
   username: string;
-  currentPassword: string;
+  password?: string;
+  currentPassword?: string;
   newPassword?: string;
-  role: "client" | "worker" | "company" | "admin";
-  vehicles: Vehicle[];
+  role: "client" | "worker" | "company-manager" | "admin";
+  vehicles?: Vehicle[];
   assignedTickets?: any[];
   tickets?: any[];
   preferences?: Preferences;
@@ -68,6 +69,23 @@ export const useUserStore = defineStore("user", () => {
       users.value = data;
     } catch (e) {
       console.error("Failed to fetch users:", e);
+    }
+  }
+
+  async function createUser(user: User) {
+    const userId = uuidv4();
+    user.userId = userId;
+
+    try {
+      await $fetch(`${apiBase()}/api/auth/register`, {
+        method: "POST",
+        body: user,
+      });
+      users.value.push(user);
+      return user;
+    } catch (e) {
+      console.error("Failed to add user:", e);
+      throw e;
     }
   }
 
@@ -239,5 +257,6 @@ export const useUserStore = defineStore("user", () => {
     editUserProfile,
     fetchUsers,
     users,
+    createUser,
   };
 });

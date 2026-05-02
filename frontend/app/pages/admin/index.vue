@@ -45,11 +45,7 @@ await useAsyncData("users", () => fetchUsers());
 
             <template #cell-b>
                 <DashboardCard :title="t('nav.admin')">
-                    <ScrollableGrid>
-                        <div v-for="user in users" :key="user.userId">
-                            <div>{{ user.username }}</div>
-                        </div>
-                    </ScrollableGrid>
+                    <div>Users: {{ users.length }}</div>
                 </DashboardCard>
             </template>
         </Grid>

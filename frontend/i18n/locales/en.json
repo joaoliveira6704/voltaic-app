@@ -36,6 +36,35 @@
     "history": "History"
   },
   "modal": {
+    "addUser": {
+      "title": "Add User",
+      "firstName": "First name",
+      "lastName": "Last name",
+      "username": "Username",
+      "email": "Email",
+      "role": "Role",
+      "rolePlaceholder": "Select role…",
+      "roles": {
+        "admin": "Admin",
+        "client": "Client",
+        "worker": "Worker",
+        "company-manager": "Company Manager"
+      },
+      "passwordSection": "Password",
+      "password": "Initial password",
+      "sendWelcomeEmail": "Send welcome email with login instructions",
+      "allFieldsRequired": "All fields required",
+      "cancel": "Cancel",
+      "create": "Create",
+      "errors": {
+        "firstNameRequired": "First name is required.",
+        "lastNameRequired": "Last name is required.",
+        "usernameRequired": "Username is required.",
+        "invalidEmail": "Please enter a valid email address.",
+        "roleRequired": "Please select a role.",
+        "passwordTooShort": "Password must be at least 8 characters."
+      }
+    },
     "editProfile": {
       "title": "Edit Profile",
       "firstName": "First name",
@@ -124,6 +153,7 @@
     "users": {
       "title": "Manage Users",
       "subtitle": "View and manage all user accounts",
+      "addNewUser": "Add New User",
       "columns": {
         "name": "Name",
         "email": "Email",

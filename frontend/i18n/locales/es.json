@@ -36,6 +36,35 @@
     "history": "Historial"
   },
   "modal": {
+    "addUser": {
+      "title": "Añadir usuario",
+      "firstName": "Nombre",
+      "lastName": "Apellido",
+      "username": "Usuario",
+      "email": "Correo electrónico",
+      "role": "Rol",
+      "rolePlaceholder": "Seleccionar rol…",
+      "roles": {
+        "admin": "Administrador",
+        "client": "Cliente",
+        "worker": "Trabajador",
+        "company-manager": "Gestor de empresa"
+      },
+      "passwordSection": "Contraseña",
+      "password": "Contraseña inicial",
+      "sendWelcomeEmail": "Enviar correo de bienvenida con instrucciones de acceso",
+      "allFieldsRequired": "Todos los campos son obligatorios",
+      "cancel": "Cancelar",
+      "create": "Crear",
+      "errors": {
+        "firstNameRequired": "El nombre es obligatorio.",
+        "lastNameRequired": "El apellido es obligatorio.",
+        "usernameRequired": "El nombre de usuario es obligatorio.",
+        "invalidEmail": "Introduce una dirección de correo electrónico válida.",
+        "roleRequired": "Selecciona un rol.",
+        "passwordTooShort": "La contraseña debe tener al menos 8 caracteres."
+      }
+    },
     "editProfile": {
       "title": "Editar Perfil",
       "firstName": "Nombre",
@@ -124,6 +153,7 @@
     "users": {
       "title": "Gestionar Usuarios",
       "subtitle": "Ver y gestionar todas las cuentas de usuario",
+      "addNewUser": "Agregar Nuevo Usuario",
       "columns": {
         "name": "Nombre",
         "email": "Correo electrónico",
