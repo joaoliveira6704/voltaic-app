@@ -45,16 +45,27 @@ export const requireRole =
     next();
   };
 
-export const checkCompanyOwnership = async (req, res, next) => {
-  if (req.user.role === "admin") return next();
+export const checkOwnership =
+  (Model, resourceCompanyField = "companyId") =>
+  async (req, res, next) => {
+    if (req.user.role === "admin") return next();
 
-  if (req.user.companyId.toString() !== req.params.id) {
-    const error = new Error(
-      "Access denied. You can only edit your own company.",
-    );
-    error.status = 403;
-    return next(error);
-  }
+    const resource = await Model.findById(req.params.id);
 
-  next();
-};
+    if (!resource) {
+      const error = new Error("Resource not found");
+      error.status = 404;
+      return next(error);
+    }
+
+    if (
+      resource[resourceCompanyField].toString() !==
+      req.user.companyId.toString()
+    ) {
+      const error = new Error("Access denied.");
+      error.status = 403;
+      return next(error);
+    }
+
+    next();
+  };

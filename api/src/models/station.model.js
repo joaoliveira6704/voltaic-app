@@ -4,6 +4,7 @@ const stationSchema = new mongoose.Schema(
   {
     stationId: { type: String, required: true, unique: true, trim: true },
     title: { type: String, required: true },
+    companyId: { type: String, required: true, unique: true, trim: true },
     location: {
       type: {
         type: String,

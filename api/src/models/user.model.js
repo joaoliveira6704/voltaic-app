@@ -5,7 +5,7 @@ import isEmail from "validator/lib/isEmail";
 
 const userSchema = new mongoose.Schema(
   {
-    userId: { type: String, required: true, unique: true, trim: true },
+    userId: { type: String, required: false, unique: true, trim: true },
     username: {
       type: String,
       required: true,

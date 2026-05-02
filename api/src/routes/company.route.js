@@ -9,8 +9,9 @@ import {
 import {
   protect,
   requireRole,
-  checkCompanyOwnership,
+  checkOwnership,
 } from "../middleware/auth.middleware";
+import companyModel from "../models/company.model.js";
 
 const router = Router();
 
@@ -20,14 +21,14 @@ router.delete(
   "/:id",
   protect,
   requireRole("admin", "company-manager"),
-  checkCompanyOwnership,
+  checkOwnership(companyModel),
   deleteCompany,
 );
 router.patch(
   "/:id",
   protect,
   requireRole("admin", "company-manager"),
-  checkCompanyOwnership,
+  checkOwnership(companyModel),
   updateCompany,
 );
 router.get("/:id", protect, getCompanyById);
