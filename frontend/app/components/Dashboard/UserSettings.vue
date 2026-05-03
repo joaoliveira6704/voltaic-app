@@ -47,25 +47,25 @@ const handleSave = () => {
         <div class="flex flex-row justify-around gap-10">
             <div class="flex gap-2 items-center justify-between group">
                 <span
-                    class="text-sm font-bold text-neutral-700 uppercase tracking-tight"
+                    class="text-sm font-bold text-neutral-700 dark:text-white/80 uppercase tracking-tight"
                 >
                     {{ t("darkMode") }}
                 </span>
                 <Switch
                     v-model="darkMode"
-                    class="data-[state=unchecked]:bg-neutral-300 data-[state=checked]:bg-blue-600 [&>[data-slot=switch-thumb]]:bg-white"
+                    class="data-[state=unchecked]:bg-neutral-300 data-[state=checked]:bg-green-600 [&>[data-slot=switch-thumb]]:bg-white dark:data-[state=unchecked]:bg-neutral-300/10 dark:data-[state=checked]:bg-green-600 dark:[&>[data-slot=switch-thumb]]:bg-white"
                 />
             </div>
 
             <div class="flex gap-2 items-center justify-between group">
                 <span
-                    class="text-sm font-bold text-neutral-700 uppercase tracking-tight"
+                    class="text-sm font-bold text-neutral-700 dark:text-white/80 uppercase tracking-tight"
                 >
                     {{ t("hidePlates") }}
                 </span>
                 <Switch
                     v-model="hidePlates"
-                    class="data-[state=unchecked]:bg-neutral-300 data-[state=checked]:bg-blue-600 [&>[data-slot=switch-thumb]]:bg-white"
+                    class="data-[state=unchecked]:bg-neutral-300 data-[state=checked]:bg-green-600 [&>[data-slot=switch-thumb]]:bg-white dark:data-[state=unchecked]:bg-neutral-300/10 dark:data-[state=checked]:bg-green-600 dark:[&>[data-slot=switch-thumb]]:bg-white"
                 />
             </div>
         </div>
@@ -77,23 +77,27 @@ const handleSave = () => {
                 {{ t("language") }}
             </label>
             <Select v-model="language">
-                <SelectTrigger class="w-full font-mono border-neutral-200">
+                <SelectTrigger
+                    class="w-full font-mono border-neutral-200 dark:border-[#232323]"
+                >
                     <SelectValue placeholder="Select Language" />
                 </SelectTrigger>
-                <SelectContent class="font-mono bg-white">
+                <SelectContent
+                    class="font-mono bg-white dark:bg-[#1a1a1a] dark:text-white/80 dark:border-[#232323]"
+                >
                     <SelectItem
                         value="en"
-                        class="cursor-pointer hover:bg-gray-200"
+                        class="cursor-pointer hover:bg-gray-200 dark:hover:bg-[#232323]"
                         >{{ t("lang.en") }}</SelectItem
                     >
                     <SelectItem
                         value="pt"
-                        class="cursor-pointer hover:bg-gray-200"
+                        class="cursor-pointer hover:bg-gray-200 dark:hover:bg-[#232323]"
                         >{{ t("lang.pt") }}</SelectItem
                     >
                     <SelectItem
                         value="es"
-                        class="cursor-pointer hover:bg-gray-200"
+                        class="cursor-pointer hover:bg-gray-200 dark:hover:bg-[#232323]"
                         >{{ t("lang.es") }}</SelectItem
                     >
                 </SelectContent>
@@ -102,7 +106,7 @@ const handleSave = () => {
 
         <div class="mt-auto pt-3 w-full">
             <Button
-                class="w-full max-w-[300px] bg-[#007AFF] hover:bg-blue-700 text-white font-bold py-6 rounded-lg transition-all active:scale-[0.98]"
+                class="w-full max-w-[300px] bg-green-600 hover:bg-green-700 text-white font-bold py-6 rounded-lg transition-all active:scale-[0.98]"
                 @click="handleSave"
             >
                 {{ t("saveChanges") }}

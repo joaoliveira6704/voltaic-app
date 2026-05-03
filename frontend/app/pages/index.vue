@@ -78,10 +78,14 @@ const stats = computed<{ id: number; number: string; label: string }[]>(() => [
 </script>
 
 <template>
-    <main class="antialiased text-gray-900 bg-white">
+    <main
+        class="antialiased text-gray-900 bg-white dark:bg-[#0a0a0a] dark:text-white"
+    >
         <Hero />
 
-        <section class="reveal py-10 border-y border-gray-100">
+        <section
+            class="reveal py-10 border-y border-gray-100 dark:border-[#232323]"
+        >
             <div
                 class="max-w-7xl mx-auto flex flex-wrap justify-around text-center"
             >
@@ -89,7 +93,9 @@ const stats = computed<{ id: number; number: string; label: string }[]>(() => [
                     <h4 class="text-3xl font-bold text-green-600">
                         {{ stat.number }}
                     </h4>
-                    <p class="text-gray-500 text-sm">{{ stat.label }}</p>
+                    <p class="text-gray-500 dark:text-white/80 text-sm">
+                        {{ stat.label }}
+                    </p>
                 </div>
             </div>
         </section>

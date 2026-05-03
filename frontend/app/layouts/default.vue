@@ -10,8 +10,12 @@ const currentUser = userStore.currentUser;
 </script>
 
 <template>
-    <div class="h-screen w-full flex flex-col bg-white font-mono">
-        <nav class="shrink-0 w-full border-b border-gray-100 bg-white">
+    <div
+        class="h-screen w-full flex flex-col bg-white font-mono dark:bg-[#0a0a0a] dark:text-white dark:selection:bg-white dark:selection:text-[#0a0a0a]"
+    >
+        <nav
+            class="shrink-0 w-full border-b border-gray-100 bg-white dark:bg-[#0a0a0a] dark:text-white dark:border-[#232323]"
+        >
             <div
                 class="container mx-auto flex h-16 max-w-7xl items-center justify-between px-4 md:px-8"
             >
@@ -40,7 +44,7 @@ const currentUser = userStore.currentUser;
 
         <main class="flex pl-4 w-full h-screen gap-5 overflow-y-auto">
             <div class="flex flex-col py-4 pl-2 justify-between">
-                <DashboardCard :title="t('profile')">
+                <DashboardCard title="Navigation">
                     <NavGroup :role="currentUser?.role" />
                 </DashboardCard>
 

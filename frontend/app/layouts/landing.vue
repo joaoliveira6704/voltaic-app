@@ -39,8 +39,12 @@ const navLinks = computed(() => {
 </script>
 
 <template>
-    <div class="h-screen w-full flex flex-col bg-white font-mono">
-        <nav class="shrink-0 w-full border-b border-gray-100 bg-white">
+    <div
+        class="h-screen w-full flex flex-col bg-white dark:border-[#232323] dark:bg-[#0a0a0a] font-mono dark:selection:bg-white dark:selection:text-[#0a0a0a]"
+    >
+        <nav
+            class="shrink-0 w-full border-b border-gray-100 bg-white dark:border-[#232323] dark:bg-[#0a0a0a]"
+        >
             <div
                 class="container mx-auto flex h-16 max-w-7xl items-center justify-between px-4 md:px-8"
             >
@@ -48,7 +52,9 @@ const navLinks = computed(() => {
                     <NuxtImg src="/voltaic-logo.svg" width="50" />
                 </NuxtLink>
 
-                <div class="flex items-center gap-1">
+                <div
+                    class="flex items-center gap-1 text-black dark:text-white/80"
+                >
                     <Button
                         v-for="link in navLinks"
                         :key="link.path"
@@ -70,7 +76,9 @@ const navLinks = computed(() => {
             <slot />
         </main>
 
-        <footer class="shrink-0 w-full border-t border-gray-100 bg-white py-4">
+        <footer
+            class="shrink-0 w-full border-t border-gray-100 bg-white dark:bg-[#0a0a0a] py-4 dark:border-[#232323]"
+        >
             <div
                 class="container mx-auto max-w-7xl px-4 md:px-8 flex justify-between items-center"
             >

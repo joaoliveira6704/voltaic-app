@@ -70,7 +70,7 @@ const sendEmail = () => {
     >
         <div class="relative shrink-0">
             <div
-                class="w-32 h-32 rounded-full overflow-hidden border-4 border-white shadow-sm bg-neutral-100"
+                class="w-32 h-32 rounded-full overflow-hidden border-4 border-white dark:border-[#232323] shadow-sm bg-neutral-100 dark:bg-[#1A1A1A]"
             >
                 <img
                     :src="avatarUrl"
@@ -80,7 +80,9 @@ const sendEmail = () => {
             </div>
         </div>
 
-        <div class="flex-1 flex flex-col gap-4 text-neutral-800">
+        <div
+            class="flex-1 flex flex-col gap-4 text-neutral-800 dark:text-white"
+        >
             <div>
                 <h1
                     class="text-3xl font-black tracking-tight text-center lg:text-left uppercase"
@@ -100,7 +102,7 @@ const sendEmail = () => {
                     </template>
                 </h2>
             </div>
-            <p>@{{ props.user.username }}</p>
+            <p class="text-white/80">@{{ props.user.username }}</p>
 
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-x-12 gap-y-3 mt-2">
                 <div
@@ -108,7 +110,7 @@ const sendEmail = () => {
                     @click="sendEmail"
                 >
                     <Mail
-                        class="w-5 h-5 text-neutral-400 group-hover:text-black transition-colors"
+                        class="w-5 h-5 text-neutral-400 group-hover:text-black dark:group-hover:text-green-500 transition-colors"
                     />
                     <span class="text-sm font-bold lowercase tracking-tight">
                         {{ props.user.email }}
@@ -117,7 +119,7 @@ const sendEmail = () => {
 
                 <div class="flex items-center gap-3 group">
                     <MapPin
-                        class="w-5 h-5 text-neutral-400 group-hover:text-black transition-colors"
+                        class="w-5 h-5 text-neutral-400 group-hover:text-black dark:group-hover:text-green-500 transition-colors"
                     />
                     <span class="text-sm font-bold capitalize tracking-tight">
                         {{ props.user.location || "Unknown Location" }}
@@ -126,7 +128,7 @@ const sendEmail = () => {
 
                 <div class="flex items-center gap-3 group">
                     <Globe
-                        class="w-5 h-5 text-neutral-400 group-hover:text-black transition-colors"
+                        class="w-5 h-5 text-neutral-400 group-hover:text-black dark:group-hover:text-green-500s transition-colors"
                     />
                     <span class="text-sm font-bold tracking-tight">
                         {{

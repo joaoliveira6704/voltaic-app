@@ -6,8 +6,15 @@ import { bottts } from "@dicebear/collection";
 
 const userStore = useUserStore();
 
-const currentUser = userStore.currentUser;
 const route = useRoute();
+
+const currentUser = computed(() => userStore.currentUser);
+
+onMounted(async () => {
+    if (!userStore.currentUser) {
+        await userStore.fetchCurrentUser();
+    }
+});
 
 const avatarUrl = computed(() => {
     const username = userStore.currentUser?.username;
@@ -30,11 +37,12 @@ const handleLogout = () => {
 
 <template>
     <nav class="flex flex-col w-full gap-1 font-mono">
+        <ToggleTheme v-if="!route.path.startsWith('/profile')" />
         <Button
-            class="w-full flex justify-start gap-3 h-11 px-4 transition-all hover:bg-gray-100 group cursor-pointer"
+            class="w-full flex justify-start gap-3 h-11 px-4 transition-all hover:bg-gray-100 dark:bg-[#232323] dark:hover:bg-[#272727] group cursor-pointer"
             :class="
                 route.path.startsWith('/profile')
-                    ? 'bg-gray-100 hover:bg-gray-200'
+                    ? 'bg-gray-100 hover:bg-gray-200 '
                     : 'filter grayscale hover:grayscale-0'
             "
         >
@@ -51,10 +59,10 @@ const handleLogout = () => {
         </Button>
 
         <Button
-            class="w-full flex justify-start gap-3 h-11 px-4 transition-all group cursor-pointer hover:bg-gray-100 filter grayscale hover:grayscale-0"
+            class="w-full flex justify-start gap-3 h-11 px-4 transition-all group cursor-pointer hover:bg-gray-100 dark:hover:bg-[#272727] filter grayscale hover:grayscale-0"
             @click="handleLogout"
         >
-            <LogOut class="h-4 w-4 shrink-0 transition-colors" />
+            <LogOut class="ml-2.5 h-6 w-6 shrink-0 transition-colors" />
             <span class="text-xs font-bold uppercase tracking-tight">
                 Logout
             </span>

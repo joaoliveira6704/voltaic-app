@@ -18,8 +18,7 @@ useHead({
 const { t } = useI18n();
 
 const userStore = useUserStore(); // Pinia must be called before any awaits
-const { currentUser, chargingHistory, userRole, displayItems } =
-    storeToRefs(userStore);
+const { currentUser, chargingHistory, userRole } = storeToRefs(userStore);
 const { confirmLogout, deleteVehicle, fetchCurrentUser, fetchChargingHistory } =
     userStore;
 
@@ -32,7 +31,7 @@ const isAddVehicleModal = ref(false);
 </script>
 
 <template>
-    <div class="flex-1 py-2 pr-4 min-w-0 overflow-y-auto">
+    <div v-if="currentUser" class="flex-1 py-2 pr-4 min-w-0 overflow-y-auto">
         <EditProfileModal
             :is-open="isEditModalOpen"
             :user="currentUser"

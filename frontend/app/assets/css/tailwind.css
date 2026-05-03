@@ -6,18 +6,18 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-heading: var(--font-sans);
+    --font-heading: var(--font-sans);
 }
 
 @layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
+    * {
+        @apply border-border outline-ring/50;
+    }
+    body {
+        @apply bg-background text-foreground;
+    }
 }
 .label {
-  @apply font-mono text-xs font-bold uppercase text-red-500 !important;
-  color: red;
+    @apply font-mono text-xs font-bold uppercase text-red-500 !important;
+    color: red;
 }
