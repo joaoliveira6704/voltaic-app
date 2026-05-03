@@ -1,5 +1,7 @@
 <script setup>
 import { ref, computed, watch } from "vue";
+import { X, Eye, EyeClosed } from "lucide-vue-next";
+
 import { useUserStore } from "~/stores/user";
 
 const props = defineProps({
@@ -129,18 +131,18 @@ const handleBackdropClick = (e) => {
                 @click="handleBackdropClick"
             >
                 <div
-                    class="w-full max-w-md bg-white border border-neutral-200 shadow-lg transition-all duration-150"
+                    class="w-full max-w-md bg-white dark:bg-[#171717] dark:border-[#232323] dark:text-white/80 border border-neutral-200 shadow-lg transition-all duration-150"
                     role="dialog"
                     aria-modal="true"
                     aria-labelledby="modal-title"
                 >
                     <!-- Header -->
                     <div
-                        class="flex items-center justify-between px-5 py-4 border-b border-neutral-200"
+                        class="flex items-center justify-between px-5 py-4 border-b border-neutral-200 dark:border-[#232323]"
                     >
                         <h2
                             id="modal-title"
-                            class="font-mono text-xs font-semibold tracking-widest text-neutral-800 uppercase"
+                            class="font-mono text-xs font-semibold tracking-widest text-neutral-800 dark:text-white/80 uppercase"
                         >
                             {{ t("modal.editProfile.title") }}
                         </h2>
@@ -149,19 +151,7 @@ const handleBackdropClick = (e) => {
                             @click="handleClose"
                             aria-label="Close"
                         >
-                            <svg
-                                width="11"
-                                height="11"
-                                viewBox="0 0 14 14"
-                                fill="none"
-                            >
-                                <path
-                                    d="M1 1L13 13M13 1L1 13"
-                                    stroke="currentColor"
-                                    stroke-width="1.5"
-                                    stroke-linecap="round"
-                                />
-                            </svg>
+                            <X />
                         </button>
                     </div>
 
@@ -181,7 +171,7 @@ const handleBackdropClick = (e) => {
                                 <input
                                     v-model="form.firstName"
                                     type="text"
-                                    class="w-full border border-neutral-200 bg-neutral-50 px-3 py-2 font-mono text-xs text-neutral-800 placeholder-neutral-300 outline-none focus:border-neutral-400 transition-colors"
+                                    class="w-full border border-gray-200 dark:border-[#232323] focus-visible:ring-[#00c885] dark:bg-[#171717] bg-neutral-50 px-3 py-2 font-mono text-xs text-neutral-800 placeholder-neutral-300 dark:placeholder-white/50 dark:text-white/80 outline-none focus:border-neutral-400 dark:focus:border-[#232323] transition-colors"
                                     :placeholder="
                                         user?.firstName || 'First name'
                                     "
@@ -197,7 +187,7 @@ const handleBackdropClick = (e) => {
                                 <input
                                     v-model="form.lastName"
                                     type="text"
-                                    class="w-full border border-neutral-200 bg-neutral-50 px-3 py-2 font-mono text-xs text-neutral-800 placeholder-neutral-300 outline-none focus:border-neutral-400 transition-colors"
+                                    class="w-full border border-gray-200 dark:border-[#232323] focus-visible:ring-[#00c885] dark:bg-[#171717] bg-neutral-50 px-3 py-2 font-mono text-xs text-neutral-800 placeholder-neutral-300 dark:placeholder-white/50 dark:text-white/80 outline-none focus:border-neutral-400 dark:focus:border-[#232323] transition-colors"
                                     :placeholder="user?.lastName || 'Last name'"
                                     autocomplete="family-name"
                                 />
@@ -219,7 +209,7 @@ const handleBackdropClick = (e) => {
                                 <input
                                     v-model="form.username"
                                     type="text"
-                                    class="w-full border border-neutral-200 bg-neutral-50 pl-6 pr-3 py-2 font-mono text-xs text-neutral-800 placeholder-neutral-300 outline-none focus:border-neutral-400 transition-colors"
+                                    class="w-full border border-gray-200 dark:border-[#232323] focus-visible:ring-[#00c885] dark:bg-[#171717] bg-neutral-50 px-3 py-2 pl-6 font-mono text-xs text-neutral-800 placeholder-neutral-300 dark:placeholder-white/50 dark:text-white/80 outline-none focus:border-neutral-400 dark:focus:border-[#232323] transition-colors"
                                     :placeholder="user?.username || 'username'"
                                     autocomplete="username"
                                 />
@@ -236,7 +226,7 @@ const handleBackdropClick = (e) => {
                             <input
                                 v-model="form.email"
                                 type="email"
-                                class="w-full border border-neutral-200 bg-neutral-50 px-3 py-2 font-mono text-xs text-neutral-800 placeholder-neutral-300 outline-none focus:border-neutral-400 transition-colors"
+                                class="w-full border border-gray-200 dark:border-[#232323] focus-visible:ring-[#00c885] dark:bg-[#171717] bg-neutral-50 px-3 py-2 font-mono text-xs text-neutral-800 placeholder-neutral-300 dark:placeholder-white/50 dark:text-white/80 outline-none focus:border-neutral-400 dark:focus:border-[#232323] transition-colors"
                                 :placeholder="
                                     user?.email || 'email@example.com'
                                 "
@@ -246,13 +236,17 @@ const handleBackdropClick = (e) => {
 
                         <!-- Section divider -->
                         <div class="flex items-center gap-3">
-                            <div class="flex-1 h-px bg-neutral-100" />
+                            <div
+                                class="flex-1 h-px bg-neutral-100 dark:bg-white/50"
+                            />
                             <span
                                 class="font-mono text-[10px] tracking-widest text-neutral-300 uppercase whitespace-nowrap"
                             >
                                 {{ t("modal.editProfile.passwordSection") }}
                             </span>
-                            <div class="flex-1 h-px bg-neutral-100" />
+                            <div
+                                class="flex-1 h-px bg-neutral-100 dark:bg-white/50"
+                            />
                         </div>
 
                         <!-- Current password -->
@@ -270,7 +264,7 @@ const handleBackdropClick = (e) => {
                                             ? 'text'
                                             : 'password'
                                     "
-                                    class="w-full border border-neutral-200 bg-neutral-50 px-3 pr-9 py-2 font-mono text-xs text-neutral-800 placeholder-neutral-300 outline-none focus:border-neutral-400 transition-colors"
+                                    class="w-full border border-gray-200 dark:border-[#232323] focus-visible:ring-[#00c885] dark:bg-[#171717] bg-neutral-50 px-3 py-2 font-mono text-xs text-neutral-800 placeholder-neutral-300 dark:placeholder-white/50 dark:text-white/80 outline-none focus:border-neutral-400 dark:focus:border-[#232323] transition-colors"
                                     placeholder="••••••••"
                                     autocomplete="current-password"
                                 />
@@ -285,34 +279,11 @@ const handleBackdropClick = (e) => {
                                         showCurrentPassword ? 'Hide' : 'Show'
                                     "
                                 >
-                                    <svg
+                                    <Eye
+                                        class="w-4 h-4"
                                         v-if="!showCurrentPassword"
-                                        width="14"
-                                        height="14"
-                                        viewBox="0 0 24 24"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        stroke-width="1.8"
-                                    >
-                                        <path
-                                            d="M1 12S5 4 12 4s11 8 11 8-4 8-11 8S1 12 1 12z"
-                                        />
-                                        <circle cx="12" cy="12" r="3" />
-                                    </svg>
-                                    <svg
-                                        v-else
-                                        width="14"
-                                        height="14"
-                                        viewBox="0 0 24 24"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        stroke-width="1.8"
-                                    >
-                                        <path
-                                            d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"
-                                        />
-                                        <line x1="1" y1="1" x2="23" y2="23" />
-                                    </svg>
+                                    />
+                                    <EyeClosed class="w-4 h-4" v-else />
                                 </button>
                             </div>
                         </div>
@@ -330,7 +301,7 @@ const handleBackdropClick = (e) => {
                                     :type="
                                         showNewPassword ? 'text' : 'password'
                                     "
-                                    class="w-full border border-neutral-200 bg-neutral-50 px-3 pr-9 py-2 font-mono text-xs text-neutral-800 placeholder-neutral-300 outline-none focus:border-neutral-400 transition-colors"
+                                    class="w-full border border-gray-200 dark:border-[#232323] focus-visible:ring-[#00c885] dark:bg-[#171717] bg-neutral-50 px-3 py-2 font-mono text-xs text-neutral-800 placeholder-neutral-300 dark:placeholder-white/50 dark:text-white/80 outline-none focus:border-neutral-400 dark:focus:border-[#232323] transition-colors"
                                     placeholder="••••••••"
                                     autocomplete="new-password"
                                 />
@@ -342,34 +313,11 @@ const handleBackdropClick = (e) => {
                                         showNewPassword ? 'Hide' : 'Show'
                                     "
                                 >
-                                    <svg
+                                    <Eye
+                                        class="w-4 h-4"
                                         v-if="!showNewPassword"
-                                        width="14"
-                                        height="14"
-                                        viewBox="0 0 24 24"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        stroke-width="1.8"
-                                    >
-                                        <path
-                                            d="M1 12S5 4 12 4s11 8 11 8-4 8-11 8S1 12 1 12z"
-                                        />
-                                        <circle cx="12" cy="12" r="3" />
-                                    </svg>
-                                    <svg
-                                        v-else
-                                        width="14"
-                                        height="14"
-                                        viewBox="0 0 24 24"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        stroke-width="1.8"
-                                    >
-                                        <path
-                                            d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"
-                                        />
-                                        <line x1="1" y1="1" x2="23" y2="23" />
-                                    </svg>
+                                    />
+                                    <EyeClosed class="w-4 h-4" v-else />
                                 </button>
                             </div>
                         </div>
@@ -386,7 +334,7 @@ const handleBackdropClick = (e) => {
                             <li
                                 v-for="(error, i) in errors"
                                 :key="error"
-                                class="flex items-start justify-between gap-2 border border-red-200 bg-red-50 px-3 py-2"
+                                class="flex items-start justify-between gap-2 border border-red-300 bg-red-200 px-3 py-2"
                             >
                                 <div class="flex items-start gap-2">
                                     <svg
@@ -440,7 +388,7 @@ const handleBackdropClick = (e) => {
 
                         <!-- Footer -->
                         <div
-                            class="flex items-center justify-between pt-3 mt-1 border-t border-neutral-100"
+                            class="flex items-center justify-between pt-3 mt-1 border-t border-neutral-100 dark:border-[#232323]"
                         >
                             <span
                                 class="font-mono text-[10px] tracking-wide"
@@ -459,7 +407,7 @@ const handleBackdropClick = (e) => {
                             <div class="flex gap-2">
                                 <button
                                     type="button"
-                                    class="px-4 py-1.5 font-mono text-[11px] tracking-widest uppercase border border-neutral-200 text-neutral-500 hover:border-neutral-400 hover:text-neutral-800 transition-colors"
+                                    class="px-4 py-1.5 font-mono text-[11px] tracking-widest uppercase border border-neutral-200 dark:border-red-500 dark:text-red-500 dark:hover:border-red-400 dark:hover:bg-red-800 dark:hover:text-white text-neutral-500 hover:border-neutral-400 hover:text-neutral-800 transition-colors"
                                     @click="handleClose"
                                 >
                                     {{ t("modal.editProfile.cancel") }}
@@ -470,7 +418,7 @@ const handleBackdropClick = (e) => {
                                     class="flex items-center justify-center min-w-[64px] px-4 py-1.5 font-mono text-[11px] tracking-widest uppercase border transition-colors"
                                     :class="
                                         hasChanges && !isSubmitting
-                                            ? 'bg-neutral-800 border-neutral-800 text-white hover:bg-neutral-900 hover:border-neutral-900'
+                                            ? 'bg-neutral-800 border-neutral-800 text-white hover:bg-neutral-900 dark:bg-green-700 dark:hover:bg-green-600 hover:border-neutral-900'
                                             : 'bg-neutral-100 border-neutral-100 text-neutral-300 cursor-not-allowed'
                                     "
                                 >

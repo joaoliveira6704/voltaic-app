@@ -2,6 +2,7 @@
 import { ref, computed, watch } from "vue";
 import { useVehicleStore } from "~/stores/vehicle";
 import { useUserStore } from "~/stores/user";
+import { Check, Loader, X } from "lucide-vue-next";
 
 const props = defineProps({
     isOpen: { type: Boolean, default: false },
@@ -145,39 +146,27 @@ function handleSearchInput() {
                 @click="handleBackdropClick"
             >
                 <div
-                    class="w-full max-w-md bg-white border border-neutral-200 shadow-lg transition-all duration-150"
+                    class="w-full max-w-md bg-white dark:bg-[#171717] dark:border-[#232323] dark:text-white/80 border border-neutral-200 shadow-lg transition-all duration-150"
                     role="dialog"
                     aria-modal="true"
                     aria-labelledby="add-vehicle-modal-title"
                 >
                     <!-- Header -->
                     <div
-                        class="flex items-center justify-between px-5 py-4 border-b border-neutral-200"
+                        class="flex items-center justify-between px-5 py-4 border-b border-neutral-200 dark:border-[#232323]"
                     >
                         <h2
                             id="add-vehicle-modal-title"
-                            class="font-mono text-xs font-semibold tracking-widest text-neutral-800 uppercase"
+                            class="font-mono text-xs font-semibold tracking-widest text-neutral-800 dark:text-white/80 uppercase"
                         >
                             {{ t("modal.addVehicle.title") }}
                         </h2>
                         <button
-                            class="flex items-center justify-center w-7 h-7 text-neutral-400 hover:text-neutral-800 transition-colors"
+                            class="flex items-center justify-center w-7 h-7 text-neutral-400 hover:text-neutral-800 dark:hover:text-green-400 transition-colors"
                             @click="handleClose"
                             aria-label="Close"
                         >
-                            <svg
-                                width="11"
-                                height="11"
-                                viewBox="0 0 14 14"
-                                fill="none"
-                            >
-                                <path
-                                    d="M1 1L13 13M13 1L1 13"
-                                    stroke="currentColor"
-                                    stroke-width="1.5"
-                                    stroke-linecap="round"
-                                />
-                            </svg>
+                            <X />
                         </button>
                     </div>
 
@@ -197,37 +186,29 @@ function handleSearchInput() {
                                 <input
                                     v-model="searchQuery"
                                     type="text"
-                                    class="w-full border border-neutral-200 bg-neutral-50 px-3 py-2 font-mono text-xs text-neutral-800 placeholder-neutral-300 outline-none focus:border-neutral-400 transition-colors"
+                                    class="w-full border border-gray-200 dark:border-[#232323] focus-visible:ring-[#00c885] dark:bg-[#171717] bg-neutral-50 px-3 py-2 font-mono text-xs text-neutral-800 placeholder-neutral-300 dark:placeholder-white/50 dark:text-white/80 outline-none focus:border-neutral-400 dark:focus:border-[#232323] transition-colors"
                                     :placeholder="
                                         t('modal.addVehicle.searchPlaceholder')
                                     "
                                     autocomplete="off"
                                     @input="handleSearchInput"
                                     @focus="isDropdownOpen = true"
+                                    @focusout="isDropdownOpen = false"
                                 />
                                 <!-- Loading indicator -->
-                                <span
+                                <Loader
                                     v-if="vehicleStore.isLoading"
-                                    class="absolute right-3 top-1/2 -translate-y-1/2 inline-block w-4 h-4 border-2 border-neutral-300 border-t-neutral-600 rounded-full animate-spin"
+                                    class="absolute right-3 top-2 inline-block w-4 h-4 animate-spin"
                                 />
                                 <!-- Clear / check icon -->
                                 <template v-else-if="searchQuery">
-                                    <svg
+                                    <Check
                                         v-if="selectedCatalogVehicle"
-                                        class="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400"
+                                        class="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 dark:text-green-400"
                                         width="12"
                                         height="12"
-                                        viewBox="0 0 14 14"
-                                        fill="none"
-                                    >
-                                        <path
-                                            d="M2 7L6 11L12 3"
-                                            stroke="currentColor"
-                                            stroke-width="1.8"
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round"
-                                        />
-                                    </svg>
+                                    />
+
                                     <button
                                         v-else
                                         type="button"
@@ -235,19 +216,7 @@ function handleSearchInput() {
                                         @click="resetForm"
                                         aria-label="Clear"
                                     >
-                                        <svg
-                                            width="10"
-                                            height="10"
-                                            viewBox="0 0 14 14"
-                                            fill="none"
-                                        >
-                                            <path
-                                                d="M1 1L13 13M13 1L1 13"
-                                                stroke="currentColor"
-                                                stroke-width="1.8"
-                                                stroke-linecap="round"
-                                            />
-                                        </svg>
+                                        <X />
                                     </button>
                                 </template>
 
@@ -264,12 +233,12 @@ function handleSearchInput() {
                                             !selectedCatalogVehicle &&
                                             filteredVehicles.length
                                         "
-                                        class="absolute z-10 left-0 right-0 top-full mt-1 bg-white border border-neutral-200 shadow-md max-h-52 overflow-y-auto"
+                                        class="absolute z-10 left-0 right-0 top-full mt-1 bg-white dark:border-white/50 dark:bg-[#171717] border border-neutral-200 shadow-md max-h-52 overflow-y-auto"
                                     >
                                         <li
                                             v-for="v in filteredVehicles"
                                             :key="v._id"
-                                            class="px-3 py-2 font-mono text-xs text-neutral-700 hover:bg-neutral-50 cursor-pointer flex items-center justify-between gap-2 border-b border-neutral-100 last:border-b-0"
+                                            class="px-3 py-2 font-mono text-xs text-neutral-700 hover:bg-neutral-50 cursor-pointer flex items-center justify-between gap-2 border-b border-neutral-100 dark:border-white/50 dark:text-white/80 dark:hover:bg-[#232323] last:border-b-0"
                                             @mousedown.prevent="
                                                 selectVehicle(v)
                                             "
@@ -311,13 +280,17 @@ function handleSearchInput() {
                         <!-- Auto-populated fields -->
                         <div class="flex flex-col gap-3">
                             <div class="flex items-center gap-3">
-                                <div class="flex-1 h-px bg-neutral-100" />
+                                <div
+                                    class="flex-1 h-px bg-neutral-100 dark:bg-white/50"
+                                />
                                 <span
                                     class="font-mono text-[10px] tracking-widest text-neutral-300 uppercase whitespace-nowrap"
                                 >
                                     {{ t("modal.addVehicle.autoPopulated") }}
                                 </span>
-                                <div class="flex-1 h-px bg-neutral-100" />
+                                <div
+                                    class="flex-1 h-px bg-neutral-100 dark:bg-white/50"
+                                />
                             </div>
 
                             <div class="grid grid-cols-2 gap-3">
@@ -333,7 +306,7 @@ function handleSearchInput() {
                                         :value="form.model"
                                         type="text"
                                         readonly
-                                        class="w-full border border-neutral-100 bg-neutral-50/50 px-3 py-2 font-mono text-xs text-neutral-400 outline-none cursor-default select-none"
+                                        class="w-full border border-gray-200 dark:border-[#232323] focus-visible:ring-[#00c885] dark:bg-[#171717] bg-neutral-50 px-3 py-2 font-mono text-xs text-neutral-800 placeholder-neutral-300 dark:placeholder-white/50 dark:text-white/50 select-none outline-none focus:border-neutral-400 dark:focus:border-[#232323] transition-colors"
                                         placeholder="—"
                                     />
                                 </div>
@@ -350,7 +323,7 @@ function handleSearchInput() {
                                         :value="form.connector"
                                         type="text"
                                         readonly
-                                        class="w-full border border-neutral-100 bg-neutral-50/50 px-3 py-2 font-mono text-xs text-neutral-400 outline-none cursor-default select-none uppercase"
+                                        class="w-full border border-gray-200 dark:border-[#232323] focus-visible:ring-[#00c885] dark:bg-[#171717] bg-neutral-50 px-3 py-2 font-mono text-xs text-neutral-800 placeholder-neutral-300 dark:placeholder-white/50 dark:text-white/50 select-none outline-none focus:border-neutral-400 dark:focus:border-[#232323] transition-colors"
                                         placeholder="—"
                                     />
                                 </div>
@@ -366,7 +339,7 @@ function handleSearchInput() {
                                     :value="form.slug"
                                     type="text"
                                     readonly
-                                    class="w-full border border-neutral-100 bg-neutral-50/50 px-3 py-2 font-mono text-xs text-neutral-400 outline-none cursor-default select-none"
+                                    class="w-full border border-gray-200 dark:border-[#232323] focus-visible:ring-[#00c885] dark:bg-[#171717] bg-neutral-50 px-3 py-2 font-mono text-xs text-neutral-800 placeholder-neutral-300 dark:placeholder-white/50 dark:text-white/50 outline-none focus:border-neutral-400 dark:focus:border-[#232323] select-none transition-colors"
                                     placeholder="—"
                                 />
                             </div>
@@ -374,13 +347,17 @@ function handleSearchInput() {
 
                         <!-- Manual fields -->
                         <div class="flex items-center gap-3">
-                            <div class="flex-1 h-px bg-neutral-100" />
+                            <div
+                                class="flex-1 h-px bg-neutral-100 dark:bg-white/50"
+                            />
                             <span
                                 class="font-mono text-[10px] tracking-widest text-neutral-300 uppercase whitespace-nowrap"
                             >
                                 {{ t("modal.addVehicle.yourDetails") }}
                             </span>
-                            <div class="flex-1 h-px bg-neutral-100" />
+                            <div
+                                class="flex-1 h-px bg-neutral-100 dark:bg-white/50"
+                            />
                         </div>
 
                         <div class="grid grid-cols-2 gap-3">
@@ -393,7 +370,7 @@ function handleSearchInput() {
                                 <input
                                     v-model="form.plate"
                                     type="text"
-                                    class="w-full border border-neutral-200 bg-neutral-50 px-3 py-2 font-mono text-xs text-neutral-800 placeholder-neutral-300 outline-none focus:border-neutral-400 transition-colors uppercase"
+                                    class="w-full border border-gray-200 dark:border-[#232323] focus-visible:ring-[#00c885] dark:bg-[#171717] bg-neutral-50 px-3 py-2 font-mono text-xs text-neutral-800 placeholder-neutral-300 dark:placeholder-white/50 dark:text-white/80 outline-none focus:border-neutral-400 dark:focus:border-[#232323] transition-colors"
                                     :placeholder="
                                         t('modal.addVehicle.platePlaceholder')
                                     "
@@ -410,7 +387,7 @@ function handleSearchInput() {
                                 <input
                                     v-model="form.color"
                                     type="text"
-                                    class="w-full border border-neutral-200 bg-neutral-50 px-3 py-2 font-mono text-xs text-neutral-800 placeholder-neutral-300 outline-none focus:border-neutral-400 transition-colors"
+                                    class="w-full border border-gray-200 dark:border-[#232323] focus-visible:ring-[#00c885] dark:bg-[#171717] bg-neutral-50 px-3 py-2 font-mono text-xs text-neutral-800 placeholder-neutral-300 dark:placeholder-white/50 dark:text-white/80 outline-none focus:border-neutral-400 dark:focus:border-[#232323] transition-colors"
                                     :placeholder="
                                         t('modal.addVehicle.colorPlaceholder')
                                     "
@@ -431,7 +408,7 @@ function handleSearchInput() {
                             <li
                                 v-for="(error, i) in errors"
                                 :key="error"
-                                class="flex items-start justify-between gap-2 border border-red-200 bg-red-50 px-3 py-2"
+                                class="flex items-start justify-between gap-2 border border-red-300 bg-red-200 px-3 py-2"
                             >
                                 <div class="flex items-start gap-2">
                                     <svg
@@ -484,7 +461,7 @@ function handleSearchInput() {
 
                         <!-- Footer -->
                         <div
-                            class="flex items-center justify-between pt-3 mt-1 border-t border-neutral-100"
+                            class="flex items-center justify-between pt-3 mt-1 border-t border-neutral-100 dark:border-white/50"
                         >
                             <span
                                 class="font-mono text-[10px] tracking-wide text-neutral-300"
@@ -500,7 +477,7 @@ function handleSearchInput() {
                             <div class="flex gap-2">
                                 <button
                                     type="button"
-                                    class="px-4 py-1.5 font-mono text-[11px] tracking-widest uppercase border border-neutral-200 text-neutral-500 hover:border-neutral-400 hover:text-neutral-800 transition-colors"
+                                    class="px-4 py-1.5 font-mono text-[11px] tracking-widest uppercase border border-neutral-200 dark:border-red-500 dark:text-red-500 dark:hover:border-red-400 dark:hover:bg-red-800 dark:hover:text-white text-neutral-500 hover:border-neutral-400 hover:text-neutral-800 transition-colors"
                                     @click="handleClose"
                                 >
                                     {{ t("modal.addVehicle.cancel") }}
@@ -511,7 +488,7 @@ function handleSearchInput() {
                                     class="flex items-center justify-center min-w-[64px] px-4 py-1.5 font-mono text-[11px] tracking-widest uppercase border transition-colors"
                                     :class="
                                         !isSubmitting
-                                            ? 'bg-neutral-800 border-neutral-800 text-white hover:bg-neutral-900 hover:border-neutral-900'
+                                            ? 'bg-neutral-800 border-neutral-800 text-white hover:bg-neutral-900 dark:bg-green-700 dark:hover:bg-green-600 hover:border-neutral-900'
                                             : 'bg-neutral-100 border-neutral-100 text-neutral-300 cursor-not-allowed'
                                     "
                                 >

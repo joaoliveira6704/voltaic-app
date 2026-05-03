@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from "vue";
+import { useDark } from "@vueuse/core";
+
 import { Switch } from "@/components/ui/switch";
 import {
     Select,
@@ -13,30 +15,32 @@ import type { Preferences } from "@/stores/user";
 
 const userStore = useUserStore();
 const { t } = useI18n();
+
+// 1. Theme engine (controls the actual CSS class)
+const isDark = useDark();
+
+// 2. Local UI state (does NOT affect the theme until saved)
 const darkMode = ref(userStore.currentUser?.preferences?.darkMode ?? false);
 const hidePlates = ref(userStore.currentUser?.preferences?.hidePlates ?? false);
 const language = ref(userStore.currentUser?.preferences?.language ?? "en");
 
 const emit = defineEmits(["saveUserSettings"]);
 
-const preferences = computed(
-    (): Preferences => ({
+const handleSave = () => {
+    const preferencesData = {
         darkMode: darkMode.value,
         hidePlates: hidePlates.value,
         language: language.value,
-    }),
-);
+    };
 
-const handleSave = () => {
-    const preferencesData = preferences.value;
-
-    console.log("Settings saving:", preferencesData);
-
+    // Emit and update store
     emit("saveUserSettings", preferencesData);
-
     userStore.editUserProfile({ preferences: preferencesData });
 
-    language.value = preferencesData.language;
+    // 3. Update the theme engine ONLY now
+    isDark.value = darkMode.value;
+
+    console.log("Settings applied and saved local theme state.");
 };
 </script>
 
