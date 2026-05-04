@@ -95,10 +95,7 @@ const handleCreate = async () => {
         emit("created", newUser);
         emit("close");
     } catch (e) {
-        const message =
-            e?.data?.message ||
-            e?.data?.error ||
-            "Something went wrong. Please try again.";
+        const message = e;
         errors.value = Array.isArray(message) ? message : [message];
     } finally {
         isSubmitting.value = false;

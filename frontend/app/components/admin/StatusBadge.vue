@@ -1,65 +1,97 @@
 <script setup>
 import { ChevronDownIcon } from "lucide-vue-next";
-import { UserRoles, TicketStatus, colorMap } from "@/utils/constants";
-import { computed, watchEffect } from "vue"; // Ensure these are imported if not auto-imported
+import { UserRoles, TicketStates, colorMap } from "@/utils/constants";
+import { computed } from "vue";
 import { useI18n } from "vue-i18n";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+} from "@/components/ui/select";
 
 const props = defineProps({
     value: String,
-    type: String,
+    userId: {
+        type: String,
+        required: true,
+    },
+    type: {
+        type: String,
+        required: true,
+        validator: (v) => ["users", "tickets"].includes(v),
+    },
 });
+
+const emit = defineEmits(["update:value"]);
 
 const { t } = useI18n();
 
-// Helper to find the correct data object based on type
-const activeData = computed(() => {
-    if (props.type === "users") {
-        return UserRoles.find((r) => r.key === props.value) ?? null;
-    }
-    if (props.type === "tickets") {
-        // If TicketStatus is an array (per your hint), use .find()
-        return TicketStatus.find((s) => s.key === props.value) ?? null;
-    }
-    return null;
+const options = computed(() => {
+    if (props.type === "users") return UserRoles;
+    if (props.type === "tickets") return TicketStates;
+    return [];
 });
 
-// Logic for CSS Classes
+const activeData = computed(() => {
+    return options.value.find((o) => o.key === props.value) ?? null;
+});
+
 const displayClass = computed(() => {
     if (!activeData.value) return "bg-muted text-muted-foreground";
-
     if (props.type === "users") {
-        // Users use the colorMap lookup
         return colorMap[activeData.value.color] ?? "bg-muted";
     }
-
-    // Tickets use the color string directly from the object
     return activeData.value.color;
 });
 
-// Logic for Labels
-const displayLabel = computed(() => {
-    if (!activeData.value) return props.value ?? "—";
-
+function getLabel(option) {
     if (props.type === "users") {
-        return t(`modal.addUser.roles.${activeData.value.key}`);
+        return t(`modal.addUser.roles.${option.key}`);
     }
+    return option.label;
+}
 
-    return activeData.value.label;
-});
+function getItemClass(option) {
+    if (props.type === "users") {
+        return colorMap[option.color] ?? "bg-muted text-muted-foreground";
+    }
+    return option.color;
+}
 
-watchEffect(() => {
-    console.log(
-        `[Badge] Type: ${props.type} | Value: ${props.value} | Class: ${displayClass.value}`,
-    );
-});
+function handleChange(val) {
+    emit("update:value", { userId: props.userId, role: val });
+}
 </script>
 
 <template>
-    <div
-        v-if="activeData || props.value"
-        class="text-xs uppercase px-2 py-0.5 rounded flex items-center w-fit border dark:border-[#232323]"
-        :class="displayClass"
-    >
-        {{ displayLabel }}
-    </div>
+    <Select :value="props.value" @update:model-value="handleChange">
+        <SelectTrigger
+            class="w-fit h-auto p-0 border-0 shadow-none focus:ring-0 focus:ring-offset-0 bg-transparent [&>svg]:hidden"
+        >
+            <div
+                class="text-xs uppercase px-2 py-0.5 rounded flex items-center gap-1 w-fit border dark:border-[#232323] cursor-pointer"
+                :class="displayClass"
+            >
+                {{ activeData ? getLabel(activeData) : (props.value ?? "—") }}
+                <ChevronDownIcon class="w-3 h-3 opacity-60 shrink-0" />
+            </div>
+        </SelectTrigger>
+
+        <SelectContent>
+            <SelectItem
+                v-for="option in options"
+                :key="option.key"
+                :value="option.key"
+            >
+                <div
+                    class="text-xs uppercase px-2 py-0.5 rounded w-fit"
+                    :class="getItemClass(option)"
+                >
+                    {{ getLabel(option) }}
+                </div>
+            </SelectItem>
+        </SelectContent>
+    </Select>
 </template>
+s

@@ -69,5 +69,6 @@ export const validateToken = (req, res) => {
     valid: true,
     userId: req.user.userId,
     role: req.user.role,
+    isAdmin: req.user.role === "admin",
   });
 };

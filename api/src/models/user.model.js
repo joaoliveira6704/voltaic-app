@@ -13,9 +13,9 @@ const userSchema = new mongoose.Schema(
       trim: true,
       validate: {
         validator: function (value) {
-          return validator.isLength({ min: 8, max: 20 });
+          return validator.isLength(value, { min: 8, max: 20 });
         },
-        message: `Username must beat least 8 characters long`,
+        message: "Username must be at least 8 characters long",
       },
     },
     email: {

@@ -91,7 +91,6 @@ export const getUserById = async (req, res, next) => {
 
 export const updateOwnUser = async (req, res, next) => {
   try {
-    // 1. Fetch user (ensure password is selected for comparison)
     const user = await userModel
       .findOne({ userId: req.user.userId })
       .select("+password");
@@ -102,9 +101,10 @@ export const updateOwnUser = async (req, res, next) => {
       return next(err);
     }
 
-    const { newPassword, currentPassword, ...otherUpdates } = req.body;
+    const { newPassword, currentPassword, preferences, ...scalarUpdates } =
+      req.body;
 
-    // 2. Handle Password Change Logic
+    // 1. Handle password change
     if (newPassword) {
       if (!currentPassword) {
         const err = new Error(
@@ -114,7 +114,6 @@ export const updateOwnUser = async (req, res, next) => {
         return next(err);
       }
 
-      // Check if current password is correct
       const isPasswordValid = await user.correctPassword(
         currentPassword,
         user.password,
@@ -125,18 +124,36 @@ export const updateOwnUser = async (req, res, next) => {
         return next(err);
       }
 
-      // Set the new password (Mongoose 'pre-save' hook will hash this)
       user.password = newPassword;
     }
 
-    // 3. Update other fields
-    // Use Object.assign on the document to keep it reactive
-    Object.assign(user, otherUpdates);
+    // 2. Update allowlisted scalar fields
+    const allowedScalars = ["username", "email", "firstName", "lastName"];
+    for (const field of allowedScalars) {
+      if (scalarUpdates[field] !== undefined) {
+        if (
+          typeof scalarUpdates[field] === "object" &&
+          scalarUpdates[field] !== null
+        ) {
+          const err = new Error(`Invalid value for field: ${field}`);
+          err.status = 400;
+          return next(err);
+        }
+        user[field] = scalarUpdates[field];
+      }
+    }
+
+    // 3. Patch preferences with dot-notation to avoid full subdoc replacement
+    if (preferences && typeof preferences === "object") {
+      for (const [key, value] of Object.entries(preferences)) {
+        user.set(`preferences.${key}`, value);
+      }
+    }
 
     // 4. Save and trigger validation/hooks
     const updatedUser = await user.save();
 
-    // 5. Security: Don't send the password back in the response
+    // 5. Don't send password back
     updatedUser.password = undefined;
 
     res.json(updatedUser);
@@ -154,7 +171,7 @@ export const updateRole = async (req, res, next) => {
   try {
     const updatedUser = await userModel.findOneAndUpdate(
       { userId: req.params.id },
-      { role },
+      { role: req.body.role },
       { new: true },
     );
     if (!updatedUser) {

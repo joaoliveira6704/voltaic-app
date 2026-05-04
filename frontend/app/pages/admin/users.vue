@@ -38,10 +38,12 @@ const openEditUserModal = (user) => {
 };
 
 const onUserUpdated = () => {
-    userStore.editUserProfile(editingUser.value).then(() => {
-        isEditUserModalOpen.value = false;
-        editingUser.value = null;
-    });
+    isEditUserModalOpen.value = false;
+    editingUser.value = null;
+};
+
+const handleRoleChange = async (userId, role) => {
+    userStore.editUserRole(userId, role);
 };
 
 onMounted(() => {
@@ -91,7 +93,13 @@ onMounted(() => {
                     row.email
                 }}</TableCell>
                 <TableCell
-                    ><StatusBadge type="users" :value="row.role"
+                    ><StatusBadge
+                        :value="row.role"
+                        :user-id="row.userId"
+                        type="users"
+                        @update:value="
+                            ({ userId, role }) => handleRoleChange(userId, role)
+                        "
                 /></TableCell>
                 <TableCell class="text-xs"
                     >{{ getCompanyName(row.companyId) }}

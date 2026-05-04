@@ -27,6 +27,10 @@ export default defineNuxtRouteMiddleware(async (_to, _from) => {
         !_from.path || PUBLIC_ROUTES.includes(_from.path) ? "/" : _from.path;
       return navigateTo(fallback);
     }
+    if (_to.path.startsWith("/admin")) {
+      const isAdmin = await checkIsAdmin(token.value);
+      if (!isAdmin) return navigateTo("/");
+    }
   } catch (error) {
     console.log("Error validating token:", error);
     token.value = null;

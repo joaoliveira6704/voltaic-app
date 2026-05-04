@@ -117,17 +117,14 @@ const handleSave = async () => {
 
     isSubmitting.value = true;
     try {
-        const updatedUser = await userStore.adminEditUser(
-            props.user.id,
+        const updatedUser = await userStore.editUser(
+            props.user.userId,
             changedFields.value,
         );
         emit("updated", updatedUser);
         emit("close");
     } catch (e) {
-        const message =
-            e?.data?.message ||
-            e?.data?.error ||
-            "Something went wrong. Please try again.";
+        const message = e;
         errors.value = Array.isArray(message) ? message : [message];
     } finally {
         isSubmitting.value = false;
