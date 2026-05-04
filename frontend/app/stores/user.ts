@@ -81,9 +81,6 @@ export const useUserStore = defineStore("user", () => {
   }
 
   async function createUser(user: User) {
-    const userId = crypto.randomUUID();
-    user.userId = userId;
-
     try {
       await $fetch(`${apiBase()}/api/auth/register`, {
         method: "POST",
@@ -93,7 +90,7 @@ export const useUserStore = defineStore("user", () => {
       return user;
     } catch (e) {
       console.error("Failed to add user:", e);
-      throw e;
+      throw e.data;
     }
   }
 

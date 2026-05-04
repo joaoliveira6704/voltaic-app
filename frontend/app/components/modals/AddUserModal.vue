@@ -95,8 +95,17 @@ const handleCreate = async () => {
         emit("created", newUser);
         emit("close");
     } catch (e) {
-        const message = e;
-        errors.value = Array.isArray(message) ? message : [message];
+        console.log(e);
+        const message = e.details;
+        if (Array.isArray(message)) {
+            errors.value = message;
+        } else if (message && typeof message === "object") {
+            errors.value = Object.values(message);
+        } else if (typeof message === "string") {
+            errors.value = [message];
+        } else {
+            errors.value = [t("modal.addUser.errors.unknown")];
+        }
     } finally {
         isSubmitting.value = false;
     }
