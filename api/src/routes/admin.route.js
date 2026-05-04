@@ -16,6 +16,4 @@ const router = Router();
 
 router.use(protect, requireRole("admin"));
 
-router.patch("/stations/:id", updateStation);
-
 export default router;

@@ -9,6 +9,11 @@ import {
   getUserById,
   removeVehicle,
   editVehicle,
+  getVehicles,
+  getFavorites,
+  deleteOwnUser,
+  addFavourite,
+  removeFavorite,
 } from "../controllers/user.controller.js";
 import {
   checkOwnership,
@@ -19,23 +24,32 @@ import userModel from "../models/user.model.js";
 
 const router = Router();
 
-router.get("/", getUsers);
 router.post("/");
-router.patch("/:id", protect, updateUser);
-router.delete("/:id", protect, requireRole("admin"), deleteUser);
+router.get("/", getUsers);
+
 router.get("/me", protect, getCurrentUser);
-router.get("/:id", protect, getUserById);
 router.patch("/me", protect, updateOwnUser);
+router.delete("/me", protect, deleteOwnUser);
+
+router.get("/me/favourites", protect, getFavorites);
+router.post("/me/favorites", protect, addFavorite);
+router.delete("/me/favorites/:stationId", protect, removeFavorite);
+
+router.get("/me/vehicles", protect, getVehicles);
+router.post("/me/vehicles", protect, addVehicle);
+router.patch("/me/vehicles/:plate", protect, editVehicle);
+router.delete("/me/vehicles/:plate", protect, removeVehicle);
+
+router.get("/:id", protect, getUserById);
+router.patch("/:id", protect, requireRole("admin"), updateUser);
+router.delete("/:id", protect, requireRole("admin"), deleteUser);
+
 router.patch(
-  "/users/:id/role",
+  "/:id/role",
   protect,
   requireRole("admin", "company-manager"),
   checkOwnership(userModel),
   updateRole,
 );
-router.patch("/users/:id", protect, requireRole("admin"), updateUser);
-router.post("/me/vehicles", protect, addVehicle);
-router.patch("/me/vehicles/:plate", protect, editVehicle);
-router.delete("/me/vehicles/:plate", protect, removeVehicle);
 
 export default router;

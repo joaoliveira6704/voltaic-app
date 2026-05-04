@@ -27,6 +27,22 @@ export const deleteUser = async (req, res, next) => {
   }
 };
 
+export const deleteOwnUser = async (req, res, next) => {
+  try {
+    const deletedUser = await userModel.findOneAndDelete({
+      userId: req.user.userId,
+    });
+    if (!deletedUser) {
+      const err = new Error("User not found");
+      err.status = 404;
+      return next(err);
+    }
+    res.json({ message: "User deleted successfully" });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const updateUser = async (req, res, next) => {
   try {
     const updatedUser = await userModel.findOneAndUpdate(
@@ -152,6 +168,20 @@ export const updateRole = async (req, res, next) => {
   }
 };
 
+export const getVehicles = async (req, res, next) => {
+  try {
+    const user = await userModel.findOne({ userId: req.user.userId });
+    if (!user) {
+      const err = new Error("User not found");
+      err.status = 404;
+      return next(err);
+    }
+    res.json(user.vehicles);
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const addVehicle = async (req, res, next) => {
   try {
     const { plate, model, color, connector, slug } = req.body;
@@ -235,6 +265,79 @@ export const editVehicle = async (req, res, next) => {
       return next(err);
     }
     res.json(updatedUser);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getFavorites = async (req, res, next) => {
+  try {
+    const user = await userModel.findOne({ userId: req.user.userId });
+    if (!user) {
+      const err = new Error("User not found");
+      err.status = 404;
+      return next(err);
+    }
+    res.json(user.favorites);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const addFavorite = async (req, res, next) => {
+  try {
+    const { stationId } = req.body;
+
+    // check if station exists
+    const station = await stationModel.findOne({ stationId });
+    if (!station) {
+      const err = new Error("Station not found");
+      err.status = 404;
+      return next(err);
+    }
+
+    // check if already in favorites
+    const duplicate = await userModel.findOne({
+      userId: req.user.userId,
+      favorites: stationId,
+    });
+
+    if (duplicate) {
+      const err = new Error("Station already in favorites");
+      err.status = 400;
+      return next(err);
+    }
+
+    // Add the vehicle using $push
+    const updatedUser = await userModel.findOneAndUpdate(
+      { userId: req.user.userId },
+      { $push: { favorites: stationId } },
+      { new: true, runValidators: true },
+    );
+
+    res.status(201).json(updatedUser.favorites);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const removeFavorite = async (req, res, next) => {
+  try {
+    const { stationId } = req.params;
+
+    const updatedUser = await userModel.findOneAndUpdate(
+      { userId: req.user.userId },
+      { $pull: { favorite: stationId } },
+      { new: true },
+    );
+
+    if (!updatedUser) {
+      const err = new Error("User not found");
+      err.status = 404;
+      return next(err);
+    }
+
+    res.status(200).json(updatedUser.favorite);
   } catch (error) {
     next(error);
   }
