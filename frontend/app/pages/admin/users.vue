@@ -2,6 +2,8 @@
 import { AdminUserColumns } from "@/utils/constants";
 
 const isAddUserModalOpen = ref(false);
+const isEditUserModalOpen = ref(false);
+
 const searchTerm = ref("");
 
 const userStore = useUserStore();
@@ -28,6 +30,20 @@ const deleteUser = async (user) => {
     }
 };
 
+const editingUser = ref(null);
+
+const openEditUserModal = (user) => {
+    editingUser.value = user;
+    isEditUserModalOpen.value = true;
+};
+
+const onUserUpdated = () => {
+    userStore.editUserProfile(editingUser.value).then(() => {
+        isEditUserModalOpen.value = false;
+        editingUser.value = null;
+    });
+};
+
 onMounted(() => {
     userStore.fetchUsers();
     companyStore.fetchCompanies();
@@ -35,6 +51,15 @@ onMounted(() => {
 </script>
 
 <template>
+    <AdminEditUserModal
+        :is-open="isEditUserModalOpen"
+        :user="editingUser"
+        @close="
+            isEditUserModalOpen = false;
+            editingUser = null;
+        "
+        @updated="onUserUpdated"
+    />
     <AdminPage
         v-model:search="searchTerm"
         title="Users"
@@ -51,7 +76,7 @@ onMounted(() => {
         <AdminTable
             :rows="users"
             :columns="AdminUserColumns"
-            @edit="editUser"
+            @edit="openEditUserModal"
             @delete="deleteUser"
             type="users"
         >
