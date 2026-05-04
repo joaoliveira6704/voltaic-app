@@ -38,14 +38,14 @@ const handleLogout = () => {
 </script>
 
 <template>
-    <nav class="flex flex-col w-full gap-1 font-mono">
+    <nav class="flex flex-col w-full gap-1 py-1">
         <ToggleTheme v-if="!route.path.startsWith('/profile')" />
         <Button
             as-child
-            class="w-full flex justify-start gap-3 h-11 px-4 transition-all group cursor-pointer hover:bg-gray-200 dark:hover:bg-[#232323]"
+            class="w-full flex justify-start gap-3 h-11 px-4 transition-all text-black group cursor-pointer bg-white dark:bg-[#171717] hover:bg-gray-200 dark:hover:bg-[#232323] dark:text-white"
             :class="
                 route.path === '/profile'
-                    ? 'bg-gray-100 dark:bg-[#272727] hover:bg-gray-200 dark:hover:bg-[#232323]'
+                    ? ' hover:bg-gray-200 bg-gray-100 dark:hover:bg-[#232323] dark:bg-[#272727] dark:text-white'
                     : 'filter grayscale hover:grayscale-0'
             "
         >
@@ -60,7 +60,7 @@ const handleLogout = () => {
                     class="h-6 w-6 shrink-0 bg-gray-200 animate-pulse rounded-full"
                 />
 
-                <span class="text-xs font-bold uppercase tracking-tight">
+                <span class="text-xs font-bold uppercase">
                     {{ currentUser?.firstName }}
                     {{ currentUser?.lastName?.charAt(0) }}.
                 </span>
@@ -68,13 +68,11 @@ const handleLogout = () => {
         </Button>
 
         <Button
-            class="w-full flex justify-start gap-3 h-11 px-4 transition-all group cursor-pointer hover:bg-gray-100 dark:hover:bg-[#272727] filter grayscale hover:grayscale-0"
+            class="w-full flex justify-start gap-3 h-11 px-4 transition-all group dark:bg-[#171717] dark:text-white cursor-pointer bg-white text-black hover:bg-gray-100 dark:hover:bg-[#272727] filter grayscale hover:grayscale-0"
             @click="handleLogout"
         >
             <LogOut class="ml-2.5 h-6 w-6 shrink-0 transition-colors" />
-            <span class="text-xs font-bold uppercase tracking-tight">
-                Logout
-            </span>
+            <span class="text-xs font-bold uppercase"> Logout </span>
         </Button>
     </nav>
 </template>

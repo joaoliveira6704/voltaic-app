@@ -19,6 +19,15 @@ const getCompanyName = (companyId) => {
     return companyStore.getCompanyName(companyId);
 };
 
+const deleteUser = async (user) => {
+    try {
+        await userStore.deleteUser(user.userId, user.username);
+    } catch (error) {
+        console.log(error);
+        return;
+    }
+};
+
 onMounted(() => {
     userStore.fetchUsers();
     companyStore.fetchCompanies();
@@ -29,7 +38,7 @@ onMounted(() => {
     <AdminPage
         v-model:search="searchTerm"
         title="Users"
-        button-text="Add new user"
+        button-text="Create new user"
         @add="isAddUserModalOpen = true"
     >
         <template #modal>
@@ -47,22 +56,22 @@ onMounted(() => {
             type="users"
         >
             <template #default="{ row }">
-                <TableCell class="font-mono text-xs font-bold">{{
+                <TableCell class="text-xs font-bold">{{
                     row.username
                 }}</TableCell>
-                <TableCell class="font-mono text-xs"
+                <TableCell class="text-xs"
                     >{{ row.firstName }} {{ row.lastName }}</TableCell
                 >
-                <TableCell class="font-mono text-xs text-muted-foreground">{{
+                <TableCell class="text-xs text-muted-foreground label">{{
                     row.email
                 }}</TableCell>
                 <TableCell
                     ><StatusBadge type="users" :value="row.role"
                 /></TableCell>
-                <TableCell
-                    ><StatusBadge :value="getCompanyName(row.companyId)"
-                /></TableCell>
-                <TableCell class="font-mono text-xs">{{
+                <TableCell class="text-xs"
+                    >{{ getCompanyName(row.companyId) }}
+                </TableCell>
+                <TableCell class="text-xs">{{
                     row.vehicles?.length ?? 0
                 }}</TableCell>
             </template>

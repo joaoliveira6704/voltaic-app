@@ -39,7 +39,7 @@ const handleImageError = (event: Event) => {
 
 <template>
     <div
-        class="relative hover:bg-green-600/20 dark:hover:border-white/20 h-30 transition-all duration-300 w-60 bg-neutral-200 dark:bg-[#1A1A1A] dark:border dark:border-[#232323] rounded-xl p-5 gap-2 flex flex-col justify-between font-mono group"
+        class="relative hover:bg-green-600/20 dark:hover:border-white/20 h-30 transition-all duration-300 w-60 bg-neutral-200 dark:bg-[#1A1A1A] dark:border dark:border-[#232323] rounded-xl p-5 gap-2 flex flex-col justify-between group"
     >
         <!-- <Pencil
       @click="emit('edit')"
@@ -73,7 +73,7 @@ const handleImageError = (event: Event) => {
                         {{ t("plate") }}:
                     </span>
                     <span
-                        class="text-sm font-bold text-neutral-800 dark:text-white/50 tracking-wider"
+                        class="text-sm font-bold text-neutral-800 dark:text-white/50"
                     >
                         {{ props.data.plate }}
                     </span>

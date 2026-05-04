@@ -120,7 +120,7 @@ onMounted(async () => {
                 v-for="(color, key) in STATUS_COLOR"
                 :key="key"
                 v-show="key !== 'empty'"
-                class="flex items-center gap-2 text-[10px] uppercase tracking-wider text-white/80"
+                class="flex items-center gap-2 text-[10px] uppercase text-white/80"
             >
                 <span
                     class="w-2 h-2 rounded-full"

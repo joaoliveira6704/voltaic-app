@@ -6,7 +6,7 @@
     "yourFleet": "Your Fleet",
     "addNewVehicle": "Add new Vehicle",
     "plate": "Plate",
-    "history": "History",
+    "history": "Charging History",
     "date": "Date",
     "vehicle": "Vehicle",
     "station": "Station",
@@ -34,7 +34,7 @@
         "assignedTickets": "Assigned Tickets",
         "map": "Map",
         "favoriteStations": "Favorite Stations",
-        "history": "History"
+        "history": "Charging History"
     },
     "modal": {
         "addUser": {

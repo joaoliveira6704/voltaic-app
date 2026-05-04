@@ -4,6 +4,7 @@ export const AdminUserColumns = [
     { key: "email", label: "Email" },
     { key: "role", label: "Role" },
     { key: "company", label: "Company" },
+    { key: "vehicles", label: "Vehicles" },
 ];
 
 export const AdminStationColumns = [

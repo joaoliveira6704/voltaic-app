@@ -66,7 +66,7 @@ const sendEmail = () => {
 
 <template>
     <div
-        class="flex flex-col lg:flex-row items-center md:items-start gap-8 rounded-xl font-mono"
+        class="flex flex-col lg:flex-row items-center md:items-start gap-8 rounded-xl"
     >
         <div class="relative shrink-0">
             <div
@@ -85,7 +85,7 @@ const sendEmail = () => {
         >
             <div>
                 <h1
-                    class="text-3xl font-black tracking-tight text-center lg:text-left uppercase"
+                    class="text-3xl font-black text-center lg:text-left uppercase"
                 >
                     {{ props.user.firstName }} {{ props.user.lastName }}
                 </h1>
@@ -112,7 +112,7 @@ const sendEmail = () => {
                     <Mail
                         class="w-5 h-5 text-neutral-400 group-hover:text-black dark:group-hover:text-green-500 transition-colors"
                     />
-                    <span class="text-sm font-bold lowercase tracking-tight">
+                    <span class="text-sm font-bold lowercase">
                         {{ props.user.email }}
                     </span>
                 </div>
@@ -121,7 +121,7 @@ const sendEmail = () => {
                     <MapPin
                         class="w-5 h-5 text-neutral-400 group-hover:text-black dark:group-hover:text-green-500 transition-colors"
                     />
-                    <span class="text-sm font-bold capitalize tracking-tight">
+                    <span class="text-sm font-bold capitalize">
                         {{ props.user.location || "Unknown Location" }}
                     </span>
                 </div>
@@ -130,7 +130,7 @@ const sendEmail = () => {
                     <Globe
                         class="w-5 h-5 text-neutral-400 group-hover:text-black dark:group-hover:text-green-500s transition-colors"
                     />
-                    <span class="text-sm font-bold tracking-tight">
+                    <span class="text-sm font-bold">
                         {{
                             t(
                                 `lang.${props.user.preferences?.language || "en"}`,

@@ -13,6 +13,14 @@ const filtered = computed(() =>
     ),
 );
 
+const deleteCompany = (company) => {
+    try {
+        companyStore.deleteCompany(company.companyId, company.name);
+    } catch (error) {
+        console.log(error);
+    }
+};
+
 const getCompanyName = (companyId) => {
     return companyStore.getCompanyName(companyId);
 };
@@ -26,13 +34,13 @@ onMounted(() => {
     <AdminPage
         v-model:search="searchTerm"
         title="Companies"
-        button-text="Add new company"
-        @add="isAddUserModalOpen = true"
+        button-text="Create new company"
+        @add="isAddCompanyModalOpen = true"
     >
         <template #modal>
-            <AddUserModal
-                :is-open="isAddUserModalOpen"
-                @close="isAddUserModalOpen = false"
+            <AddCompanyModal
+                :is-open="isAddCompanyModalOpen"
+                @close="isAddCompanyModalOpen = false"
             />
         </template>
 
@@ -40,15 +48,15 @@ onMounted(() => {
             :rows="companies"
             :columns="AdminCompanyColumns"
             @edit="editCompany"
-            @delete="deleteUser"
+            @delete="deleteCompany"
             type="company"
         >
             <template #default="{ row }">
-                <TableCell class="font-mono text-xs font-bold">{{
+                <TableCell class="text-xs font-bold">{{
                     row.companyId
                 }}</TableCell>
-                <TableCell class="font-mono text-xs">{{ row.name }}</TableCell>
-                <TableCell class="font-mono text-xs text-muted-foreground">{{
+                <TableCell class="text-xs">{{ row.name }}</TableCell>
+                <TableCell class="text-xs text-muted-foreground">{{
                     row.workingArea.coordinates.join(", ")
                 }}</TableCell>
             </template>

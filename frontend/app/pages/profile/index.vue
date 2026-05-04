@@ -74,7 +74,7 @@ const isAddVehicleModal = ref(false);
                     </CardScroll>
                     <div
                         v-else
-                        class="p-10 text-center font-mono text-xs text-neutral-400"
+                        class="p-10 text-center text-xs text-neutral-400"
                     >
                         {{ t("noVehicles") }} @{{ currentUser.username }}.
                     </div>

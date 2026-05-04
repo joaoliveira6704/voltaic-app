@@ -91,10 +91,7 @@ const handleLogin = async () => {
             @submit.prevent="handleLogin"
         >
             <div class="space-y-2">
-                <Label
-                    for="email"
-                    class="font-mono text-xs font-bold uppercase tracking-wider"
-                >
+                <Label for="email" class="text-xs font-bold uppercase">
                     Email
                 </Label>
                 <Input
@@ -102,21 +99,18 @@ const handleLogin = async () => {
                     v-model="email"
                     type="email"
                     placeholder="example@voltaic.com"
-                    class="h-11 font-mono border-gray-200 dark:border-[#232323] focus-visible:ring-[#00c885]"
+                    class="h-11 border-gray-200 dark:border-[#232323] focus-visible:ring-[#00c885]"
                 />
             </div>
 
             <div class="space-y-2">
                 <div class="flex justify-between items-center">
-                    <Label
-                        for="password"
-                        class="font-mono text-xs font-bold uppercase tracking-wider"
-                    >
+                    <Label for="password" class="text-xs font-bold uppercase">
                         Password
                     </Label>
                     <NuxtLink
                         to="/recover-password"
-                        class="text-[10px] font-mono text-[#007bff] hover:underline uppercase"
+                        class="text-[10px] text-[#007bff] hover:underline uppercase"
                     >
                         Forgot?
                     </NuxtLink>
@@ -126,7 +120,7 @@ const handleLogin = async () => {
                     v-model="password"
                     type="password"
                     placeholder="********"
-                    class="h-11 font-mono border-gray-200 dark:border-[#232323] focus-visible:ring-[#00c885]"
+                    class="h-11 border-gray-200 dark:border-[#232323] focus-visible:ring-[#00c885]"
                 />
             </div>
 
@@ -139,11 +133,11 @@ const handleLogin = async () => {
                 <div class="grid gap-1 leading-none">
                     <Label
                         for="remember"
-                        class="font-mono text-sm font-bold text-gray-900 dark:text-white/50 cursor-pointer"
+                        class="text-sm font-bold text-gray-900 dark:text-white/50 cursor-pointer"
                     >
                         Remember me
                     </Label>
-                    <p class="font-mono text-[10px] text-gray-400">
+                    <p class="text-[10px] text-gray-400">
                         Keep my session active
                     </p>
                 </div>
@@ -152,7 +146,7 @@ const handleLogin = async () => {
             <div class="pt-2">
                 <Button
                     type="submit"
-                    class="w-full h-12 bg-[#007bff] hover:bg-[#0069d9] dark:text-black font-mono uppercase tracking-widest text-sm transition-all"
+                    class="w-full h-12 bg-[#007bff] hover:bg-[#0069d9] dark:text-black uppercase text-sm transition-all"
                 >
                     Login
                 </Button>
@@ -161,9 +155,7 @@ const handleLogin = async () => {
             <div
                 class="pt-4 text-center border-t border-gray-50 dark:border-[#232323] mt-4"
             >
-                <p
-                    class="font-mono text-[10px] text-gray-400 uppercase tracking-tight"
-                >
+                <p class="text-[10px] text-gray-400 uppercase">
                     New to Voltaic?
                     <NuxtLink
                         to="/signup"

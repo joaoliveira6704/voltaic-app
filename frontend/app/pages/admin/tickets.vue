@@ -15,6 +15,14 @@ const filtered = computed(() =>
     ),
 );
 
+const deleteTicket = (ticket) => {
+    try {
+        ticketStore.deleteTicket(ticket.ticketId, ticket.title);
+    } catch (error) {
+        console.log(error);
+    }
+};
+
 const getUserName = (userId) => {
     return userStore.getUserById(userId);
 };
@@ -26,38 +34,26 @@ onMounted(() => {
 </script>
 
 <template>
-    <AdminPage
-        v-model:search="searchTerm"
-        title="Tickets"
-        button-text="Add new ticket"
-        @add="isAddUserModalOpen = true"
-    >
-        <template #modal>
-            <AddTicketModal
-                :is-open="isAddTicketModalOpen"
-                @close="isAddTicketModalOpen = false"
-            />
-        </template>
-
+    <AdminPage v-model:search="searchTerm" title="Tickets" :button="false">
         <AdminTable
             :rows="tickets"
             :columns="AdminTicketColumns"
             @edit="editTicket"
-            @delete="deleteUser"
-            type="users"
+            @delete="deleteTicket"
+            type="tickets"
         >
             <template #default="{ row }">
-                <TableCell class="font-mono text-xs font-bold">{{
+                <TableCell class="text-xs font-bold">{{
                     row.ticketId
                 }}</TableCell>
-                <TableCell class="font-mono text-xs"
+                <TableCell class="text-xs"
                     >@{{ getUserName(row.createdBy) || "-" }}</TableCell
                 >
-                <TableCell class="font-mono text-xs text-muted-foreground">{{
-                    row.title
-                }}</TableCell>
+                <TableCell>{{ row.title }}</TableCell>
                 <TableCell>{{ row.description.slice(0, 20) }}...</TableCell>
-                <TableCell>{{ row.remarks || "No remarks" }}</TableCell>
+                <TableCell class="text-xs text-muted-foreground">{{
+                    row.remarks || "No remarks"
+                }}</TableCell>
                 <TableCell
                     ><StatusBadge type="tickets" :value="row.status"
                 /></TableCell>

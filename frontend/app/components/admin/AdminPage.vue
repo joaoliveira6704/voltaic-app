@@ -20,7 +20,7 @@ const searchTerm = defineModel("search");
             <template #cell-b>
                 <DashboardCard
                     :title="title"
-                    :has-btn="true"
+                    :has-btn="buttonText"
                     :button-text="buttonText"
                     @btn-click="$emit('add')"
                 >

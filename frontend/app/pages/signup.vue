@@ -79,7 +79,7 @@ const handleRegister = async () => {
                     <div class="space-y-2">
                         <Label
                             for="username"
-                            class="font-mono text-xs font-bold uppercase text-white/50"
+                            class="text-xs font-bold uppercase text-white/50"
                             >Username</Label
                         >
                         <Input
@@ -87,7 +87,7 @@ const handleRegister = async () => {
                             v-model="form.username"
                             type="text"
                             placeholder="johndoe123"
-                            class="h-11 font-mono dark:border-[#232323]"
+                            class="h-11 dark:border-[#232323]"
                         />
                     </div>
 
@@ -95,27 +95,27 @@ const handleRegister = async () => {
                         <div class="space-y-2">
                             <Label
                                 for="firstName"
-                                class="font-mono text-xs font-bold uppercase text-white/50"
+                                class="text-xs font-bold uppercase text-white/50"
                                 >First Name</Label
                             >
                             <Input
                                 id="firstName"
                                 v-model="form.firstName"
                                 placeholder="John"
-                                class="h-11 font-mono dark:border-[#232323]"
+                                class="h-11 dark:border-[#232323]"
                             />
                         </div>
                         <div class="space-y-2">
                             <Label
                                 for="lastName"
-                                class="font-mono text-xs font-bold uppercase text-white/50"
+                                class="text-xs font-bold uppercase text-white/50"
                                 >Last Name</Label
                             >
                             <Input
                                 id="lastName"
                                 v-model="form.lastName"
                                 placeholder="Doe"
-                                class="h-11 font-mono dark:border-[#232323]"
+                                class="h-11 dark:border-[#232323]"
                             />
                         </div>
                     </div>
@@ -123,7 +123,7 @@ const handleRegister = async () => {
                     <div class="space-y-2">
                         <Label
                             for="email"
-                            class="font-mono text-xs font-bold uppercase text-white/50"
+                            class="text-xs font-bold uppercase text-white/50"
                             >Email</Label
                         >
                         <Input
@@ -131,14 +131,14 @@ const handleRegister = async () => {
                             v-model="form.email"
                             type="email"
                             placeholder="example@voltaic.com"
-                            class="h-11 font-mono dark:border-[#232323]"
+                            class="h-11 dark:border-[#232323]"
                         />
                     </div>
 
                     <div class="space-y-2">
                         <Label
                             for="password"
-                            class="font-mono text-xs font-bold uppercase text-white/50"
+                            class="text-xs font-bold uppercase text-white/50"
                             >Password</Label
                         >
                         <Input
@@ -146,7 +146,7 @@ const handleRegister = async () => {
                             v-model="form.password"
                             type="password"
                             placeholder="********"
-                            class="h-11 font-mono dark:border-[#232323]"
+                            class="h-11 dark:border-[#232323]"
                         />
                     </div>
 
@@ -159,7 +159,7 @@ const handleRegister = async () => {
                         <div class="grid gap-1">
                             <Label
                                 for="terms"
-                                class="font-mono text-[10px] text-gray-900 dark:text-white cursor-pointer"
+                                class="text-[10px] text-gray-900 dark:text-white cursor-pointer"
                             >
                                 I agree with the Terms & Conditions
                             </Label>
@@ -168,7 +168,7 @@ const handleRegister = async () => {
 
                     <Button
                         type="submit"
-                        class="w-full h-12 bg-[#007bff] hover:bg-[#0069d9] font-mono uppercase dark:text-black tracking-widest text-sm"
+                        class="w-full h-12 bg-[#007bff] hover:bg-[#0069d9] uppercase dark:text-black text-sm"
                     >
                         Register
                     </Button>

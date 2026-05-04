@@ -19,7 +19,7 @@ defineEmits(["btnClick"]);
 
 <template>
     <Card
-        class="h-fit w-full flex flex-col items-center lg:items-start border-gray-100 dark:border-[#232323] shadow-[0px_0px_10px_2px_rgba(0,0,0,0.1)] overflow-hidden font-mono dark:bg-[#171717]"
+        class="h-fit w-full flex flex-col items-center lg:items-start border-gray-100 dark:border-[#232323] shadow-[0px_0px_10px_2px_rgba(0,0,0,0.1)] overflow-hidden dark:bg-[#171717]"
     >
         <div v-if="title" class="flex flex-col gap-3 w-full">
             <CardHeader
@@ -28,7 +28,7 @@ defineEmits(["btnClick"]);
             >
                 <CardTitle
                     v-if="title"
-                    class="text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-white pt-0"
+                    class="text-xs font-bold uppercase text-gray-400 dark:text-white pt-0"
                 >
                     {{ title }}
                 </CardTitle>

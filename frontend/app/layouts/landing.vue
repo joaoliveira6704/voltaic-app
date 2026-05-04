@@ -40,7 +40,7 @@ const navLinks = computed(() => {
 
 <template>
     <div
-        class="h-screen w-full flex flex-col bg-white dark:border-[#232323] dark:bg-[#0a0a0a] font-mono dark:selection:bg-white dark:selection:text-[#0a0a0a]"
+        class="h-screen w-full flex flex-col bg-white dark:border-[#232323] dark:bg-[#0a0a0a] dark:selection:bg-white dark:selection:text-[#0a0a0a]"
     >
         <nav
             class="shrink-0 w-full border-b border-gray-100 bg-white dark:border-[#232323] dark:bg-[#0a0a0a]"
@@ -82,8 +82,7 @@ const navLinks = computed(() => {
             <div
                 class="container mx-auto max-w-7xl px-4 md:px-8 flex justify-between items-center"
             >
-                <Label
-                    class="text-[10px] text-gray-400 uppercase tracking-widest"
+                <Label class="text-[10px] text-gray-400 uppercase"
                     >© 2026 Voltaic</Label
                 >
                 <div class="flex gap-4">

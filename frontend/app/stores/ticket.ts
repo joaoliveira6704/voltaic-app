@@ -1,6 +1,7 @@
 // stores/user.ts
 import { defineStore } from "pinia";
 import Swal from "sweetalert2";
+import { toast } from "vue-sonner";
 
 export const useTicketStore = defineStore("ticket", () => {
     const tickets = ref([]);
@@ -27,9 +28,45 @@ export const useTicketStore = defineStore("ticket", () => {
         }
     }
 
+    async function deleteTicket(ticketId: string, ticketTitle: string) {
+        const confirmed = await Swal.fire({
+            title: "Confirm Delete",
+            text: `You are about to delete the following ticket: ${ticketTitle}`,
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#dc2626",
+            confirmButtonText: "Yes, Delete",
+            reverseButtons: true,
+            customClass: {
+                popup: " text-sm dark:bg-[#0a0a0a] dark:border dark:border-[#171717] rounded-xl dark:text-white/80",
+                cancelButton:
+                    "bg-white text-black hover:bg-gray-300 dark:bg-[#1a1a1a] dark:text-white dark:hover:bg-[#2a2a2a]",
+            },
+        });
+
+        if (!confirmed.isConfirmed) return;
+
+        try {
+            await $fetch<any>(`${apiBase()}/api/tickets/${ticketId}`, {
+                method: "DELETE",
+                headers: { Authorization: `Bearer ${token()}` },
+            });
+
+            tickets.value = tickets.value.filter(
+                (t) => t.ticketId !== ticketId,
+            );
+            toast.success("Ticket deleted successfully");
+        } catch (e) {
+            console.error("Failed to delete ticket:", e);
+            toast.error("Failed to delete ticket");
+            throw e;
+        }
+    }
+
     return {
         tickets,
         isLoaded,
         fetchTickets,
+        deleteTicket,
     };
 });

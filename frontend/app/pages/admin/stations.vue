@@ -2,7 +2,7 @@
 import { AdminStationColumns } from "@/utils/constants";
 import { Circle } from "lucide-vue-next";
 
-const isAddUserModalOpen = ref(false);
+const isAddStationModalOpen = ref(false);
 const searchTerm = ref("");
 
 const stationStore = useStationStore();
@@ -18,6 +18,15 @@ const filtered = computed(() =>
 
 const getCompanyName = (companyId) => {
     return companyStore.getCompanyName(companyId);
+};
+
+const deleteStation = async (station) => {
+    try {
+        await stationStore.deleteStation(station.stationId, station.title);
+    } catch (error) {
+        console.log(error);
+        return;
+    }
 };
 
 const getStateClass = (state) => {
@@ -41,13 +50,13 @@ onMounted(() => {
     <AdminPage
         v-model:search="searchTerm"
         title="Stations"
-        button-text="Add new station"
-        @add="isAddUserModalOpen = true"
+        button-text="Create new station"
+        @add="isAddStationModalOpen = true"
     >
         <template #modal>
-            <AddUserModal
-                :is-open="isAddUserModalOpen"
-                @close="isAddUserModalOpen = false"
+            <AddStationModal
+                :is-open="isAddStationModalOpen"
+                @close="isAddStationModalOpen = false"
             />
         </template>
 
@@ -55,24 +64,24 @@ onMounted(() => {
             :rows="stations"
             :columns="AdminStationColumns"
             @edit="editStation"
-            @delete="deleteUser"
+            @delete="deleteStation"
             type="stations"
         >
             <template #default="{ row }">
-                <TableCell class="font-mono text-xs font-bold">{{
+                <TableCell class="text-xs font-bold">{{
                     row.stationId
                 }}</TableCell>
-                <TableCell class="font-mono text-xs">{{ row.title }}</TableCell>
-                <TableCell class="font-mono text-xs text-muted-foreground">{{
+                <TableCell class="text-xs">{{ row.title }}</TableCell>
+                <TableCell class="text-xs text-muted-foreground">{{
                     row.location.coordinates.join(", ")
                 }}</TableCell>
-                <TableCell class="font-mono text-xs">{{
+                <TableCell class="text-xs">{{
                     row.connector.socketTypes.join(", ")
                 }}</TableCell>
-                <TableCell class="font-mono text-xs"
+                <TableCell class="text-xs"
                     >{{ row.connector.maxPower }} kW/h</TableCell
                 >
-                <TableCell class="font-mono text-xs"
+                <TableCell class="text-xs"
                     ><Circle class="h-4 w-4" :class="getStateClass(row.state)"
                 /></TableCell>
             </template>

@@ -144,12 +144,12 @@ const recentTickets = computed(() =>
                                 v-for="ticket in recentTickets"
                                 :key="ticket.id"
                             >
-                                <TableCell class="font-mono text-xs"
-                                    >#{{ ticket.id }}</TableCell
+                                <TableCell class="text-xs"
+                                    >#{{
+                                        ticket.ticketId.slice(-4)
+                                    }}...</TableCell
                                 >
-                                <TableCell>{{
-                                    ticket.user?.name ?? "—"
-                                }}</TableCell>
+                                <TableCell>{{ ticket.title ?? "—" }}</TableCell>
                                 <TableCell
                                     class="text-muted-foreground text-xs"
                                     >{{
@@ -157,17 +157,10 @@ const recentTickets = computed(() =>
                                     }}</TableCell
                                 >
                                 <TableCell class="text-right">
-                                    <Badge
-                                        :variant="
-                                            ticket.status === 'open'
-                                                ? 'default'
-                                                : ticket.status === 'pending'
-                                                  ? 'secondary'
-                                                  : 'outline'
-                                        "
-                                    >
-                                        {{ ticket.status }}
-                                    </Badge>
+                                    <StatusBadge
+                                        type="tickets"
+                                        :value="ticket.status"
+                                    />
                                 </TableCell>
                             </TableRow>
                         </TableBody>
@@ -189,7 +182,7 @@ const recentTickets = computed(() =>
                         </TableHeader>
                         <TableBody>
                             <TableRow
-                                v-for="company in companies"
+                                v-for="company in companies.slice(-6)"
                                 :key="company.id"
                             >
                                 <TableCell class="font-medium">{{

@@ -14,13 +14,11 @@ defineEmits(["edit", "delete"]);
                 <TableHead
                     v-for="col in columns"
                     :key="col.key"
-                    class="font-mono text-xs uppercase tracking-tight"
+                    class="text-xs uppercase"
                 >
                     {{ col.label }}
                 </TableHead>
-                <TableHead class="font-mono text-xs uppercase tracking-tight"
-                    >Actions</TableHead
-                >
+                <TableHead class="text-xs uppercase">Actions</TableHead>
             </TableRow>
         </TableHeader>
         <!-- AdminTable.vue -->

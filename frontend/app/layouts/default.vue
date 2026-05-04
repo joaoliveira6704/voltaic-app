@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { Button } from "@/components/ui/button";
+import "vue-sonner/style.css";
+import { Toaster } from "@/components/ui/sonner";
 import { Map } from "lucide-vue-next";
 
 const navLinks = [{ path: "/", label: "Map" }]; /* link map page */
@@ -11,7 +13,7 @@ const currentUser = userStore.currentUser;
 
 <template>
     <div
-        class="h-screen w-full flex flex-col bg-white font-mono dark:bg-[#0a0a0a] dark:text-white dark:selection:bg-white dark:selection:text-[#0a0a0a]"
+        class="h-screen w-full flex flex-col bg-white dark:bg-[#0a0a0a] dark:text-white dark:selection:bg-white dark:selection:text-[#0a0a0a]"
     >
         <nav
             class="shrink-0 w-full border-b border-gray-100 bg-white dark:bg-[#0a0a0a] dark:text-white dark:border-[#232323]"
@@ -54,5 +56,7 @@ const currentUser = userStore.currentUser;
             </div>
             <slot class="flex-1 min-w-0 overflow-y-auto" />
         </main>
+
+        <Toaster position="top-right" richColors closeButton theme="dark" />
     </div>
 </template>

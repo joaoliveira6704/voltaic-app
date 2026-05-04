@@ -57,7 +57,7 @@ watchEffect(() => {
 <template>
     <div
         v-if="activeData || props.value"
-        class="font-mono text-xs uppercase tracking-tight px-2 py-0.5 rounded flex items-center w-fit border dark:border-[#232323]"
+        class="text-xs uppercase px-2 py-0.5 rounded flex items-center w-fit border dark:border-[#232323]"
         :class="displayClass"
     >
         {{ displayLabel }}
