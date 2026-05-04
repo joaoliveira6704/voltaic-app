@@ -36,3 +36,36 @@ export const protect = async (req, res, next) => {
     next(error);
   }
 };
+
+export const requireRole =
+  (...roles) =>
+  (req, res, next) => {
+    if (!roles.includes(req.user.role))
+      return res.status(403).json({ message: "Forbidden" });
+    next();
+  };
+
+export const checkOwnership =
+  (Model, resourceCompanyField = "companyId") =>
+  async (req, res, next) => {
+    if (req.user.role === "admin") return next();
+
+    const resource = await Model.findById(req.params.id);
+
+    if (!resource) {
+      const error = new Error("Resource not found");
+      error.status = 404;
+      return next(error);
+    }
+
+    if (
+      resource[resourceCompanyField].toString() !==
+      req.user.companyId.toString()
+    ) {
+      const error = new Error("Access denied.");
+      error.status = 403;
+      return next(error);
+    }
+
+    next();
+  };

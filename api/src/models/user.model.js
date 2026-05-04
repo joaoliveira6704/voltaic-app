@@ -1,17 +1,52 @@
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
+import validator from "validator";
+import isEmail from "validator/lib/isEmail";
 
 const userSchema = new mongoose.Schema(
   {
-    userId: { type: String, required: true, unique: true, trim: true },
-    username: { type: String, required: true, unique: true, trim: true },
-    email: { type: String, required: true, unique: true },
-    firstName: { type: String, required: true },
+    userId: { type: String, required: false, unique: true, trim: true },
+    username: {
+      type: String,
+      required: true,
+      unique: true,
+      trim: true,
+      validate: {
+        validator: function (value) {
+          return validator.isLength({ min: 8, max: 20 });
+        },
+        message: `Username must beat least 8 characters long`,
+      },
+    },
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+      validate: {
+        validator: validator.isEmail,
+        message: "Invalid email address",
+      },
+    },
+    firstName: {
+      type: String,
+      required: true,
+    },
     lastName: { type: String, required: true },
     password: {
       type: String,
       required: true,
       select: false,
+      validate: {
+        validator: function (value) {
+          return validator.isStrongPassword(value, {
+            minLength: 8,
+            minLowercase: 1,
+            minUppercase: 1,
+            minSymbols: 1,
+          });
+        },
+        message: `Password must contain at least 8 characters, with one uppercase, one lowercase and a special character`,
+      },
     },
     role: {
       type: String,
