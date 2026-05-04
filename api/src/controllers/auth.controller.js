@@ -1,5 +1,6 @@
 import userModel from "../models/user.model";
 import jwt from "jsonwebtoken";
+import generateUniqueId from "../utils/utils";
 
 const signToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -38,8 +39,9 @@ export const login = async (req, res) => {
 export const register = async (req, res, next) => {
   try {
     const { username, email, firstName, lastName, password, role } = req.body;
-
+    let userId = generateUniqueId();
     const newUser = new userModel({
+      userId,
       username,
       email,
       firstName,
@@ -51,7 +53,7 @@ export const register = async (req, res, next) => {
     await newUser.save();
 
     res.status(201).json({
-      userId: newUser._id,
+      userId: newUser.userId,
       message: "User created successfully",
     });
   } catch (error) {
