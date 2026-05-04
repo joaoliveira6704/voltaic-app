@@ -12,8 +12,9 @@ import {
   getVehicles,
   getFavorites,
   deleteOwnUser,
-  addFavourite,
+  addFavorite,
   removeFavorite,
+  updateRole,
 } from "../controllers/user.controller.js";
 import {
   checkOwnership,
@@ -23,8 +24,8 @@ import {
 import userModel from "../models/user.model.js";
 
 const router = Router();
-
-router.post("/");
+/*
+router.post("/"); */
 router.get("/", getUsers);
 
 router.get("/me", protect, getCurrentUser);
