@@ -1,108 +1,178 @@
 {
-  "userInfo": "User Info",
-  "editProfile": "Edit Profile",
-  "unknownLocation": "Unknown Location",
-  "yourFleet": "Your Fleet",
-  "addNewVehicle": "Add new Vehicle",
-  "plate": "Plate",
-  "history": "History",
-  "date": "Date",
-  "vehicle": "Vehicle",
-  "station": "Station",
-  "duration": "Duration",
-  "preferences": "Preferences",
-  "darkMode": "Dark Mode",
-  "hidePlates": "Hide Plates",
-  "language": "Language",
-  "saveChanges": "Save Changes",
-  "noVehicles": "No Vehicles to Display for",
-  "realTimeNetwork": "Real Time Network",
-  "en": "English (US)",
-  "pt": "Portuguese (PT)",
-  "es": "Spanish (ES)",
-  "modal": {
-    "editProfile": {
-      "title": "Edit Profile",
-      "firstName": "First name",
-      "lastName": "Last name",
-      "username": "Username",
-      "email": "Email",
-      "passwordSection": "Password change",
-      "currentPassword": "Current password",
-      "newPassword": "New password",
-      "noChanges": "No changes",
-      "fieldsModified": "{n} field modified",
-      "fieldsModifiedPlural": "{n} fields modified",
-      "cancel": "Cancel",
-      "save": "Save",
-      "errors": {
-        "currentPasswordRequired": "Current password is required to set a new password.",
-        "passwordTooShort": "New password must be at least 8 characters.",
-        "invalidEmail": "Please enter a valid email address."
-      }
+    "profile": "Profile",
+    "userInfo": "User Info",
+    "editProfile": "Edit Profile",
+    "unknownLocation": "Unknown Location",
+    "yourFleet": "Your Fleet",
+    "addNewVehicle": "Add new Vehicle",
+    "plate": "Plate",
+    "history": "Charging History",
+    "date": "Date",
+    "vehicle": "Vehicle",
+    "station": "Station",
+    "duration": "Duration",
+    "preferences": "Preferences",
+    "darkMode": "Dark Mode",
+    "hidePlates": "Hide Plates",
+    "language": "Language",
+    "saveChanges": "Save Changes",
+    "noVehicles": "No Vehicles to Display for",
+    "realTimeNetwork": "Real Time Network",
+    "nav": {
+        "home": "Home",
+        "profile": "Profile",
+        "signup": "Sign Up",
+        "login": "Login",
+        "admin": "Admin",
+        "companyManager": "Company Manager",
+        "worker": "Worker",
+        "users": "Users",
+        "stations": "Stations",
+        "companies": "Companies",
+        "tickets": "Tickets",
+        "personnel": "Personnel",
+        "assignedTickets": "Assigned Tickets",
+        "map": "Map",
+        "favoriteStations": "Favorite Stations",
+        "history": "Charging History"
     },
-    "addVehicle": {
-      "title": "Add Vehicle",
-      "vehicleLabel": "Vehicle",
-      "searchPlaceholder": "Search make, model or year…",
-      "autoPopulated": "Auto-populated",
-      "model": "Model",
-      "connector": "Connector",
-      "slug": "Slug",
-      "yourDetails": "Your details",
-      "plate": "Plate",
-      "platePlaceholder": "AA-00-BB",
-      "color": "Color",
-      "colorPlaceholder": "e.g. Glacier White",
-      "noVehicleSelected": "No vehicle selected",
-      "noVehiclesFound": "No vehicles found.",
-      "cancel": "Cancel",
-      "add": "Add",
-      "errors": {
-        "plateRequired": "License plate is required.",
-        "vehicleRequired": "Please select a vehicle from the list.",
-        "colorRequired": "Color is required."
-      }
+    "modal": {
+        "addUser": {
+            "title": "Add User",
+            "firstName": "First name",
+            "lastName": "Last name",
+            "username": "Username",
+            "email": "Email",
+            "role": "Role",
+            "rolePlaceholder": "Select role…",
+            "roles": {
+                "admin": "Admin",
+                "client": "Client",
+                "worker": "Worker",
+                "company-manager": "Company Manager"
+            },
+            "passwordSection": "Password",
+            "password": "Initial password",
+            "sendWelcomeEmail": "Send welcome email with login instructions",
+            "allFieldsRequired": "All fields required",
+            "cancel": "Cancel",
+            "create": "Create",
+            "errors": {
+                "firstNameRequired": "First name is required.",
+                "lastNameRequired": "Last name is required.",
+                "usernameRequired": "Username is required.",
+                "invalidEmail": "Please enter a valid email address.",
+                "roleRequired": "Please select a role.",
+                "passwordTooShort": "Password must be at least 8 characters."
+            }
+        },
+        "editProfile": {
+            "title": "Edit Profile",
+            "firstName": "First name",
+            "lastName": "Last name",
+            "username": "Username",
+            "email": "Email",
+            "passwordSection": "Password change",
+            "currentPassword": "Current password",
+            "newPassword": "New password",
+            "noChanges": "No changes",
+            "fieldsModified": "{n} field modified",
+            "fieldsModifiedPlural": "{n} fields modified",
+            "cancel": "Cancel",
+            "save": "Save",
+            "errors": {
+                "currentPasswordRequired": "Current password is required to set a new password.",
+                "passwordTooShort": "New password must be at least 8 characters.",
+                "invalidEmail": "Please enter a valid email address."
+            }
+        },
+        "addVehicle": {
+            "title": "Add Vehicle",
+            "vehicleLabel": "Vehicle",
+            "searchPlaceholder": "Search make, model or year…",
+            "autoPopulated": "Auto-populated",
+            "model": "Model",
+            "connector": "Connector",
+            "slug": "Slug",
+            "yourDetails": "Your details",
+            "plate": "Plate",
+            "platePlaceholder": "AA-00-BB",
+            "color": "Color",
+            "colorPlaceholder": "e.g. Glacier White",
+            "noVehicleSelected": "No vehicle selected",
+            "noVehiclesFound": "No vehicles found.",
+            "cancel": "Cancel",
+            "add": "Add",
+            "errors": {
+                "plateRequired": "License plate is required.",
+                "vehicleRequired": "Please select a vehicle from the list.",
+                "colorRequired": "Color is required."
+            }
+        }
+    },
+    "landing": {
+        "head": {
+            "title": "Voltaic - Landing Page",
+            "description": "Voltaic is a electric vehicle charger company built for you."
+        },
+        "hero": {
+            "chargeSmarter": "Charge Smarter",
+            "driveFurther": "Drive Further",
+            "subtitle": "Discover nearby charging stations, manage your vehicles, and take control of your EV experience with Voltaic.",
+            "networkCoverage": "Network Coverage"
+        },
+        "stats": {
+            "activeUsers": "Active Users",
+            "chargingStations": "Charging Stations",
+            "uptimeGuarantee": "Uptime Guarantee",
+            "companiesRegistered": "Companies Registered"
+        },
+        "features": {
+            "sectionTitle": "Everything You Need",
+            "sectionTitleHighlight": "All in One Place",
+            "realTimeAvailability": {
+                "title": "Real-Time Availability",
+                "description": "Live updates on station availability and wait times at your fingertips."
+            },
+            "interactiveMap": {
+                "title": "Interactive Map",
+                "description": "Find nearby stations with filters for charger type, location, and more."
+            },
+            "companyManagedStations": {
+                "title": "Company Managed Stations",
+                "description": "For every station listed, we ensure it's maintained and reliable for your journey."
+            }
+        },
+        "cta": {
+            "title": "Join the EV Revolution",
+            "titleHighlight": "Charge Smarter, Drive Further",
+            "subtitle": "Join thousands of drivers who charge smarter every day.",
+            "button": "Get Started"
+        }
+    },
+    "admin": {
+        "users": {
+            "title": "Manage Users",
+            "subtitle": "View and manage all user accounts",
+            "addNewUser": "Add New User",
+            "columns": {
+                "name": "Name",
+                "email": "Email",
+                "role": "Role",
+                "status": "Status",
+                "actions": "Actions"
+            },
+            "noUsers": "No users found",
+            "searchPlaceholder": "Search users...",
+            "filters": {
+                "role": "Filter by role",
+                "status": "Filter by status"
+            }
+        }
+    },
+    "lang": {
+        "en": "English (US)",
+        "pt": "Portuguese (PT)",
+        "es": "Spanish (ES)"
     }
-  },
-  "landing": {
-    "head": {
-      "title": "Voltaic - Landing Page",
-      "description": "Voltaic is a electric vehicle charger company built for you."
-    },
-    "hero": {
-      "chargeSmarter": "Charge Smarter",
-      "driveFurther": "Drive Further",
-      "subtitle": "Discover nearby charging stations, manage your vehicles, and take control of your EV experience with Voltaic.",
-      "networkCoverage": "Network Coverage"
-    },
-    "stats": {
-      "activeUsers": "Active Users",
-      "chargingStations": "Charging Stations",
-      "uptimeGuarantee": "Uptime Guarantee",
-      "companiesRegistered": "Companies Registered"
-    },
-    "features": {
-      "sectionTitle": "Everything You Need",
-      "sectionTitleHighlight": "All in One Place",
-      "realTimeAvailability": {
-        "title": "Real-Time Availability",
-        "description": "Live updates on station availability and wait times at your fingertips."
-      },
-      "interactiveMap": {
-        "title": "Interactive Map",
-        "description": "Find nearby stations with filters for charger type, location, and more."
-      },
-      "companyManagedStations": {
-        "title": "Company Managed Stations",
-        "description": "For every station listed, we ensure it's maintained and reliable for your journey."
-      }
-    },
-    "cta": {
-      "title": "Join the EV Revolution",
-      "titleHighlight": "Charge Smarter, Drive Further",
-      "subtitle": "Join thousands of drivers who charge smarter every day.",
-      "button": "Get Started"
-    }
-  }
 }

@@ -7,10 +7,16 @@ export default defineNuxtConfig({
       htmlAttrs: {
         lang: "en",
       },
-      link: [{ rel: "icon", type: "image/x-icon", href: "/voltaic-logo.svg" }],
+      link: [
+        {
+          rel: "icon",
+          type: "image/x-icon",
+          href: "/voltaic-logo.svg",
+        },
+      ],
     },
   },
-  css: ["sweetalert2/dist/sweetalert2.min.css"],
+  css: ["sweetalert2/dist/sweetalert2.min.css", "~/assets/css/tailwind.css"],
   devtools: { enabled: true },
   vite: {
     optimizeDeps: {
@@ -25,6 +31,8 @@ export default defineNuxtConfig({
         "lucide-vue-next",
         "gsap",
         "gsap/ScrollTrigger",
+        "sweetalert2",
+        "vue-sonner",
       ],
     },
   },
@@ -37,6 +45,7 @@ export default defineNuxtConfig({
     port: 5173,
   },
   modules: [
+    "@nuxtjs/color-mode",
     "shadcn-nuxt",
     "@nuxtjs/tailwindcss",
     "@nuxt/image",
@@ -58,6 +67,10 @@ export default defineNuxtConfig({
     ],
     defaultLocale: "en",
     langDir: "locales/",
+  },
+  colorMode: {
+    classSuffix: "",
+    dataValue: "theme", // makes it add 'dark' not 'dark-mode'
   },
   shadcn: {
     /**
