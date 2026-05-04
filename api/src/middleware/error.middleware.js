@@ -9,11 +9,21 @@ const errorHandler = (err, req, res, next) => {
     404: "Not Found",
   };
 
-  res
-    .status(status)
-    .json({
-      error: err.message || messages[status] || "Internal Server Error",
+  // Handle validation errors
+  if (err.name === "ValidationError") {
+    const validationErrors = {};
+    for (const field in err.errors) {
+      validationErrors[field] = err.errors[field].message;
+    }
+    return res.status(400).json({
+      error: "Validation failed",
+      details: validationErrors,
     });
+  }
+
+  res.status(status).json({
+    error: err.message || messages[status] || "Internal Server Error",
+  });
 };
 
 export default errorHandler;
