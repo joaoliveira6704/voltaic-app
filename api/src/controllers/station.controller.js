@@ -76,3 +76,30 @@ export const getStationById = async (req, res, next) => {
     next(error);
   }
 };
+
+// controllers/station.controller.js
+
+export const getStationsByRadius = async (req, res) => {
+  const { lat, lng, distance } = req.params;
+
+  // Radius of the Earth in miles is ~3963, in kilometers is ~6378
+  const radius = distance / 6378;
+
+  try {
+    const stations = await stationModel.find({
+      location: {
+        $geoWithin: {
+          $centerSphere: [[parseFloat(lng), parseFloat(lat)], radius],
+        },
+      },
+    });
+
+    res.status(200).json({
+      success: true,
+      count: stations.length,
+      data: stations,
+    });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};

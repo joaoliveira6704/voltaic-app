@@ -1,6 +1,7 @@
 import userModel from "../models/user.model";
 import jwt from "jsonwebtoken";
 import generateUniqueId from "../utils/utils";
+import mongoose from "mongoose";
 
 const signToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -20,7 +21,6 @@ export const login = async (req, res) => {
   }
 
   const user = await userModel.findOne({ email }).select("+password");
-
   if (!user || !(await user.correctPassword(password, user.password))) {
     return res.status(401).json({ message: "Invalid Credentials" });
   }

@@ -5,6 +5,7 @@ import {
   deleteStation,
   updateStation,
   getStationById,
+  getStationsByRadius
 } from "../controllers/station.controller.js";
 import {
   checkOwnership,
@@ -26,5 +27,6 @@ router.patch(
   updateStation,
 );
 router.get("/:id", protect, getStationById);
+router.get("/radius/:lat/:lng/:distance", getStationsByRadius);
 
 export default router;

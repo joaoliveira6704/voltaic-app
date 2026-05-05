@@ -14,9 +14,10 @@ const stationSchema = new mongoose.Schema(
       coordinates: {
         type: [Number], // [longitude, latitude]
         required: true,
+        index: '2dsphere'
       },
     },
-
+    groupId: { type: String, ref: "Group", required: false },
     connector: {
       socketTypes: [
         {
