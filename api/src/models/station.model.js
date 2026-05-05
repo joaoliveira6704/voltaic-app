@@ -63,7 +63,7 @@ const stationSchema = new mongoose.Schema(
       type: String,
       required: true,
       default: "available",
-      enum: ["available", "unavailable", "inactive"],
+      enum: ["available", "unavailable", "maintenance"],
     },
 
     alive: {
