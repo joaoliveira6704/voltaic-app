@@ -1,38 +1,56 @@
 import json
 import os
+from datetime import datetime, timezone
+
 import pymongo
 
+
 def get_db():
-    """ Establish a connection to the MongoDB database and return the database object. """
+    """Establish a connection to the MongoDB database and return the database object."""
     mongo_uri = os.environ.get(
         "MONGO_URI",
-        "mongodb://root:root@localhost:27018/voltaic-db?authSource=admin"
+        "mongodb+srv://joaopedrooliveira6704_db_user:gmaJ9x86WYbA99Tj@voltaiccluster.vfngrdo.mongodb.net/?appName=voltaicCluster",
     )
     client = pymongo.MongoClient(mongo_uri)
     return client["voltaic-db"]
 
-def insert_all(companies, users, stations, tickets, station_usage):
-    """ Insert all data into the database. """
+
+def insert_all(groups, companies, users, stations, tickets, usage):
     db = get_db()
+    now = datetime.now(timezone.utc)
 
-    db.companies.insert_many([c.__dict__ for c in companies])
-    print(f"Inserted {len(companies)} companies")
+    data_map = [
+        (groups, "groups"),
+        (companies, "companies"),
+        (users, "users"),
+        (stations, "stations"),
+        (tickets, "tickets"),
+        (usage, "usages"),
+    ]
 
-    db.users.insert_many([u.__dict__ for u in users])
-    print(f"Inserted {len(users)} users")
+    for data_list, collection_name in data_map:
+        if data_list:
+            dicts = []
+            for obj in data_list:
+                d = obj.__dict__.copy()
+                # Auto-add if they don't exist in the class
+                if "createdAt" not in d:
+                    d["createdAt"] = now
+                if "updatedAt" not in d:
+                    d["updatedAt"] = now
+                dicts.append(d)
 
-    db.stations.insert_many([s.__dict__ for s in stations])
-    print(f"Inserted {len(stations)} stations")
+            db[collection_name].insert_many(dicts)
+            print(f"✅ {collection_name}: Inserted with timestamps.")
 
-    db.tickets.insert_many([t.__dict__ for t in tickets])
-    print(f"Inserted {len(tickets)} tickets")
-
-    db.stations_usage.insert_many([su.__dict__ for su in station_usage])
-    print(f"Inserted {len(station_usage)} station usage records")
 
 def insert_ev_data(filepath: str = "data/open-ev-data.json"):
-    """ Insert EV data from a JSON file into the database. """
+    """Insert EV data from a JSON file into the database."""
     db = get_db()
+
+    if not os.path.exists(filepath):
+        print(f"File not found: {filepath}")
+        return
 
     with open(filepath, "r", encoding="utf-8") as f:
         data = json.load(f)

@@ -1,17 +1,26 @@
 import { Router } from "express";
 import {
+  startUsage,
+  endUsage,
   getUsage,
-  getUsageById,
-  getUsageByStationId,
-  getUsageByUserId,
+  getUserUsages,
+  getStationUsages,
+  getActiveUsages,
+  getAllUsages,
 } from "../controllers/usage.controller.js";
-import { protect } from "../middleware/auth.middleware.js";
+import { protect, requireRole } from "../middleware/auth.middleware.js";
 
 const router = Router();
 
-router.get("/", getUsage);
-router.get("/:id", protect, getUsageById);
-router.get("/station/:stationId", protect, getUsageByStationId);
-router.get("/user/:userId", protect, getUsageByUserId);
+// Admin routes
+router.get("/active", protect, requireRole("admin"), getActiveUsages);
+router.get("/", protect, requireRole("admin"), getAllUsages);
+
+// User routes
+router.post("/start", protect, startUsage);
+router.patch("/:id/end", protect, endUsage);
+router.get("/:id", protect, getUsage);
+router.get("/user/me", protect, getUserUsages);
+router.get("/station/:stationId", protect, getStationUsages);
 
 export default router;
