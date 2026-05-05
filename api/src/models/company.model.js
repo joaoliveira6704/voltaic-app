@@ -4,17 +4,7 @@ const companySchema = new mongoose.Schema(
   {
     companyId: { type: String, required: true, unique: true, trim: true },
     name: { type: String, required: true, unique: true, trim: true },
-    workingArea: {
-      type: {
-        type: String,
-        enum: ["Point"],
-        default: "Point",
-      },
-      coordinates: {
-        type: [Number],
-        required: true,
-      },
-    },
+    groups: [{ type: String, ref: "Group" }],
   },
   { timestamps: true },
 );

@@ -161,7 +161,7 @@ export const updateOwnUser = async (req, res, next) => {
     if (error.code === 11000) {
       error.status = 400;
       const field = Object.keys(error.keyValue)[0];
-      error.message = `${field.charAt(0).toUpperCase() + field.slice(1)} already exists`;
+      error.message = "Invalid credentials";
     }
     next(error);
   }

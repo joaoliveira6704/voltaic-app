@@ -1,260 +1,147 @@
-from faker import Faker
-import uuid
 import random
-import bcrypt
+import uuid
+from concurrent.futures import ThreadPoolExecutor
 
-from concurrent.futures import ThreadPoolExecutor, as_completed
+import bcrypt
+from faker import Faker
+from models import Company, Station, StationGroup, StationUsage, Ticket, User
 
 fake = Faker()
 
 SOCKET_TYPES = [
-    "Type2", "CHAdeMO", "CCS/SAE", "Type3", "Tesla", "J-1772",
-    "Wall_Euro", "Caravan_Mains_Socket", "Dual_J-1772", "Dual_CHAdeMO",
-    "Mennekes", "Dual_Mennekes", "Other"
+    "Type2",
+    "CHAdeMO",
+    "CCS/SAE",
+    "Tesla",
+    "J-1772",
+    "Mennekes",
+    "Wall_Euro",
 ]
-
 CITIES = [
-    {"name": "Porto",      "coords": [41.1502195, -8.6103497]},
-    {"name": "Lisboa",   "coords": [38.7077507, -9.1365919]},
-    {"name": "Madrid",       "coords": [40.416782, -3.703507]},
-    {"name": "Faro",       "coords": [37.0162944, -7.935182]},
-    {"name": "Sevilla",       "coords": [37.3886303, -5.9953403]},
+    {"name": "Porto", "coords": [41.1502, -8.6103]},
+    {"name": "Lisboa", "coords": [38.7077, -9.1365]},
+    {"name": "Madrid", "coords": [40.4167, -3.7035]},
 ]
 
-# ── Models ────────────────────────────────────────────────────────────────────
 
-class User:
-    def __init__(self, userId, username, firstName, lastName, email, password, role, companyId, vehicles, favorites):
-        """ role: "client" | "worker" | "company-manager" | "admin" """
-        self.userId = userId
-        self.username = username
-        self.firstName = firstName
-        self.lastName = lastName
-        self.email = email
-        self.password = password
-        self.role = role
-        self.companyId = companyId
-        self.vehicles = vehicles
-        self.favorites = favorites
+def _hash_password(pwd):
+    return bcrypt.hashpw(pwd.encode("utf-8"), bcrypt.gensalt(12)).decode("utf-8")
 
-class Station:
-    def __init__(self, stationId, title, location, connector, telemetry, state="available", alive=True):
-        """ state: "available" | "unavailable" | "inactive" """
-        self.stationId = stationId
-        self.title = title
-        self.location = location          # { "type": "Point", "coordinates": [longitude, latitude] }
-        self.connector = connector        # { "socketTypes": [...], "maxPower": float }
-        self.telemetry = telemetry        # { "amperage": float, "voltage": float, "temperature": float }
-        self.state = state                # "available" | "unavailable" | "inactive"
-        self.alive = alive
-
-class Company:
-    def __init__(self, companyId, name, workingArea):
-        """ workingArea: { "type": "Point", "coordinates": [longitude, latitude] } """
-        self.companyId = companyId
-        self.name = name
-        self.workingArea = workingArea    # { "type": "Point", "coordinates": [longitude, latitude] }
-
-class Ticket:
-    def __init__(self, ticketId, createdBy, stationId, title, description, remarks, status):
-        """ status: "open" | "closed" | "resolved" | "unresolved" """
-        self.ticketId = ticketId
-        self.createdBy = createdBy
-        self.stationId = stationId
-        self.title = title
-        self.description = description
-        self.remarks = remarks
-        self.status = status              # "open" | "closed" | "resolved" | "unresolved"
-        self.closedAt = None
-
-class StationUsage:
-    def __init__(self, stationUsageId, userId, stationId, startTime, endTime, plate):
-        self.stationUsageId = stationUsageId
-        self.userId = userId
-        self.stationId = stationId
-        self.startTime = startTime
-        self.endTime = endTime
-        self.plate = plate
-
-# ── Helpers ───────────────────────────────────────────────────────────────────
-
-def _random_coords(base_coords: list, radius: float = 0.5) -> list:
-    """Jitter coordinates slightly around a base point."""
-    lng = base_coords[0] + random.uniform(-radius, radius)
-    lat = base_coords[1] + random.uniform(-radius, radius)
-    return [round(lng, 6), round(lat, 6)]
-
-def _generate_vehicle() -> dict:
-    """ Generate a random vehicle with realistic attributes. """
-    currentMake = fake.random_element(elements=["Tesla", "Nissan", "BMW", "Audi", "Hyundai", "Kia", "Chevrolet", "Ford"])
-    currentModel = fake.random_element(elements=["Model 3", "Leaf", "i3", "e-tron", "Ioniq", "EV6", "Bolt", "Mustang Mach-E"])  
-    connector = fake.random_element(elements=SOCKET_TYPES)
-    return {
-        "plate": fake.license_plate(),
-        "model": f"{currentMake} {currentModel}",
-        "color": fake.color_name(),
-        "connector": connector,
-        "slug": f"{currentMake.lower()}"
-    }
-
-# ── Generators ────────────────────────────────────────────────────────────────
-
-def generate_companies(count: int = 10) -> list:
-    """ Generate a list of companies with random names and working areas. """
-    companies = []
-
+def generate_station_groups(count=5):
+    groups = []
+    names = [
+        "North Zone",
+        "South Zone",
+        "Fast Charge Hub",
+        "Retail Network",
+        "Corporate Park",
+    ]
     for i in range(count):
-        city = fake.random_element(elements=CITIES)
-        company_id = str(uuid.uuid4())
-        name = f"{fake.company()} EV Solutions"
-        working_area = {
-            "type": "Point",
-            "coordinates": _random_coords(city["coords"]),
-        }
+        groups.append(
+            StationGroup(str(uuid.uuid4()), random.choice(names) + f" {i + 1}")
+        )
+    return groups
 
-        company = Company(company_id, name, working_area)
-        companies.append(company)
-        print(f"Company {i+1}: {name} ({city['name']})")
 
-    print("Companies created successfully\n")
+def generate_companies(count, groups):
+    companies = []
+    group_ids = [g.groupId for g in groups]
+    for _ in range(count):
+        assigned_groups = random.sample(group_ids, k=random.randint(1, 3))
+        companies.append(
+            Company(str(uuid.uuid4()), f"{fake.company()} EV", assigned_groups)
+        )
     return companies
 
-def _hash_password(raw_password: str) -> str:
-    """ Hash a raw password using bcrypt. """
-    return bcrypt.hashpw(raw_password.encode("utf-8"), bcrypt.gensalt(rounds=12)).decode("utf-8")
 
-userIdPlate = []
-
-def generate_users(count: int = 20, companies: list = None) -> list:
-    """ Generate a list of users with random attributes. """
+def generate_users(count, companies):
     users = []
-    rawUsers = []
-    company_ids = [c.companyId for c in companies] if companies else []
+    company_ids = [c.companyId for c in companies]
+    raw_pwds = [fake.password(length=12) for _ in range(count)]
 
-    # Build raw user data first (fast)
-    raw_data = []
-    for i in range(count):
-        # Generate realistic user attributes
-        firstName = fake.first_name()
-        lastName = fake.last_name()
-        username = f"{firstName.lower()}{lastName.lower()}{fake.random_int(min=10, max=99)}"
-        email = f"{firstName.lower()}.{lastName.lower()}@{fake.free_email_domain()}"
-        raw_password = fake.password(length=12)
-        user_id = str(uuid.uuid4())
-        role = fake.random_element(elements=("client", "client", "client", "worker", "company-manager", "admin"))
-        company_id = None
-        if role in ("worker", "company-manager") and company_ids:
-            company_id = fake.random_element(elements=company_ids)
-        vehicles = []
-        if role in ("client", "worker"):
-            vehicle_count = fake.random_int(min=1, max=3)
-            vehicles = [_generate_vehicle() for _ in range(vehicle_count)]
-        raw_data.append((user_id, username, firstName, lastName, email, raw_password, role, company_id, vehicles))
-
-    # Hash all passwords in parallel
     with ThreadPoolExecutor() as executor:
-        futures = {executor.submit(_hash_password, d[5]): i for i, d in enumerate(raw_data)}
-        hashed = [None] * count
-        for future in as_completed(futures):
-            hashed[futures[future]] = future.result()
+        hashed_pwds = list(executor.map(_hash_password, raw_pwds))
 
-    # Assemble users
-    for i, (user_id, username, firstName, lastName, email, raw_password, role, company_id, vehicles) in enumerate(raw_data):
-        password = hashed[i]
-        user = User(user_id, username, firstName, lastName, email, password, role, company_id, vehicles, [])
-        users.append(user)
-        print(f"User {i+1}: {firstName} {lastName} ({username}) | role: {role}"
-              + (f" | company: {company_id}" if company_id else ""))
-        rawUsers.append((email, raw_password, role))
+    for i in range(count):
+        role = random.choice(["client", "worker", "company-manager", "admin"])
+        comp_id = random.choice(company_ids) if role != "admin" else None
 
-    # Save raw user credentials to a file for testing purposes
-    with open("users.txt", "w") as f:
-        for email, password, role in rawUsers:
-            f.write(f"{email}:{password}:{role}\n")
+        vehicles = []
+        if role in ["client", "worker"]:
+            for _ in range(random.randint(1, 2)):
+                vehicles.append(
+                    {
+                        "plate": fake.license_plate(),
+                        "model": fake.word().capitalize(),
+                        "color": fake.color_name(),
+                        "slug": fake.slug(),
+                        "connector": random.choice(SOCKET_TYPES),
+                    }
+                )
 
-    print("Users created successfully\n")
-    userIdPlate.extend([(u.userId, v["plate"]) for u in users for v in u.vehicles])
+        users.append(
+            User(
+                str(uuid.uuid4()),
+                fake.user_name()[:20],
+                fake.first_name(),
+                fake.last_name(),
+                fake.email(),
+                hashed_pwds[i],
+                role,
+                comp_id,
+                vehicles,
+            )
+        )
     return users
 
-stationIds = []
 
-def generate_stations(count: int = 20) -> list:
-    """ Generate a list of stations with random attributes. """
+def generate_stations(count, companies, groups):
     stations = []
-
-    for i in range(count):
-        city = fake.random_element(elements=CITIES)
-        station_id = str(uuid.uuid4())
-        title = f"{city['name']} Charging Station {fake.random_int(min=1, max=999)}"
-        location = {
-            "type": "Point",
-            "coordinates": _random_coords(city["coords"]),
-        }
-        connector = {
-            "socketTypes": fake.random_elements(elements=SOCKET_TYPES, length=fake.random_int(min=1, max=3), unique=True),
-            "maxPower": fake.random_element(elements=[7.4, 11, 22, 50, 100, 150, 250, 350]),
-        }
-        telemetry = {
-            "amperage": round(fake.pyfloat(min_value=0, max_value=100), 2),
-            "voltage": fake.random_element(elements=[120, 230, 400, 480]),
-            "temperature": round(fake.pyfloat(min_value=-10, max_value=60), 1),
-        }
-        state = fake.random_element(elements=("available", "available", "available", "unavailable", "inactive"))
-        alive = state != "inactive"
-
-        station = Station(station_id, title, location, connector, telemetry, state, alive)
-        stations.append(station)
-        stationIds.append(station_id)
-        print(f"Station {i+1}: {title} | state: {state} | maxPower: {connector['maxPower']}kW")
-
-    print("Stations created successfully\n")
+    group_ids = [g.groupId for g in groups]
+    for _ in range(count):
+        city = random.choice(CITIES)
+        stations.append(
+            Station(
+                str(uuid.uuid4()),
+                f"{city['name']} Hub",
+                random.choice(companies).companyId,
+                {
+                    "type": "Point",
+                    "coordinates": [city["coords"][1], city["coords"][0]],
+                },
+                {
+                    "socketTypes": random.sample(SOCKET_TYPES, 2),
+                    "maxPower": random.choice([50, 150]),
+                },
+                {"amperage": 32, "voltage": 400, "temperature": 25.0},
+                random.choice(group_ids),
+                random.choice(["available", "maintenance"]),
+            )
+        )
     return stations
 
-def generate_tickets(count: int = 20, users: list = None, stations: list = None) -> list:
-    """ Generate a list of tickets with random attributes. """
-    tickets = []
-    user_ids = [u.userId for u in users] if users else [str(uuid.uuid4())]
-    station_ids = [s.stationId for s in stations] if stations else [str(uuid.uuid4())]
 
-    issues = [
-        "Station not responding", "Connector damaged", "Payment failure",
-        "Charging too slow", "Screen not working", "Cable stuck",
-        "Station offline", "Error code displayed", "Billing issue", "App not connecting",
+def generate_tickets(count, users, stations):
+    return [
+        Ticket(
+            str(uuid.uuid4()),
+            random.choice(stations).stationId,
+            random.choice(users).userId,
+            fake.sentence(nb_words=3),
+            fake.text(),
+        )
+        for _ in range(count)
     ]
 
-    # Generate tickets with realistic attributes
-    for i in range(count):
-        ticket_id = str(uuid.uuid4())
-        created_by = fake.random_element(elements=user_ids)
-        station_id = fake.random_element(elements=station_ids)
-        title = fake.random_element(elements=issues)
-        description = fake.paragraph(nb_sentences=2)
-        remarks = fake.sentence() if fake.boolean(chance_of_getting_true=40) else None
-        status = fake.random_element(elements=("open", "open", "closed", "resolved", "unresolved"))
 
-        ticket = Ticket(ticket_id, created_by, station_id, title, description, remarks, status)
-
-        if status == "closed":
-            ticket.closedAt = fake.date_time_this_year().isoformat()
-
-        tickets.append(ticket)
-        print(f"Ticket {i+1}: [{status.upper()}] {title}")
-
-    print("Tickets created successfully\n")
-    return tickets
-
-def generate_station_usage(count: int = 20, users: list = None, stations: list = None) -> list:
-    """ Generate a list of station usage records with random attributes. """
-    station_usage = []
-    user_ids = [u.userId for u in users] if users else [str(uuid.uuid4())]
-    station_ids = [s.stationId for s in stations] if stations else [str(uuid.uuid4())]
-    plates = [v["plate"] for u in users for v in u.vehicles]
-    for i in range(count):
-        stationUsageId = str(uuid.uuid4())
-        user_id = fake.random_element(elements=user_ids)
-        station_id = fake.random_element(elements=station_ids)
-        start_time = fake.date_time_this_year().isoformat()
-        end_time = fake.date_time_this_year().isoformat()
-        plate = fake.random_element(elements=plates)
-        station_usage.append(StationUsage(stationUsageId, user_id, station_id, start_time, end_time, plate))
-    return station_usage
+def generate_station_usage(count, users, stations):
+    clients = [u for u in users if u.vehicles]
+    return [
+        StationUsage(
+            str(uuid.uuid4()),
+            random.choice(clients).userId,
+            random.choice(stations).stationId,
+            random.choice(clients).vehicles[0]["plate"],
+        )
+        for _ in range(count)
+    ]
