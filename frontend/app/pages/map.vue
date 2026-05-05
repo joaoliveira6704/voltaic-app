@@ -12,13 +12,13 @@
         <button
           v-for="filter in filters"
           :key="filter.key"
-          @click="filter.active = !filter.active"
           :class="[
             'flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 shadow-md backdrop-blur-sm border',
             filter.active
               ? 'bg-[#22c55e] border-[#16a34a] text-white shadow-[#22c55e]/30'
               : 'bg-white/90 border-white/60 text-gray-600 hover:bg-white',
           ]"
+          @click="filter.active = !filter.active"
         >
           <component :is="filter.icon" class="w-3.5 h-3.5" />
           {{ filter.label }}
@@ -26,13 +26,13 @@
 
         <!-- Side Filter Toggle -->
         <button
-          @click="sidebarOpen = !sidebarOpen"
           :class="[
             'flex items-center justify-center w-8 h-8 rounded-full transition-all duration-200 shadow-md backdrop-blur-sm border',
             sidebarOpen
               ? 'bg-gray-800 border-gray-700 text-white'
               : 'bg-white/90 border-white/60 text-gray-600 hover:bg-white',
           ]"
+          @click="sidebarOpen = !sidebarOpen"
         >
           <SlidersHorizontal class="w-4 h-4" />
         </button>
@@ -49,16 +49,15 @@
       </div>
     </div>
 
-    <!-- North / Compass Button -->
+    <!-- Reset North Button -->
     <div class="absolute bottom-8 right-4 z-[1000]">
       <button
-        @click="resetNorth"
         class="flex items-center justify-center w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm border border-white/60 shadow-md hover:bg-white transition-all duration-200 group"
         title="Reset North"
+        @click="resetNorth"
       >
         <Navigation
           class="w-5 h-5 text-gray-700 transition-transform duration-300 group-hover:text-[#22c55e]"
-          :style="{ transform: `rotate(${compassAngle}deg)` }"
         />
       </button>
     </div>
@@ -86,6 +85,10 @@ const userInitial = computed(() => {
   if (!user) return "?";
   return (user.firstName || user.username || "?").charAt(0).toUpperCase();
 });
+
+const isDark = computed(
+  () => userStore.currentUser?.preferences?.darkMode ?? false,
+);
 
 // ── Filters ───────────────────────────────────────────────────────────────────
 
@@ -120,66 +123,63 @@ interface Station {
   alive: boolean;
 }
 
+const TILE_LIGHT = "https://tiles.openfreemap.org/styles/liberty";
+const TILE_DARK = "https://tiles.openfreemap.org/styles/dark";
+
 const mapContainer = ref<HTMLElement | null>(null);
-const compassAngle = ref(0);
-let mapInstance: import("leaflet").Map | null = null;
+let mapInstance: import("maplibre-gl").Map | null = null;
 
 const stationStore = useStationStore();
 await stationStore.fetchStations();
 
 function resetNorth() {
   if (!mapInstance) return;
-  (mapInstance as any).setBearing(0);
-  compassAngle.value = 0;
+  mapInstance.easeTo({ bearing: 0, pitch: 0, duration: 400 });
 }
 
 onMounted(async () => {
   if (!mapContainer.value) return;
 
-  const L = await import("leaflet");
-  await import("leaflet/dist/leaflet.css");
-  await import("leaflet-rotate");
+  const maplibre = await import("maplibre-gl");
+  await import("maplibre-gl/dist/maplibre-gl.css");
 
-  delete (L.Icon.Default.prototype as any)._getIconUrl;
-  L.Icon.Default.mergeOptions({
-    iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-    iconRetinaUrl:
-      "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
-    shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
-  });
+  const Map = maplibre.Map;
+  const Marker = maplibre.Marker;
+  const Popup = maplibre.Popup;
 
   const stations = stationStore.stations as Station[];
   const firstStation = stations[0];
   const center: [number, number] = firstStation
     ? [
-        firstStation.location.coordinates[0],
         firstStation.location.coordinates[1],
+        firstStation.location.coordinates[0],
       ]
-    : [41.1579, -8.6291];
+    : [-8.6291, 41.1579]; // MapLibre uses [lng, lat]
 
-  mapInstance = L.map(mapContainer.value, {
-    rotate: true,
-    bearing: 0,
-  } as any).setView(center, 14);
-
-  mapInstance.on("rotate", (e: any) => {
-    compassAngle.value = -(e.bearing ?? 0);
+  mapInstance = new Map({
+    container: mapContainer.value,
+    style: isDark.value ? TILE_DARK : TILE_LIGHT,
+    center,
+    zoom: 13,
+    attributionControl: false,
   });
 
-  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    attribution:
-      '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-    maxZoom: 19,
-  }).addTo(mapInstance);
+  mapInstance.on("load", () => {
+    stations.forEach((station) => {
+      const [lat, lng] = station.location.coordinates;
 
-  stations.forEach((station) => {
-    const [lat, lng] = station.location.coordinates;
-    L.marker([lat, lng]).addTo(mapInstance!).bindPopup(`
+      const popup = new Popup({ offset: 25 }).setHTML(`
         <strong>${station.title}</strong><br/>
         ${station.connector.socketTypes.join(", ")}<br/>
         Max Power: ${station.connector.maxPower} kW<br/>
         State: ${station.state}
       `);
+
+      new Marker({ color: "#22c55e" })
+        .setLngLat([lng, lat])
+        .setPopup(popup)
+        .addTo(mapInstance!);
+    });
   });
 });
 
