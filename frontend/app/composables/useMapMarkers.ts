@@ -6,7 +6,7 @@ import type { Station, StationState } from "@/types/station";
 const STATE_COLORS: Record<StationState, string> = {
   available: "#22c55e",
   unavailable: "#ef4444",
-  inactive: "#9ca3af",
+  maintenance: "#9ca3af",
 };
 
 export function useMapMarkers(
@@ -58,7 +58,7 @@ export function useMapMarkers(
       markers.value.push(marker);
     });
 
-    const markerCoords = markers.value.map(m => m.getLngLat());
+    const markerCoords = markers.value.map((m) => m.getLngLat());
     console.log("All marker coordinates:", markerCoords);
   }
 

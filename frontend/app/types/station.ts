@@ -1,28 +1,23 @@
-export type StationState = "available" | "unavailable" | "inactive";
-
-export interface StationLocation {
-  type: "Point";
-  coordinates: [number, number]; // [lng, lat] — GeoJSON convention
-}
-
-export interface StationConnector {
-  socketTypes: string[];
-  maxPower: number;
-}
-
-export interface StationTelemetry {
-  amperage: number;
-  voltage: number;
-  temperature: number;
-}
+export type StationState = "available" | "unavailable" | "maintenance";
 
 export interface Station {
   stationId: string;
   title: string;
   companyId: string;
-  location: StationLocation;
-  connector: StationConnector;
-  telemetry: StationTelemetry;
+  groupId?: string;
+  location: {
+    type: "Point";
+    coordinates: [number, number]; // [longitude, latitude]
+  };
+  connector: {
+    socketTypes: string[];
+    maxPower: number;
+  };
+  telemetry: {
+    amperage: number;
+    voltage: number;
+    temperature: number;
+  };
   state: StationState;
   alive: boolean;
 }

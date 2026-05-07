@@ -1,7 +1,7 @@
+<!-- pages/map.vue -->
 <template>
   <div class="relative w-full h-screen overflow-hidden">
     <div ref="mapContainer" class="w-full h-full" />
-
     <MapTopBar
       :filters="filters"
       :sidebar-open="sidebarOpen"
@@ -10,7 +10,6 @@
       @toggle-sidebar="sidebarOpen = !sidebarOpen"
       @clear-connectors="resetSidebarFilters"
     />
-
     <MapFilterCard
       :open="sidebarOpen"
       :is-mobile="isMobile"
@@ -20,7 +19,7 @@
       @reset="resetSidebarFilters"
       @toggle-connector="toggleConnector"
     />
-
+    <MapLocateButton :locating="locating" @click="flyToUser" />
     <MapNorthButton @click="resetNorth" />
   </div>
 </template>
@@ -37,21 +36,24 @@ import type { Station } from "@/types/station";
 
 definePageMeta({ ssr: false, layout: "none" });
 
-// User
+// ── User ──────────────────────────────────────────────────────────────────────
+
 const userStore = useUserStore();
 if (!userStore.currentUser) await userStore.fetchCurrentUser();
 const isDark = computed(
   () => userStore.currentUser?.preferences?.darkMode ?? false,
 );
 
-// Stations
+// ── Stations ──────────────────────────────────────────────────────────────────
+
 const stationStore = useStationStore();
 await stationStore.fetchStations();
 const firstStation = computed(
   () => stationStore.stations[0] as Station | undefined,
 );
 
-// Composables
+// ── Composables ───────────────────────────────────────────────────────────────
+
 const { isMobile } = useResponsive();
 
 const {
@@ -72,6 +74,8 @@ const {
   PopupClass,
   isReady,
   resetNorth,
+  flyToUser,
+  locating,
 } = useMapInstance(isDark, firstStation);
 
 useMapMarkers(mapInstance, isReady, filteredStations, MarkerClass, PopupClass);

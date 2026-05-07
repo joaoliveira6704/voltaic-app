@@ -1,6 +1,8 @@
+// composables/useMapInstance.ts
 import { ref, onMounted, onUnmounted } from "vue";
 import type { Ref } from "vue";
 import type { Station } from "@/types/station";
+import { useGeolocation } from "@/composables/useGeolocation";
 
 const TILE_LIGHT = "https://tiles.openfreemap.org/styles/liberty";
 const TILE_DARK = "https://tiles.openfreemap.org/styles/fiord";
@@ -16,6 +18,13 @@ export function useMapInstance(
   const PopupClass = ref<typeof import("maplibre-gl").Popup | null>(null);
   const isReady = ref(false);
 
+  const {
+    getUserLocation,
+    flyToUser,
+    loading: locating,
+    error: locationError,
+  } = useGeolocation(mapInstance);
+
   function resetNorth() {
     mapInstance.value?.easeTo({ bearing: 0, pitch: 0, duration: 400 });
   }
@@ -29,10 +38,12 @@ export function useMapInstance(
     MarkerClass.value = maplibre.Marker;
     PopupClass.value = maplibre.Popup;
 
-    const coords = firstStation.value?.location.coordinates;
-    const center: [number, number] = coords
-      ? [coords[0], coords[1]]
-      : FALLBACK_CENTER;
+    // Try user location first, fall back to first station, then Porto
+    const userCoords = await getUserLocation();
+    const stationCoords = firstStation.value?.location.coordinates;
+    const center: [number, number] =
+      userCoords ??
+      (stationCoords ? [stationCoords[0], stationCoords[1]] : FALLBACK_CENTER);
 
     const map = new maplibre.Map({
       container: mapContainer.value,
@@ -60,5 +71,8 @@ export function useMapInstance(
     PopupClass,
     isReady,
     resetNorth,
+    flyToUser,
+    locating,
+    locationError,
   };
 }
