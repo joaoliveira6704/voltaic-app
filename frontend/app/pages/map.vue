@@ -2,6 +2,7 @@
 <template>
   <div class="relative w-full h-screen overflow-hidden">
     <div ref="mapContainer" class="w-full h-full" />
+
     <MapTopBar
       :filters="filters"
       :sidebar-open="sidebarOpen"
@@ -10,15 +11,21 @@
       @toggle-sidebar="sidebarOpen = !sidebarOpen"
       @clear-connectors="resetSidebarFilters"
     />
+
     <MapFilterCard
       :open="sidebarOpen"
       :is-mobile="isMobile"
       :all-connectors="allConnectors"
       :selected-connectors="selectedConnectors"
+      :distance-active="distanceActive"
+      :slider-value="sliderValue"
       @close="sidebarOpen = false"
       @reset="resetSidebarFilters"
       @toggle-connector="toggleConnector"
+      @slider-change="onSliderChange"
+      @slider-commit="(val) => onSliderCommit(val, userLocation)"
     />
+
     <MapLocateButton :locating="locating" @click="flyToUser" />
     <MapNorthButton @click="resetNorth" />
   </div>
@@ -62,9 +69,14 @@ const {
   selectedConnectors,
   allConnectors,
   filteredStations,
+  sliderValue,
+  distanceActive,
+  userLocation,
   toggleFilter,
   toggleConnector,
   resetSidebarFilters,
+  onSliderChange,
+  onSliderCommit,
 } = useMapFilters();
 
 const {

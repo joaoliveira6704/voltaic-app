@@ -1,3 +1,4 @@
+// composables/useMapFilters.ts
 import { ref, computed } from "vue";
 import { Star, Zap, Tag } from "lucide-vue-next";
 import { useStationStore } from "@/stores/station";
@@ -24,6 +25,27 @@ export function useMapFilters() {
   const sidebarOpen = ref(false);
   const selectedConnectors = ref<string[]>([]);
 
+  // ── Distance filter ───────────────────────────────────────────────────────
+  const sliderValue = ref(10); // ── Default slider position in km ────────
+  const distanceActive = ref(false);
+  const userLocation = ref<[number, number] | null>(null);
+  const isGeolocating = ref(false);
+
+  async function getUserLocation(): Promise<[number, number] | null> {
+    return new Promise((resolve) => {
+      if (!navigator.geolocation) return resolve(null);
+      navigator.geolocation.getCurrentPosition(
+        (pos) => resolve([pos.coords.longitude, pos.coords.latitude]),
+        () => resolve(null),
+        {
+          timeout: 5000,
+          enableHighAccuracy: false,
+          maximumAge: 30_000,
+        },
+      );
+    });
+  }
+
   const isFilterActive = (key: MapFilterKey) =>
     filters.value.find((f) => f.key === key)?.active ?? false;
 
@@ -38,8 +60,38 @@ export function useMapFilters() {
     else selectedConnectors.value.splice(idx, 1);
   }
 
-  function resetSidebarFilters() {
+  function onSliderChange(value: number) {
+    sliderValue.value = value;
+  }
+
+  async function onSliderCommit(
+    value: number,
+    coords: [number, number] | null,
+  ) {
+    sliderValue.value = value;
+
+    let location = coords ?? userLocation.value;
+    if (!location) {
+      isGeolocating.value = true;
+      location = await getUserLocation();
+      isGeolocating.value = false;
+    }
+
+    if (!location) return;
+
+    userLocation.value = location;
+    distanceActive.value = true;
+
+    const [lng, lat] = location;
+    await stationStore.fetchNearbyStations(lat, lng, value);
+  }
+
+  async function resetSidebarFilters() {
     selectedConnectors.value = [];
+    sliderValue.value = 10;
+    distanceActive.value = false;
+    // Reset to full station list
+    await stationStore.fetchStations();
   }
 
   const allStations = computed(() => stationStore.stations as Station[]);
@@ -78,8 +130,15 @@ export function useMapFilters() {
     selectedConnectors,
     allConnectors: ALL_CONNECTORS,
     filteredStations,
+    sliderValue,
+    distanceActive,
+    userLocation,
+    isGeolocating,
     toggleFilter,
     toggleConnector,
     resetSidebarFilters,
+    onSliderChange,
+    onSliderCommit,
+    getUserLocation,
   };
 }

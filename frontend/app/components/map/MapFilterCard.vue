@@ -1,3 +1,4 @@
+<!-- components/map/MapFilterCard.vue -->
 <template>
   <Transition
     enter-active-class="transition-opacity duration-300"
@@ -11,7 +12,6 @@
       @click="emit('close')"
     />
   </Transition>
-
   <Transition
     enter-active-class="transition-all duration-300 ease-out"
     leave-active-class="transition-all duration-200 ease-in"
@@ -71,24 +71,36 @@
 
       <div class="h-px bg-gray-100 mb-5" />
 
+      <!-- Distance slider -->
       <div class="mb-5">
-        <div class="flex items-center justify-between mb-2">
+        <div class="flex items-center justify-between mb-3">
           <span class="text-sm font-semibold text-gray-700">Distance:</span>
-          <span class="text-xs text-gray-400">km 0–100</span>
+          <span class="text-xs font-medium text-[#22c55e]">
+            {{ distanceActive ? `${sliderValue} km` : "Off" }}
+          </span>
         </div>
-        <div class="relative h-1.5 bg-gray-200 rounded-full">
-          <div
-            class="absolute left-0 top-0 h-full w-full bg-gray-200 rounded-full"
-          />
+        <input
+          type="range"
+          min="1"
+          max="300"
+          step="1"
+          :value="sliderValue"
+          class="w-full h-1.5 rounded-full appearance-none cursor-pointer accent-[#22c55e] bg-gray-200"
+          @input="onSliderInput"
+          @change="onSliderChange"
+        />
+        <div class="flex justify-between mt-1">
+          <span class="text-xs text-gray-400">1 km</span>
+          <span class="text-xs text-gray-400">300 km</span>
         </div>
       </div>
 
       <div class="h-px bg-gray-100 mb-5" />
 
       <div>
-        <span class="text-sm font-semibold text-gray-700 block mb-3">
-          Socket type:
-        </span>
+        <span class="text-sm font-semibold text-gray-700 block mb-3"
+          >Socket type:</span
+        >
         <div class="flex flex-wrap gap-2">
           <button
             v-for="connector in allConnectors"
@@ -110,6 +122,7 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from "vue";
 import { X } from "lucide-vue-next";
 
 defineProps<{
@@ -117,11 +130,26 @@ defineProps<{
   isMobile: boolean;
   allConnectors: readonly string[];
   selectedConnectors: string[];
+  distanceActive: boolean;
+  sliderValue: number;
 }>();
 
 const emit = defineEmits<{
   close: [];
   reset: [];
   "toggle-connector": [connector: string];
+  "slider-change": [value: number];
+  "slider-commit": [value: number];
 }>();
+
+function onSliderInput(e: Event) {
+  const value = Number((e.target as HTMLInputElement).value);
+  emit("slider-change", value);
+}
+
+function onSliderChange(e: Event) {
+  // fires when user releases the slider
+  const value = Number((e.target as HTMLInputElement).value);
+  emit("slider-commit", value);
+}
 </script>
