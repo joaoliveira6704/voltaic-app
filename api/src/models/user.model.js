@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 import validator from "validator";
-import isEmail from "validator/lib/isEmail";
+import isEmail from "validator/lib/isEmail.js";
 
 const userSchema = new mongoose.Schema(
   {
@@ -95,8 +95,7 @@ const userSchema = new mongoose.Schema(
       },
     ],
   },
-  { timestamps: true, collection: 'users' },
-
+  { timestamps: true, collection: "users" },
 );
 
 // Hash the password before saving the user
