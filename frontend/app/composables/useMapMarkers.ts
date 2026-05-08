@@ -1,6 +1,6 @@
 import { ref, watch } from "vue";
 import type { Ref, ComputedRef } from "vue";
-import type { Map, Marker, Popup } from "maplibre-gl";
+import type { Map, Marker } from "maplibre-gl";
 import type { Station, StationState } from "@/types/station";
 
 const STATE_COLORS: Record<StationState, string> = {
@@ -14,7 +14,7 @@ export function useMapMarkers(
   isReady: Ref<boolean>,
   filteredStations: ComputedRef<Station[]>,
   MarkerClass: Ref<typeof Marker | null>,
-  PopupClass: Ref<typeof Popup | null>,
+  onMarkerClick?: (station: Station) => void,
 ) {
   const markers = ref<Marker[]>([]);
 
@@ -27,7 +27,6 @@ export function useMapMarkers(
     if (
       !mapInstance.value ||
       !MarkerClass.value ||
-      !PopupClass.value ||
       !isReady.value
     ) {
       return;
@@ -41,19 +40,17 @@ export function useMapMarkers(
 
       const [lng, lat] = coords;
 
-      const popup = new PopupClass.value!({ offset: 25 }).setHTML(`
-        <strong>${station.title}</strong><br/>
-        ${station.connector.socketTypes.join(", ")}<br/>
-        Max Power: ${station.connector.maxPower} kW<br/>
-        State: ${station.state}
-      `);
-
       const marker = new MarkerClass.value!({
         color: STATE_COLORS[station.state],
       })
         .setLngLat([lng, lat])
-        .setPopup(popup)
         .addTo(mapInstance.value!);
+
+      if (onMarkerClick) {
+        marker.getElement().addEventListener("click", () => {
+          onMarkerClick(station);
+        });
+      }
 
       markers.value.push(marker);
     });

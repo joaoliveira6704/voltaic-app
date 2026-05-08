@@ -26,13 +26,19 @@
       @slider-commit="(val) => onSliderCommit(val, userLocation)"
     />
 
+    <MapStationCard
+      :station="selectedStation"
+      :is-mobile="isMobile"
+      @close="selectedStation = null"
+    />
+
     <MapLocateButton :locating="locating" @click="flyToUser" />
     <MapNorthButton @click="resetNorth" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import { useUserStore } from "@/stores/user";
 import { useStationStore } from "@/stores/station";
 import { useResponsive } from "@/composables/useResponsive";
@@ -41,7 +47,7 @@ import { useMapInstance } from "@/composables/useMapInstance";
 import { useMapMarkers } from "@/composables/useMapMarkers";
 import type { Station } from "@/types/station";
 
-definePageMeta({ ssr: false, layout: "none" });
+definePageMeta({ ssr: false, layout: false });
 
 // ── User ──────────────────────────────────────────────────────────────────────
 
@@ -83,12 +89,23 @@ const {
   mapContainer,
   mapInstance,
   MarkerClass,
-  PopupClass,
   isReady,
   resetNorth,
   flyToUser,
   locating,
 } = useMapInstance(isDark, firstStation);
 
-useMapMarkers(mapInstance, isReady, filteredStations, MarkerClass, PopupClass);
+// ── Station Card ───────────────────────────────────────────────────────────────
+
+const selectedStation = ref<Station | null>(null);
+
+useMapMarkers(
+  mapInstance,
+  isReady,
+  filteredStations,
+  MarkerClass,
+  (station) => {
+    selectedStation.value = station;
+  },
+);
 </script>

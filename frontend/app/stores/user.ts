@@ -332,6 +332,45 @@ export const useUserStore = defineStore("user", () => {
     }
   }
 
+  async function addFavorite(stationId: string) {
+    try {
+      const data = await $fetch<string[]>(
+        `${apiBase()}/api/users/me/favorites`,
+        {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token()}` },
+          body: { stationId },
+        },
+      );
+      if (currentUser.value) {
+        currentUser.value = { ...currentUser.value, favorites: data };
+      }
+      toast.success("Added to favorites");
+    } catch (e) {
+      toast.error("Failed to add favorite");
+      throw e;
+    }
+  }
+
+  async function removeFavorite(stationId: string) {
+    try {
+      const data = await $fetch<string[]>(
+        `${apiBase()}/api/users/me/favorites/${stationId}`,
+        {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${token()}` },
+        },
+      );
+      if (currentUser.value) {
+        currentUser.value = { ...currentUser.value, favorites: data };
+      }
+      toast.success("Removed from favorites");
+    } catch (e) {
+      toast.error("Failed to remove favorite");
+      throw e;
+    }
+  }
+
   async function confirmLogout() {
     const result = await Swal.fire({
       title: "Confirm Logout",
@@ -380,5 +419,7 @@ export const useUserStore = defineStore("user", () => {
     deleteUser,
     editUser,
     editUserRole,
+    addFavorite,
+    removeFavorite,
   };
 });
