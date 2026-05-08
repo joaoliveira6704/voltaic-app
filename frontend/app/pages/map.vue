@@ -1,7 +1,11 @@
 <!-- pages/map.vue -->
 <template>
   <div class="relative w-full h-screen overflow-hidden">
-    <div ref="mapContainer" class="w-full h-full" />
+    <div
+      ref="mapContainer"
+      class="w-full h-full"
+      @click="sidebarOpen = false"
+    />
 
     <MapTopBar
       :filters="filters"
