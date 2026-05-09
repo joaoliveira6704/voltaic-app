@@ -1,4 +1,5 @@
 import userModel from "../models/user.model.js";
+import stationModel from "../models/station.model.js";
 import generateUniqueId from "../utils/utils.js";
 
 export const getUsers = async (req, res, next) => {
@@ -303,6 +304,12 @@ export const getFavorites = async (req, res, next) => {
 
 export const addFavorite = async (req, res, next) => {
   try {
+    if (!req.body || !req.body.stationId) {
+      const err = new Error("stationId is required");
+      err.status = 400;
+      return next(err);
+    }
+
     const { stationId } = req.body;
 
     // check if station exists
@@ -344,7 +351,7 @@ export const removeFavorite = async (req, res, next) => {
 
     const updatedUser = await userModel.findOneAndUpdate(
       { userId: req.user.userId },
-      { $pull: { favorite: stationId } },
+      { $pull: { favorites: stationId } },
       { new: true },
     );
 
@@ -354,7 +361,7 @@ export const removeFavorite = async (req, res, next) => {
       return next(err);
     }
 
-    res.status(200).json(updatedUser.favorite);
+    res.status(200).json(updatedUser.favorites);
   } catch (error) {
     next(error);
   }

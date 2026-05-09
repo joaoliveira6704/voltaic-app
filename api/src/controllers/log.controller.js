@@ -29,7 +29,9 @@ export const createLog = async (req, res, next) => {
 
 export const deleteLog = async (req, res, next) => {
   try {
-    const deletedLog = await logModel.findOneAndDelete({ userId: req.params.id });
+    const deletedLog = await logModel.findOneAndDelete({
+      userId: req.params.id,
+    });
     if (!deletedLog) {
       const err = new Error("Log not found");
       err.status = 404;

@@ -5,13 +5,13 @@ import {
   deleteStation,
   updateStation,
   getStationById,
-  getStationsByRadius
+  getStationsByRadius,
 } from "../controllers/station.controller.js";
 import {
   checkOwnership,
   protect,
   requireRole,
-} from "../middleware/auth.middleware";
+} from "../middleware/auth.middleware.js";
 import stationModel from "../models/station.model.js";
 
 const router = Router();

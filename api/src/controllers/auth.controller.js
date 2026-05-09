@@ -1,6 +1,6 @@
-import userModel from "../models/user.model";
+import userModel from "../models/user.model.js";
 import jwt from "jsonwebtoken";
-import generateUniqueId from "../utils/utils";
+import generateUniqueId from "../utils/utils.js";
 import mongoose from "mongoose";
 
 const signToken = (id) => {

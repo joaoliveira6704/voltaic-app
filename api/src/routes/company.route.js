@@ -10,7 +10,7 @@ import {
   protect,
   requireRole,
   checkOwnership,
-} from "../middleware/auth.middleware";
+} from "../middleware/auth.middleware.js";
 import companyModel from "../models/company.model.js";
 
 const router = Router();
