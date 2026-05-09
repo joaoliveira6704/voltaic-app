@@ -1,3 +1,4 @@
+// composables/useMapClustering.ts
 import { ref, watch } from "vue";
 import type { Ref, ComputedRef } from "vue";
 import type { Map, Marker } from "maplibre-gl";
@@ -9,8 +10,9 @@ interface ClusterGroup {
   center: [number, number];
 }
 
-// ── Zoom level where clustering starts (zoom out to group stations) ────────────
-const CLUSTER_ZOOM_THRESHOLD = 13;
+// ── Zoom level thresholds ─────────────────────────────────────────────────────
+export const ZOOM_INDIVIDUAL = 13; // zoom > 13: only individual markers
+// zoom <= 13: only group markers
 
 export function useMapClustering(
   mapInstance: Ref<Map | null>,
@@ -42,29 +44,27 @@ export function useMapClustering(
   function calculateMarkerSize(stationCount: number): number {
     const baseSize = 40;
     const maxSize = 80;
-    const size = baseSize + (stationCount - 1) * 4;
-    return Math.min(size, maxSize);
+    return Math.min(baseSize + (stationCount - 1) * 4, maxSize);
   }
 
   function buildClusterGroups(): Map<string, ClusterGroup> {
     const groups = new Map<string, ClusterGroup>();
 
     filteredStations.value.forEach((station) => {
-      const groupId = station.groupId || "default";
+      if (!station.groupId) return;
 
-      if (!groups.has(groupId)) {
-        groups.set(groupId, {
-          groupId,
+      if (!groups.has(station.groupId)) {
+        groups.set(station.groupId, {
+          groupId: station.groupId,
           stations: [],
           center: [0, 0],
         });
       }
 
-      const group = groups.get(groupId)!;
+      const group = groups.get(station.groupId)!;
       group.stations.push(station);
     });
 
-    // Calculate center for each group
     groups.forEach((group) => {
       group.center = calculateClusterCenter(group.stations);
     });
@@ -78,95 +78,21 @@ export function useMapClustering(
   }
 
   function renderClusterMarkers() {
-    if (
-      !mapInstance.value ||
-      !MarkerClass.value ||
-      !isReady.value
-    ) {
+    if (!mapInstance.value || !MarkerClass.value || !isReady.value) return;
+
+    // zoom > ZOOM_INDIVIDUAL: hide clusters, individual markers take over
+    if (currentZoom.value > ZOOM_INDIVIDUAL) {
+      clearClusterMarkers();
       return;
     }
 
     clearClusterMarkers();
-
-    if (currentZoom.value > CLUSTER_ZOOM_THRESHOLD) {
-      return;
-    }
-
     clusterGroups.value = buildClusterGroups();
 
-    const clusterArray = Array.from(clusterGroups.value.values());
-    const OVERLAP_THRESHOLD = 0.001; // ~100m at equator
-
-    // ── Convert pixel distance to degree offset based on current zoom ─────────────
-    const DESIRED_PIXEL_GAP = 80; // pixels between cluster edges
-    const pixelsPerDegree = 256 * Math.pow(2, currentZoom.value) / 360;
-    const MAP_OFFSET = DESIRED_PIXEL_GAP / pixelsPerDegree;
-
-    // Map to store adjusted positions
-    const adjustedPositions = new Map<string, [number, number]>();
-
-    // Find overlapping cluster groups
-    const overlapGroups: { clusters: typeof clusterArray; baseCenter: [number, number] }[] = [];
-    const processed = new Set<string>();
-
-    clusterArray.forEach((cluster) => {
-      if (processed.has(cluster.groupId)) return;
-
-      const overlappingClusters = [cluster];
-      clusterArray.forEach((other) => {
-        if (other.groupId === cluster.groupId) return;
-        if (processed.has(other.groupId)) return;
-
-        const dist = Math.sqrt(
-          Math.pow(cluster.center[0] - other.center[0], 2) +
-          Math.pow(cluster.center[1] - other.center[1], 2)
-        );
-
-        if (dist < OVERLAP_THRESHOLD) {
-          overlappingClusters.push(other);
-          processed.add(other.groupId);
-        }
-      });
-
-      processed.add(cluster.groupId);
-      if (overlappingClusters.length > 1) {
-        overlapGroups.push({
-          clusters: overlappingClusters,
-          baseCenter: cluster.center,
-        });
-      }
-    });
-
-    // Position overlapping clusters in grid pattern
-    overlapGroups.forEach(({ clusters }) => {
-      const positions = [
-        [-MAP_OFFSET, -MAP_OFFSET], // top-left
-        [MAP_OFFSET, -MAP_OFFSET], // top-right
-        [-MAP_OFFSET, MAP_OFFSET], // bottom-left
-        [MAP_OFFSET, MAP_OFFSET], // bottom-right
-        [-MAP_OFFSET * 1.5, 0], // left
-        [MAP_OFFSET * 1.5, 0], // right
-        [0, -MAP_OFFSET * 1.5], // top
-        [0, MAP_OFFSET * 1.5], // bottom
-      ];
-
-      clusters.forEach((cluster, index) => {
-        const offset = positions[index % positions.length];
-        const adjustedPos: [number, number] = [
-          cluster.center[0] + offset[0],
-          cluster.center[1] + offset[1],
-        ];
-        adjustedPositions.set(cluster.groupId, adjustedPos);
-      });
-    });
-
-    // Render all cluster markers
-    clusterArray.forEach((group) => {
+    clusterGroups.value.forEach((group) => {
       const stationCount = group.stations.length;
       const size = calculateMarkerSize(stationCount);
-      const position = adjustedPositions.get(group.groupId) || group.center;
 
-      // Create custom cluster marker element
       const el = document.createElement("div");
       el.style.cssText = `
         width: ${size}px;
@@ -186,16 +112,12 @@ export function useMapClustering(
       el.textContent = stationCount.toString();
 
       const marker = new MarkerClass.value!({ element: el })
-        .setLngLat(position)
+        .setLngLat(group.center)
         .addTo(mapInstance.value!);
 
-      // Handle cluster marker click
       el.addEventListener("click", async () => {
         if (!mapInstance.value) return;
-
         const maplibre = await import("maplibre-gl");
-
-        // Calculate bounds for all stations in cluster
         const bounds = new maplibre.LngLatBounds();
         group.stations.forEach((station) => {
           const coords = station.location?.coordinates;
@@ -204,10 +126,10 @@ export function useMapClustering(
           }
         });
 
-        // ── Animation parameters matching the "locate me" button ────────────────
+        // ── Zoom level when expanding a cluster ───────────────────────────
         mapInstance.value.flyTo({
           center: bounds.getCenter(),
-          zoom: 15,
+          zoom: ZOOM_INDIVIDUAL + 1,
           duration: 800,
         });
       });
@@ -219,9 +141,7 @@ export function useMapClustering(
   watch(
     [isReady, filteredStations, currentZoom],
     () => renderClusterMarkers(),
-    {
-      immediate: true,
-    },
+    { immediate: true },
   );
 
   return { renderClusterMarkers, clearClusterMarkers };

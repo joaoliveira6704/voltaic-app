@@ -2,6 +2,7 @@ import { ref, watch } from "vue";
 import type { Ref, ComputedRef } from "vue";
 import type { Map, Marker } from "maplibre-gl";
 import type { Station, StationState } from "@/types/station";
+import { ZOOM_INDIVIDUAL } from "@/composables/useMapClustering";
 
 const STATE_COLORS: Record<StationState, string> = {
   available: "#22c55e",
@@ -31,18 +32,19 @@ export function useMapMarkers(
     if (!mapInstance.value || !MarkerClass.value || !isReady.value) {
       return;
     }
+    if (currentZoom.value <= ZOOM_INDIVIDUAL) {
+      clearMarkers();
+      return;
+    }
 
     clearMarkers();
 
-    const stationsToShow: Station[] = [];
-
-    // At cluster zoom: clusters handle all grouped stations
-    // At detail zoom: show all stations
-    if (currentZoom.value > CLUSTER_ZOOM_THRESHOLD) {
-      stationsToShow.push(...filteredStations.value);
+    // Only show individual markers when zoom > threshold (zoomed in)
+    if (currentZoom.value <= CLUSTER_ZOOM_THRESHOLD) {
+      return;
     }
 
-    stationsToShow.forEach((station) => {
+    filteredStations.value.forEach((station) => {
       const coords = station.location?.coordinates;
       if (!coords || coords.length !== 2) return;
 

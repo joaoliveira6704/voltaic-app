@@ -51,6 +51,7 @@ export function useMapInstance(
       style: isDark.value ? TILE_DARK : TILE_LIGHT,
       center,
       zoom: 13,
+      minZoom: 5,
       attributionControl: false,
     });
 
