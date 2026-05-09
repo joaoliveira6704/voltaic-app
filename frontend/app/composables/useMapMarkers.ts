@@ -3,12 +3,16 @@ import type { Ref, ComputedRef } from "vue";
 import type { Map, Marker } from "maplibre-gl";
 import type { Station, StationState } from "@/types/station";
 import { ZOOM_INDIVIDUAL } from "@/composables/useMapClustering";
+import { useUserStore } from "@/stores/user";
 
 const STATE_COLORS: Record<StationState, string> = {
   available: "#22c55e",
   unavailable: "#ef4444",
   maintenance: "#9ca3af",
 };
+
+const userStore = useUserStore();
+const userRole = computed(() => userStore.currentUser?.role);
 
 // ── Zoom level where clustering starts (zoom out to group stations) ────────────
 const CLUSTER_ZOOM_THRESHOLD = 13;
@@ -45,7 +49,7 @@ export function useMapMarkers(
     }
 
     filteredStations.value.forEach((station) => {
-      if (!station.alive) return;
+      if (!station.alive && userRole.value !== "admin") return;
 
       const coords = station.location?.coordinates;
       if (!coords || coords.length !== 2) return;
