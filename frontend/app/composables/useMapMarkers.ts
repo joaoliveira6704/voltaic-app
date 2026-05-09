@@ -9,11 +9,15 @@ const STATE_COLORS: Record<StationState, string> = {
   maintenance: "#9ca3af",
 };
 
+// ── Zoom level where clustering starts (zoom out to group stations) ────────────
+const CLUSTER_ZOOM_THRESHOLD = 13;
+
 export function useMapMarkers(
   mapInstance: Ref<Map | null>,
   isReady: Ref<boolean>,
   filteredStations: ComputedRef<Station[]>,
   MarkerClass: Ref<typeof Marker | null>,
+  currentZoom: Ref<number>,
   onMarkerClick?: (station: Station) => void,
 ) {
   const markers = ref<Marker[]>([]);
@@ -24,15 +28,16 @@ export function useMapMarkers(
   }
 
   function renderMarkers() {
-    if (
-      !mapInstance.value ||
-      !MarkerClass.value ||
-      !isReady.value
-    ) {
+    if (!mapInstance.value || !MarkerClass.value || !isReady.value) {
       return;
     }
 
     clearMarkers();
+
+    // Only show individual markers when zoom > threshold (zoomed in)
+    if (currentZoom.value <= CLUSTER_ZOOM_THRESHOLD) {
+      return;
+    }
 
     filteredStations.value.forEach((station) => {
       const coords = station.location?.coordinates;
@@ -59,7 +64,7 @@ export function useMapMarkers(
     console.log("All marker coordinates:", markerCoords);
   }
 
-  watch([isReady, filteredStations], () => renderMarkers(), {
+  watch([isReady, filteredStations, currentZoom], () => renderMarkers(), {
     immediate: true,
   });
 

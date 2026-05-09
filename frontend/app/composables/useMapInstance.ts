@@ -17,6 +17,7 @@ export function useMapInstance(
   const MarkerClass = ref<typeof import("maplibre-gl").Marker | null>(null);
   const PopupClass = ref<typeof import("maplibre-gl").Popup | null>(null);
   const isReady = ref(false);
+  const currentZoom = ref(13);
 
   const {
     getUserLocation,
@@ -57,6 +58,10 @@ export function useMapInstance(
       isReady.value = true;
     });
 
+    map.on("zoom", () => {
+      currentZoom.value = map.getZoom();
+    });
+
     mapInstance.value = map;
   });
 
@@ -70,6 +75,7 @@ export function useMapInstance(
     MarkerClass,
     PopupClass,
     isReady,
+    currentZoom,
     resetNorth,
     flyToUser,
     locating,

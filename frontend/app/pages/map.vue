@@ -49,6 +49,7 @@ import { useResponsive } from "@/composables/useResponsive";
 import { useMapFilters } from "@/composables/useMapFilters";
 import { useMapInstance } from "@/composables/useMapInstance";
 import { useMapMarkers } from "@/composables/useMapMarkers";
+import { useMapClustering } from "@/composables/useMapClustering";
 import type { Station } from "@/types/station";
 
 definePageMeta({ ssr: false, layout: false });
@@ -94,6 +95,7 @@ const {
   mapInstance,
   MarkerClass,
   isReady,
+  currentZoom,
   resetNorth,
   flyToUser,
   locating,
@@ -108,8 +110,17 @@ useMapMarkers(
   isReady,
   filteredStations,
   MarkerClass,
+  currentZoom,
   (station) => {
     selectedStation.value = station;
   },
+);
+
+useMapClustering(
+  mapInstance,
+  isReady,
+  filteredStations,
+  MarkerClass,
+  currentZoom,
 );
 </script>
