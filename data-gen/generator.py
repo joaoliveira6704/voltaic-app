@@ -1,3 +1,4 @@
+import math
 import random
 import uuid
 from concurrent.futures import ThreadPoolExecutor
@@ -23,9 +24,15 @@ CITIES = [
     {"name": "Madrid", "coords": [40.4167, -3.7035]},
 ]
 
+# ~10 metres in degrees (at mid-latitudes, 1° lat ≈ 111 km → 10 m ≈ 0.00009°)
+METRES_PER_DEGREE = 111_000
+STATION_SPACING_M = 10
+STATION_SPACING_DEG = STATION_SPACING_M / METRES_PER_DEGREE  # ≈ 0.00009°
+
 
 def _hash_password(pwd):
     return bcrypt.hashpw(pwd.encode("utf-8"), bcrypt.gensalt(12)).decode("utf-8")
+
 
 def generate_station_groups(count=5):
     groups = []
@@ -95,29 +102,78 @@ def generate_users(count, companies):
     return users
 
 
+def _offset_for_index(index: int) -> tuple[float, float]:
+    """
+    Return a (delta_lat, delta_lng) offset so that stations within the same
+    group are placed ~STATION_SPACING_M metres apart, arranged in a grid.
+
+    Layout (top-down view, each cell ≈ 10 m):
+        0  1  2  3 …
+        4  5  6  7 …
+        …
+    """
+    cols = 4  # stations per row before wrapping
+    row = index // cols
+    col = index % cols
+    delta_lat = row * STATION_SPACING_DEG
+    delta_lng = col * STATION_SPACING_DEG
+    return delta_lat, delta_lng
+
+
 def generate_stations(count, companies, groups):
+    """
+    Stations are distributed evenly across groups. Within each group every
+    station is offset ~10 m from the previous one, laid out on a grid
+    originating from a city anchor point assigned to that group.
+    """
     stations = []
-    group_ids = [g.groupId for g in groups]
-    for _ in range(count):
+
+    # Assign a fixed city anchor and company to each group
+    group_anchors: dict[str, dict] = {}
+    for group in groups:
         city = random.choice(CITIES)
+        company = random.choice(companies)
+        group_anchors[group.groupId] = {
+            "city": city,
+            "company": company,
+            "station_count": 0,  # running index inside the group
+        }
+
+    # Distribute the requested station count round-robin across groups
+    group_ids = [g.groupId for g in groups]
+
+    for i in range(count):
+        group_id = group_ids[i % len(group_ids)]
+        anchor = group_anchors[group_id]
+
+        base_lat, base_lng = anchor["city"]["coords"]
+        idx = anchor["station_count"]
+        delta_lat, delta_lng = _offset_for_index(idx)
+
+        lat = base_lat + delta_lat
+        lng = base_lng + delta_lng
+
         stations.append(
             Station(
                 str(uuid.uuid4()),
-                f"{city['name']} Hub",
-                random.choice(companies).companyId,
+                f"{anchor['city']['name']} Hub",
+                anchor["company"].companyId,
                 {
                     "type": "Point",
-                    "coordinates": [city["coords"][1], city["coords"][0]],
+                    "coordinates": [lng, lat],  # GeoJSON: [lng, lat]
                 },
                 {
                     "socketTypes": random.sample(SOCKET_TYPES, 2),
                     "maxPower": random.choice([50, 150]),
                 },
                 {"amperage": 32, "voltage": 400, "temperature": 25.0},
-                random.choice(group_ids),
+                group_id,
                 random.choice(["available", "maintenance"]),
             )
         )
+
+        anchor["station_count"] += 1
+
     return stations
 
 
