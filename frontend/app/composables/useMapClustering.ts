@@ -81,24 +81,90 @@ export function useMapClustering(
     if (
       !mapInstance.value ||
       !MarkerClass.value ||
-      !isReady.value ||
-      currentZoom.value > CLUSTER_ZOOM_THRESHOLD
+      !isReady.value
     ) {
       return;
     }
 
     clearClusterMarkers();
+
+    if (currentZoom.value > CLUSTER_ZOOM_THRESHOLD) {
+      return;
+    }
+
     clusterGroups.value = buildClusterGroups();
 
-    clusterGroups.value.forEach((group) => {
-      const stationCount = group.stations.length;
+    const clusterArray = Array.from(clusterGroups.value.values());
+    const OVERLAP_THRESHOLD = 0.001; // ~100m at equator
 
-      // Skip rendering individual markers if there's only one station
-      if (stationCount === 1) {
-        return;
+    // ── Convert pixel distance to degree offset based on current zoom ─────────────
+    const DESIRED_PIXEL_GAP = 80; // pixels between cluster edges
+    const pixelsPerDegree = 256 * Math.pow(2, currentZoom.value) / 360;
+    const MAP_OFFSET = DESIRED_PIXEL_GAP / pixelsPerDegree;
+
+    // Map to store adjusted positions
+    const adjustedPositions = new Map<string, [number, number]>();
+
+    // Find overlapping cluster groups
+    const overlapGroups: { clusters: typeof clusterArray; baseCenter: [number, number] }[] = [];
+    const processed = new Set<string>();
+
+    clusterArray.forEach((cluster) => {
+      if (processed.has(cluster.groupId)) return;
+
+      const overlappingClusters = [cluster];
+      clusterArray.forEach((other) => {
+        if (other.groupId === cluster.groupId) return;
+        if (processed.has(other.groupId)) return;
+
+        const dist = Math.sqrt(
+          Math.pow(cluster.center[0] - other.center[0], 2) +
+          Math.pow(cluster.center[1] - other.center[1], 2)
+        );
+
+        if (dist < OVERLAP_THRESHOLD) {
+          overlappingClusters.push(other);
+          processed.add(other.groupId);
+        }
+      });
+
+      processed.add(cluster.groupId);
+      if (overlappingClusters.length > 1) {
+        overlapGroups.push({
+          clusters: overlappingClusters,
+          baseCenter: cluster.center,
+        });
       }
+    });
 
+    // Position overlapping clusters in grid pattern
+    overlapGroups.forEach(({ clusters }) => {
+      const positions = [
+        [-MAP_OFFSET, -MAP_OFFSET], // top-left
+        [MAP_OFFSET, -MAP_OFFSET], // top-right
+        [-MAP_OFFSET, MAP_OFFSET], // bottom-left
+        [MAP_OFFSET, MAP_OFFSET], // bottom-right
+        [-MAP_OFFSET * 1.5, 0], // left
+        [MAP_OFFSET * 1.5, 0], // right
+        [0, -MAP_OFFSET * 1.5], // top
+        [0, MAP_OFFSET * 1.5], // bottom
+      ];
+
+      clusters.forEach((cluster, index) => {
+        const offset = positions[index % positions.length];
+        const adjustedPos: [number, number] = [
+          cluster.center[0] + offset[0],
+          cluster.center[1] + offset[1],
+        ];
+        adjustedPositions.set(cluster.groupId, adjustedPos);
+      });
+    });
+
+    // Render all cluster markers
+    clusterArray.forEach((group) => {
+      const stationCount = group.stations.length;
       const size = calculateMarkerSize(stationCount);
+      const position = adjustedPositions.get(group.groupId) || group.center;
 
       // Create custom cluster marker element
       const el = document.createElement("div");
@@ -120,7 +186,7 @@ export function useMapClustering(
       el.textContent = stationCount.toString();
 
       const marker = new MarkerClass.value!({ element: el })
-        .setLngLat(group.center)
+        .setLngLat(position)
         .addTo(mapInstance.value!);
 
       // Handle cluster marker click

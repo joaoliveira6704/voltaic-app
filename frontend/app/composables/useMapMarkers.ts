@@ -34,12 +34,15 @@ export function useMapMarkers(
 
     clearMarkers();
 
-    // Only show individual markers when zoom > threshold (zoomed in)
-    if (currentZoom.value <= CLUSTER_ZOOM_THRESHOLD) {
-      return;
+    const stationsToShow: Station[] = [];
+
+    // At cluster zoom: clusters handle all grouped stations
+    // At detail zoom: show all stations
+    if (currentZoom.value > CLUSTER_ZOOM_THRESHOLD) {
+      stationsToShow.push(...filteredStations.value);
     }
 
-    filteredStations.value.forEach((station) => {
+    stationsToShow.forEach((station) => {
       const coords = station.location?.coordinates;
       if (!coords || coords.length !== 2) return;
 
