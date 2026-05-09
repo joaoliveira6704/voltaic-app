@@ -45,6 +45,8 @@ export function useMapMarkers(
     }
 
     filteredStations.value.forEach((station) => {
+      if (!station.alive) return;
+
       const coords = station.location?.coordinates;
       if (!coords || coords.length !== 2) return;
 
