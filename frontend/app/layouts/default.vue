@@ -4,7 +4,7 @@ import "vue-sonner/style.css";
 import { Toaster } from "@/components/ui/sonner";
 import { Map } from "lucide-vue-next";
 
-const navLinks = [{ path: "/", label: "Map" }]; /* link map page */
+const navLinks = [{ path: "/map", label: "Map" }]; /* link map page */
 const { t } = useI18n();
 const userStore = useUserStore();
 

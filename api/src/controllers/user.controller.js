@@ -1,6 +1,7 @@
 import userModel from "../models/user.model.js";
 import stationModel from "../models/station.model.js";
 import generateUniqueId from "../utils/utils.js";
+import companyModel from "../models/company.model.js";
 
 export const getUsers = async (req, res, next) => {
   try {
@@ -362,6 +363,22 @@ export const removeFavorite = async (req, res, next) => {
     }
 
     res.status(200).json(updatedUser.favorites);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getCurrentCompany = async (req, res, next) => {
+  try {
+    const company = await companyModel.findOne({
+      companyId: req.user.companyId,
+    });
+    if (!company) {
+      const err = new Error("Company not found");
+      err.status = 404;
+      return next(err);
+    }
+    res.status(200).json(company);
   } catch (error) {
     next(error);
   }

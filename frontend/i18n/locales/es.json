@@ -1,178 +1,178 @@
 {
+  "profile": "Perfil",
+  "userInfo": "Información del Usuario",
+  "editProfile": "Editar Perfil",
+  "unknownLocation": "Ubicación Desconocida",
+  "yourFleet": "Tu Flota",
+  "addNewVehicle": "Añadir nuevo Vehículo",
+  "plate": "Matrícula",
+  "history": "Historial de Cargas",
+  "date": "Fecha",
+  "vehicle": "Vehículo",
+  "station": "Estación",
+  "duration": "Duración",
+  "preferences": "Preferencias",
+  "darkMode": "Modo Oscuro",
+  "hidePlates": "Ocultar Matrículas",
+  "language": "Idioma",
+  "saveChanges": "Guardar Cambios",
+  "noVehicles": "No hay vehículos para mostrar en",
+  "realTimeNetwork": "Red en Tiempo Real",
+  "nav": {
+    "login": "Login",
+    "signup": "Crear Conta",
+    "home": "Página Inicial",
     "profile": "Perfil",
-    "userInfo": "Información del Usuario",
-    "editProfile": "Editar Perfil",
-    "unknownLocation": "Ubicación Desconocida",
-    "yourFleet": "Tu Flota",
-    "addNewVehicle": "Añadir nuevo Vehículo",
-    "plate": "Matrícula",
-    "history": "Historial de Cargas",
-    "date": "Fecha",
-    "vehicle": "Vehículo",
-    "station": "Estación",
-    "duration": "Duración",
-    "preferences": "Preferencias",
-    "darkMode": "Modo Oscuro",
-    "hidePlates": "Ocultar Matrículas",
-    "language": "Idioma",
-    "saveChanges": "Guardar Cambios",
-    "noVehicles": "No hay vehículos para mostrar en",
-    "realTimeNetwork": "Red en Tiempo Real",
-    "nav": {
-        "login": "Login",
-        "signup": "Crear Conta",
-        "home": "Página Inicial",
-        "profile": "Perfil",
-        "admin": "Administração",
-        "companyManager": "Gestor de Empresa",
+    "admin": "Administração",
+    "companyManager": "Gerenciar Empresa",
+    "worker": "Trabajador",
+    "users": "Usuarios",
+    "stations": "Estaciones",
+    "companies": "Empresas",
+    "tickets": "Tickets",
+    "personnel": "Personal",
+    "assignedTickets": "Tickets Asignados",
+    "map": "Mapa",
+    "favoriteStations": "Estaciones Favoritas",
+    "history": "Historial"
+  },
+  "modal": {
+    "addUser": {
+      "title": "Añadir usuario",
+      "firstName": "Nombre",
+      "lastName": "Apellido",
+      "username": "Usuario",
+      "email": "Correo electrónico",
+      "role": "Rol",
+      "rolePlaceholder": "Seleccionar rol…",
+      "roles": {
+        "admin": "Administrador",
+        "client": "Cliente",
         "worker": "Trabajador",
-        "users": "Usuarios",
-        "stations": "Estaciones",
-        "companies": "Empresas",
-        "tickets": "Tickets",
-        "personnel": "Personal",
-        "assignedTickets": "Tickets Asignados",
-        "map": "Mapa",
-        "favoriteStations": "Estaciones Favoritas",
-        "history": "Historial"
+        "company-manager": "Gestor de empresa"
+      },
+      "passwordSection": "Contraseña",
+      "password": "Contraseña inicial",
+      "sendWelcomeEmail": "Enviar correo de bienvenida con instrucciones de acceso",
+      "allFieldsRequired": "Todos los campos son obligatorios",
+      "cancel": "Cancelar",
+      "create": "Crear",
+      "errors": {
+        "firstNameRequired": "El nombre es obligatorio.",
+        "lastNameRequired": "El apellido es obligatorio.",
+        "usernameRequired": "El nombre de usuario es obligatorio.",
+        "invalidEmail": "Introduce una dirección de correo electrónico válida.",
+        "roleRequired": "Selecciona un rol.",
+        "passwordTooShort": "La contraseña debe tener al menos 8 caracteres."
+      }
     },
-    "modal": {
-        "addUser": {
-            "title": "Añadir usuario",
-            "firstName": "Nombre",
-            "lastName": "Apellido",
-            "username": "Usuario",
-            "email": "Correo electrónico",
-            "role": "Rol",
-            "rolePlaceholder": "Seleccionar rol…",
-            "roles": {
-                "admin": "Administrador",
-                "client": "Cliente",
-                "worker": "Trabajador",
-                "company-manager": "Gestor de empresa"
-            },
-            "passwordSection": "Contraseña",
-            "password": "Contraseña inicial",
-            "sendWelcomeEmail": "Enviar correo de bienvenida con instrucciones de acceso",
-            "allFieldsRequired": "Todos los campos son obligatorios",
-            "cancel": "Cancelar",
-            "create": "Crear",
-            "errors": {
-                "firstNameRequired": "El nombre es obligatorio.",
-                "lastNameRequired": "El apellido es obligatorio.",
-                "usernameRequired": "El nombre de usuario es obligatorio.",
-                "invalidEmail": "Introduce una dirección de correo electrónico válida.",
-                "roleRequired": "Selecciona un rol.",
-                "passwordTooShort": "La contraseña debe tener al menos 8 caracteres."
-            }
-        },
-        "editProfile": {
-            "title": "Editar Perfil",
-            "firstName": "Nombre",
-            "lastName": "Apellido",
-            "username": "Nombre de usuario",
-            "email": "Correo electrónico",
-            "passwordSection": "Cambio de contraseña",
-            "currentPassword": "Contraseña actual",
-            "newPassword": "Nueva contraseña",
-            "noChanges": "Sin cambios",
-            "fieldsModified": "{n} campo modificado",
-            "fieldsModifiedPlural": "{n} campos modificados",
-            "cancel": "Cancelar",
-            "save": "Guardar",
-            "errors": {
-                "currentPasswordRequired": "Se requiere la contraseña actual para establecer una nueva.",
-                "passwordTooShort": "La nueva contraseña debe tener al menos 8 caracteres.",
-                "invalidEmail": "Por favor, introduce una dirección de correo electrónico válida."
-            }
-        },
-        "addVehicle": {
-            "title": "Añadir Vehículo",
-            "vehicleLabel": "Vehículo",
-            "searchPlaceholder": "Buscar marca, modelo o año...",
-            "autoPopulated": "Rellenado automático",
-            "model": "Modelo",
-            "connector": "Conector",
-            "slug": "Slug",
-            "yourDetails": "Tus detalles",
-            "plate": "Matrícula",
-            "platePlaceholder": "AA-00-BB",
-            "color": "Color",
-            "colorPlaceholder": "ej. Blanco Glaciar",
-            "noVehicleSelected": "Ningún vehículo seleccionado",
-            "noVehiclesFound": "No se encontraron vehículos.",
-            "cancel": "Cancelar",
-            "add": "Añadir",
-            "errors": {
-                "plateRequired": "La matrícula es obligatoria.",
-                "vehicleRequired": "Por favor, selecciona un vehículo de la lista.",
-                "colorRequired": "El color es obligatorio."
-            }
-        }
+    "editProfile": {
+      "title": "Editar Perfil",
+      "firstName": "Nombre",
+      "lastName": "Apellido",
+      "username": "Nombre de usuario",
+      "email": "Correo electrónico",
+      "passwordSection": "Cambio de contraseña",
+      "currentPassword": "Contraseña actual",
+      "newPassword": "Nueva contraseña",
+      "noChanges": "Sin cambios",
+      "fieldsModified": "{n} campo modificado",
+      "fieldsModifiedPlural": "{n} campos modificados",
+      "cancel": "Cancelar",
+      "save": "Guardar",
+      "errors": {
+        "currentPasswordRequired": "Se requiere la contraseña actual para establecer una nueva.",
+        "passwordTooShort": "La nueva contraseña debe tener al menos 8 caracteres.",
+        "invalidEmail": "Por favor, introduce una dirección de correo electrónico válida."
+      }
     },
-    "landing": {
-        "head": {
-            "title": "Voltaic - Landing Page",
-            "description": "Voltaic es una empresa de carga de vehículos eléctricos diseñada para ti."
-        },
-        "hero": {
-            "chargeSmarter": "Carga Inteligente",
-            "driveFurther": "Llega más Lejos",
-            "subtitle": "Descubre estaciones de carga cercanas, gestiona tus vehículos y toma el control de tu experiencia con vehículos eléctricos con Voltaic.",
-            "networkCoverage": "Cobertura de la Red"
-        },
-        "stats": {
-            "activeUsers": "Usuarios Activos",
-            "chargingStations": "Estaciones de Carga",
-            "uptimeGuarantee": "Garantía de Disponibilidad",
-            "companiesRegistered": "Empresas Registradas"
-        },
-        "features": {
-            "sectionTitle": "Todo lo que Necesitas",
-            "sectionTitleHighlight": "En un Solo Lugar",
-            "realTimeAvailability": {
-                "title": "Disponibilidad en Tiempo Real",
-                "description": "Actualizaciones en vivo sobre la disponibilidad de las estaciones y tiempos de espera al alcance de tu mano."
-            },
-            "interactiveMap": {
-                "title": "Mapa Interactivo",
-                "description": "Encuentra estaciones cercanas con filtros por tipo de cargador, ubicación y más."
-            },
-            "companyManagedStations": {
-                "title": "Estaciones Gestionadas por la Empresa",
-                "description": "Para cada estación listada, garantizamos que sea mantenida y fiable para tu viaje."
-            }
-        },
-        "cta": {
-            "title": "Únete a la Revolución EV",
-            "titleHighlight": "Carga más Inteligente, Conduce más Lejos",
-            "subtitle": "Únete a miles de conductores que cargan de forma más inteligente cada día.",
-            "button": "Empezar"
-        }
-    },
-    "admin": {
-        "users": {
-            "title": "Gestionar Usuarios",
-            "subtitle": "Ver y gestionar todas las cuentas de usuario",
-            "addNewUser": "Agregar Nuevo Usuario",
-            "columns": {
-                "name": "Nombre",
-                "email": "Correo electrónico",
-                "role": "Rol",
-                "status": "Estado",
-                "actions": "Acciones"
-            },
-            "noUsers": "No se encontraron usuarios",
-            "searchPlaceholder": "Buscar usuarios...",
-            "filters": {
-                "role": "Filtrar por rol",
-                "status": "Filtrar por estado"
-            }
-        }
-    },
-    "lang": {
-        "en": "Inglés (US)",
-        "pt": "Português (PT)",
-        "es": "Español (ES)"
+    "addVehicle": {
+      "title": "Añadir Vehículo",
+      "vehicleLabel": "Vehículo",
+      "searchPlaceholder": "Buscar marca, modelo o año...",
+      "autoPopulated": "Rellenado automático",
+      "model": "Modelo",
+      "connector": "Conector",
+      "slug": "Slug",
+      "yourDetails": "Tus detalles",
+      "plate": "Matrícula",
+      "platePlaceholder": "AA-00-BB",
+      "color": "Color",
+      "colorPlaceholder": "ej. Blanco Glaciar",
+      "noVehicleSelected": "Ningún vehículo seleccionado",
+      "noVehiclesFound": "No se encontraron vehículos.",
+      "cancel": "Cancelar",
+      "add": "Añadir",
+      "errors": {
+        "plateRequired": "La matrícula es obligatoria.",
+        "vehicleRequired": "Por favor, selecciona un vehículo de la lista.",
+        "colorRequired": "El color es obligatorio."
+      }
     }
+  },
+  "landing": {
+    "head": {
+      "title": "Voltaic - Landing Page",
+      "description": "Voltaic es una empresa de carga de vehículos eléctricos diseñada para ti."
+    },
+    "hero": {
+      "chargeSmarter": "Carga Inteligente",
+      "driveFurther": "Llega más Lejos",
+      "subtitle": "Descubre estaciones de carga cercanas, gestiona tus vehículos y toma el control de tu experiencia con vehículos eléctricos con Voltaic.",
+      "networkCoverage": "Cobertura de la Red"
+    },
+    "stats": {
+      "activeUsers": "Usuarios Activos",
+      "chargingStations": "Estaciones de Carga",
+      "uptimeGuarantee": "Garantía de Disponibilidad",
+      "companiesRegistered": "Empresas Registradas"
+    },
+    "features": {
+      "sectionTitle": "Todo lo que Necesitas",
+      "sectionTitleHighlight": "En un Solo Lugar",
+      "realTimeAvailability": {
+        "title": "Disponibilidad en Tiempo Real",
+        "description": "Actualizaciones en vivo sobre la disponibilidad de las estaciones y tiempos de espera al alcance de tu mano."
+      },
+      "interactiveMap": {
+        "title": "Mapa Interactivo",
+        "description": "Encuentra estaciones cercanas con filtros por tipo de cargador, ubicación y más."
+      },
+      "companyManagedStations": {
+        "title": "Estaciones Gestionadas por la Empresa",
+        "description": "Para cada estación listada, garantizamos que sea mantenida y fiable para tu viaje."
+      }
+    },
+    "cta": {
+      "title": "Únete a la Revolución EV",
+      "titleHighlight": "Carga más Inteligente, Conduce más Lejos",
+      "subtitle": "Únete a miles de conductores que cargan de forma más inteligente cada día.",
+      "button": "Empezar"
+    }
+  },
+  "admin": {
+    "users": {
+      "title": "Gestionar Usuarios",
+      "subtitle": "Ver y gestionar todas las cuentas de usuario",
+      "addNewUser": "Agregar Nuevo Usuario",
+      "columns": {
+        "name": "Nombre",
+        "email": "Correo electrónico",
+        "role": "Rol",
+        "status": "Estado",
+        "actions": "Acciones"
+      },
+      "noUsers": "No se encontraron usuarios",
+      "searchPlaceholder": "Buscar usuarios...",
+      "filters": {
+        "role": "Filtrar por rol",
+        "status": "Filtrar por estado"
+      }
+    }
+  },
+  "lang": {
+    "en": "Inglés (US)",
+    "pt": "Português (PT)",
+    "es": "Español (ES)"
+  }
 }

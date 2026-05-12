@@ -15,6 +15,7 @@ import {
   addFavorite,
   removeFavorite,
   updateRole,
+  getCurrentCompany,
 } from "../controllers/user.controller.js";
 import {
   checkOwnership,
@@ -32,9 +33,16 @@ router.get("/me", protect, getCurrentUser);
 router.patch("/me", protect, updateOwnUser);
 router.delete("/me", protect, deleteOwnUser);
 
-router.get("/me/favourites", protect, getFavorites);
+router.get("/me/favorites", protect, getFavorites);
 router.post("/me/favorites", protect, addFavorite);
 router.delete("/me/favorites/:stationId", protect, removeFavorite);
+
+router.get(
+  "/me/company",
+  protect,
+  requireRole("company-manager", "worker"),
+  getCurrentCompany,
+);
 
 router.get("/me/vehicles", protect, getVehicles);
 router.post("/me/vehicles", protect, addVehicle);

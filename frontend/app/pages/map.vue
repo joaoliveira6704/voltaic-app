@@ -1,44 +1,44 @@
 <!-- pages/map.vue -->
 <template>
-  <div class="relative w-full h-screen overflow-hidden">
-    <div
-      ref="mapContainer"
-      class="w-full h-full"
-      @click="sidebarOpen = false"
-    />
+    <div class="relative w-full h-screen overflow-hidden">
+        <div
+            ref="mapContainer"
+            class="w-full h-full"
+            @click="sidebarOpen = false"
+        />
 
-    <MapTopBar
-      :filters="filters"
-      :sidebar-open="sidebarOpen"
-      :selected-connectors-count="selectedConnectors.length"
-      @toggle-filter="toggleFilter"
-      @toggle-sidebar="sidebarOpen = !sidebarOpen"
-      @clear-connectors="resetSidebarFilters"
-    />
+        <MapTopBar
+            :filters="filters"
+            :sidebar-open="sidebarOpen"
+            :selected-connectors-count="selectedConnectors.length"
+            @toggle-filter="toggleFilter"
+            @toggle-sidebar="sidebarOpen = !sidebarOpen"
+            @clear-connectors="resetSidebarFilters"
+        />
 
-    <MapFilterCard
-      :open="sidebarOpen"
-      :is-mobile="isMobile"
-      :all-connectors="allConnectors"
-      :selected-connectors="selectedConnectors"
-      :distance-active="distanceActive"
-      :slider-value="sliderValue"
-      @close="sidebarOpen = false"
-      @reset="resetSidebarFilters"
-      @toggle-connector="toggleConnector"
-      @slider-change="onSliderChange"
-      @slider-commit="(val) => onSliderCommit(val, userLocation)"
-    />
+        <MapFilterCard
+            :open="sidebarOpen"
+            :is-mobile="isMobile"
+            :all-connectors="allConnectors"
+            :selected-connectors="selectedConnectors"
+            :distance-active="distanceActive"
+            :slider-value="sliderValue"
+            @close="sidebarOpen = false"
+            @reset="resetSidebarFilters"
+            @toggle-connector="toggleConnector"
+            @slider-change="onSliderChange"
+            @slider-commit="(val) => onSliderCommit(val, userLocation)"
+        />
 
-    <MapStationCard
-      :station="selectedStation"
-      :is-mobile="isMobile"
-      @close="selectedStation = null"
-    />
+        <MapStationCard
+            :station="selectedStation"
+            :is-mobile="isMobile"
+            @close="selectedStation = null"
+        />
 
-    <MapLocateButton :locating="locating" @click="flyToUser" />
-    <MapNorthButton @click="resetNorth" />
-  </div>
+        <MapLocateButton :locating="locating" @click="flyToUser" />
+        <MapNorthButton @click="resetNorth" />
+    </div>
 </template>
 
 <script setup lang="ts">
@@ -59,7 +59,7 @@ definePageMeta({ ssr: false, layout: false });
 const userStore = useUserStore();
 if (!userStore.currentUser) await userStore.fetchCurrentUser();
 const isDark = computed(
-  () => userStore.currentUser?.preferences?.darkMode ?? false,
+    () => userStore.currentUser?.preferences?.darkMode ?? false,
 );
 
 // ── Stations ──────────────────────────────────────────────────────────────────
@@ -67,38 +67,48 @@ const isDark = computed(
 const stationStore = useStationStore();
 await stationStore.fetchStations();
 const firstStation = computed(
-  () => stationStore.stations[0] as Station | undefined,
+    () => stationStore.stations[0] as Station | undefined,
 );
+
+// --- Company ------------------------------------------------------------------
+
+const companyStore = useCompanyStore();
+await companyStore.fetchCurrentCompany();
+
+// --- Usage ------------------------------------------------------------------
+
+const usageStore = useUsageStore();
+await usageStore.fetchUserActiveUsages();
 
 // ── Composables ───────────────────────────────────────────────────────────────
 
 const { isMobile } = useResponsive();
 
 const {
-  filters,
-  sidebarOpen,
-  selectedConnectors,
-  allConnectors,
-  filteredStations,
-  sliderValue,
-  distanceActive,
-  userLocation,
-  toggleFilter,
-  toggleConnector,
-  resetSidebarFilters,
-  onSliderChange,
-  onSliderCommit,
+    filters,
+    sidebarOpen,
+    selectedConnectors,
+    allConnectors,
+    filteredStations,
+    sliderValue,
+    distanceActive,
+    userLocation,
+    toggleFilter,
+    toggleConnector,
+    resetSidebarFilters,
+    onSliderChange,
+    onSliderCommit,
 } = useMapFilters();
 
 const {
-  mapContainer,
-  mapInstance,
-  MarkerClass,
-  isReady,
-  currentZoom,
-  resetNorth,
-  flyToUser,
-  locating,
+    mapContainer,
+    mapInstance,
+    MarkerClass,
+    isReady,
+    currentZoom,
+    resetNorth,
+    flyToUser,
+    locating,
 } = useMapInstance(isDark, firstStation);
 
 // ── Station Card ───────────────────────────────────────────────────────────────
@@ -106,21 +116,21 @@ const {
 const selectedStation = ref<Station | null>(null);
 
 useMapMarkers(
-  mapInstance,
-  isReady,
-  filteredStations,
-  MarkerClass,
-  currentZoom,
-  (station) => {
-    selectedStation.value = station;
-  },
+    mapInstance,
+    isReady,
+    filteredStations,
+    MarkerClass,
+    currentZoom,
+    (station) => {
+        selectedStation.value = station;
+    },
 );
 
 useMapClustering(
-  mapInstance,
-  isReady,
-  filteredStations,
-  MarkerClass,
-  currentZoom,
+    mapInstance,
+    isReady,
+    filteredStations,
+    MarkerClass,
+    currentZoom,
 );
 </script>

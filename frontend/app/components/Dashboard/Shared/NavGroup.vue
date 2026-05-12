@@ -20,12 +20,12 @@ const navigationLinks = computed(() => {
         worker: {
             label: t("nav.worker"),
             icon: Wrench,
-            path: "/worker",
+            path: "/company",
         },
         "company-manager": {
             label: t("nav.companyManager"),
             icon: Wrench,
-            path: "/company-manager",
+            path: "/company", // change to /company/manage
         },
     };
 

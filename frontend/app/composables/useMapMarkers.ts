@@ -7,12 +7,9 @@ import { useUserStore } from "@/stores/user";
 
 const STATE_COLORS: Record<StationState, string> = {
   available: "#22c55e",
-  unavailable: "#ef4444",
-  maintenance: "#9ca3af",
+  unavailable: "#B91C1C",
+  maintenance: "#FBBF24",
 };
-
-const userStore = useUserStore();
-const userRole = computed(() => userStore.currentUser?.role);
 
 // ── Zoom level where clustering starts (zoom out to group stations) ────────────
 const CLUSTER_ZOOM_THRESHOLD = 13;
@@ -26,6 +23,8 @@ export function useMapMarkers(
   onMarkerClick?: (station: Station) => void,
 ) {
   const markers = ref<Marker[]>([]);
+  const userStore = useUserStore();
+  const userRole = computed(() => userStore.currentUser?.role);
 
   function clearMarkers() {
     markers.value.forEach((m) => m.remove());

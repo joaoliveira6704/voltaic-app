@@ -1,8 +1,9 @@
 // composables/useMapFilters.ts
 import { ref, computed } from "vue";
-import { Star, Zap, Tag } from "lucide-vue-next";
+import { Star, Zap, Tag, Building } from "lucide-vue-next";
 import { useStationStore } from "@/stores/station";
 import { useUserStore } from "@/stores/user";
+import { useCompanyStore } from "@/stores/company";
 import { ALL_CONNECTORS } from "@/constants/connectors";
 import type { Station } from "@/types/station";
 import type { MapFilter, MapFilterKey } from "@/types/mapFilter";
@@ -10,11 +11,14 @@ import type { MapFilter, MapFilterKey } from "@/types/mapFilter";
 export function useMapFilters() {
   const userStore = useUserStore();
   const stationStore = useStationStore();
+  const companyStore = useCompanyStore();
 
   const userConnectors = computed(
     () => userStore.currentUser?.vehicles?.map((v) => v.connector) ?? [],
   );
   const userFavorites = computed(() => userStore.currentUser?.favorites ?? []);
+  const currentCompany = computed(() => companyStore.currentCompany);
+  const companyStationIds = ref<string[]>([]);
 
   const filters = ref<MapFilter[]>([
     { key: "favs", label: "Favs", icon: Star, active: false },
@@ -22,11 +26,20 @@ export function useMapFilters() {
     { key: "free", label: "Free", icon: Tag, active: false },
   ]);
 
+  if (currentCompany.value) {
+    filters.value.push({
+      key: "company",
+      label: "Company Managed",
+      icon: Building,
+      active: false,
+    });
+  }
+
   const sidebarOpen = ref(false);
   const selectedConnectors = ref<string[]>([]);
 
   // ── Distance filter ───────────────────────────────────────────────────────
-  const sliderValue = ref(10); // ── Default slider position in km ────────
+  const sliderValue = ref(10);
   const distanceActive = ref(false);
   const userLocation = ref<[number, number] | null>(null);
   const isGeolocating = ref(false);
@@ -37,11 +50,7 @@ export function useMapFilters() {
       navigator.geolocation.getCurrentPosition(
         (pos) => resolve([pos.coords.longitude, pos.coords.latitude]),
         () => resolve(null),
-        {
-          timeout: 5000,
-          enableHighAccuracy: false,
-          maximumAge: 30_000,
-        },
+        { timeout: 5000, enableHighAccuracy: false, maximumAge: 30_000 },
       );
     });
   }
@@ -49,9 +58,26 @@ export function useMapFilters() {
   const isFilterActive = (key: MapFilterKey) =>
     filters.value.find((f) => f.key === key)?.active ?? false;
 
-  function toggleFilter(key: MapFilterKey) {
+  async function toggleFilter(key: MapFilterKey) {
     const filter = filters.value.find((f) => f.key === key);
-    if (filter) filter.active = !filter.active;
+    if (!filter) return;
+
+    filter.active = !filter.active;
+
+    // When toggling company filter on, fetch company stations
+    if (key === "company" && filter.active && currentCompany.value) {
+      const groupIds = currentCompany.value.groups;
+      const stations = await stationStore.getCompanyStations(groupIds);
+      // getCompanyStations should return the ids, or read them from the store
+      console.log(stations, groupIds);
+      companyStationIds.value = (
+        stations ??
+        stationStore.companyStations ??
+        []
+      ).map((s: Station) => s.stationId);
+    } else if (key === "company" && !filter.active) {
+      companyStationIds.value = [];
+    }
   }
 
   function toggleConnector(connector: string) {
@@ -76,7 +102,6 @@ export function useMapFilters() {
       location = await getUserLocation();
       isGeolocating.value = false;
     }
-
     if (!location) return;
 
     userLocation.value = location;
@@ -90,7 +115,9 @@ export function useMapFilters() {
     selectedConnectors.value = [];
     sliderValue.value = 10;
     distanceActive.value = false;
-    // Reset to full station list
+    companyStationIds.value = [];
+    const companyFilter = filters.value.find((f) => f.key === "company");
+    if (companyFilter) companyFilter.active = false;
     await stationStore.fetchStations();
   }
 
@@ -113,6 +140,12 @@ export function useMapFilters() {
 
       if (isFilterActive("free") && station.state !== "available") return false;
 
+      if (
+        isFilterActive("company") &&
+        !companyStationIds.value.includes(station.stationId)
+      )
+        return false;
+
       if (selectedConnectors.value.length > 0) {
         const match = station.connector.socketTypes.some((t) =>
           selectedConnectors.value.includes(t),
@@ -126,6 +159,7 @@ export function useMapFilters() {
 
   return {
     filters,
+    currentCompany,
     sidebarOpen,
     selectedConnectors,
     allConnectors: ALL_CONNECTORS,

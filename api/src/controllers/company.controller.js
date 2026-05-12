@@ -1,8 +1,31 @@
 import companyModel from "../models/company.model.js";
 import generateUniqueId from "../utils/utils.js";
 
+const getCompaniesByGroupIds = async (idString, res, next) => {
+  try {
+    const idArray = idString.split(",");
+    const companies = await companyModel.find({
+      companyId: { $in: idArray },
+    });
+
+    console.log(`Filtered and found ${companies.length} companies.`);
+    return res.json(companies);
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Main entry point
 export const getCompanies = async (req, res, next) => {
   try {
+    const { companyIds } = req.query;
+
+    // If IDs are present in the URL (?ids=x,y,z), route to the specific logic
+    if (companyIds) {
+      return await getCompaniesByGroupIds(companyIds, res, next);
+    }
+
+    // Default behavior: Get all
     const companies = await companyModel.find();
     console.log(`Found ${companies.length} companies in the database.`);
     res.json(companies);

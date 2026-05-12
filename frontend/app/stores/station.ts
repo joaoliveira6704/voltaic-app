@@ -9,6 +9,10 @@ export const useStationStore = defineStore("station", () => {
 
   // ── Getters ──────────────────────────────────────────────────────────────
 
+  function getCompanyStations(groupIds: string[]) {
+    return stations.value.filter((s) => groupIds.includes(s.groupId));
+  }
+
   // ── Helpers ───────────────────────────────────────────────────────────────
 
   // Call composables lazily inside actions, not at store setup time
@@ -112,6 +116,46 @@ export const useStationStore = defineStore("station", () => {
     }
   }
 
+  async function startCharge(station: Station, plate: string) {
+    if (station.state === "unavailable") return;
+
+    try {
+      const res = await $fetch<any>(`${apiBase()}/api/usage/start`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token()}` },
+        body: { stationId: station.stationId, plate: plate },
+      });
+      console.log(res);
+      toast.success("Station started charging");
+      station.state = "unavailable";
+      stations.value = stations.value.map((s) =>
+        s.stationId === station.stationId ? { ...s, state: "unavailable" } : s,
+      );
+      return res;
+    } catch (e) {
+      console.error("Failed to start charge:", e);
+      toast.error("Failed to start charge");
+    }
+  }
+
+  async function stopCharge(usageId: string, stationId: string) {
+    try {
+      const res = await $fetch<any>(`${apiBase()}/api/usage/${usageId}/end`, {
+        method: "PATCH",
+        headers: { Authorization: `Bearer ${token()}` },
+      });
+      console.log(res);
+
+      stations.value = stations.value.map((s) =>
+        s.stationId === stationId ? { ...s, state: "available" } : s,
+      );
+      toast.success("Station stopped charging");
+    } catch (e) {
+      console.error("Failed to stop charge:", e);
+      toast.error("Failed to stop charge");
+    }
+  }
+
   return {
     stations,
     isLoaded,
@@ -119,6 +163,9 @@ export const useStationStore = defineStore("station", () => {
     fetchNearbyStations,
     createStation,
     deleteStation,
+    getCompanyStations,
+    startCharge,
+    stopCharge,
   };
 });
 
