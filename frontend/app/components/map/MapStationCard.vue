@@ -1,4 +1,212 @@
-<!-- components/map/MapStationCard.vue -->
+<script setup lang="ts">
+import { computed, ref } from "vue";
+import { X, Zap, Star } from "lucide-vue-next";
+import { useUserStore } from "@/stores/user.ts";
+import { useStationStore } from "@/stores/station.ts";
+import { useUsageStore } from "@/stores/usage.ts";
+
+import type { Station } from "@/types/station";
+import Swal from "sweetalert2";
+import { toast } from "vue-sonner";
+
+const props = defineProps<{
+    station: Station | null;
+    isMobile: boolean;
+}>();
+
+const emit = defineEmits<{
+    close: [];
+}>();
+
+const userStore = useUserStore();
+const favLoading = ref(false);
+const isAvailable = computed(() => props.station?.state === "available");
+
+const stationStore = useStationStore();
+
+const usageStore = useUsageStore();
+
+const isUsage = computed(() =>
+    usageStore.usages.some((u) => u.stationId === props.station?.stationId),
+);
+
+const useStation = async () => {
+    if (!props.station) return;
+
+    // ── STOP FLOW ─────────────────────────────────────────────────────────
+    if (isUsage.value) {
+        const activeUsage = usageStore.usages.find(
+            (u) => u.stationId === props.station?.stationId,
+        );
+
+        if (activeUsage) {
+            const result = await Swal.fire({
+                title: "Stop Charging?",
+                text: "Do you want to end your charging session?",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Stop",
+                confirmButtonColor: "#ef4444",
+            });
+
+            if (result.isConfirmed) {
+                try {
+                    await stationStore.stopCharge(
+                        activeUsage.usageId,
+                        activeUsage.stationId,
+                    );
+
+                    // Update UI: Remove from store and reset local station state
+                    usageStore.usages = usageStore.usages.filter(
+                        (u) => u.usageId !== activeUsage.usageId,
+                    );
+
+                    // This triggers isAvailable and stateBadgeClass automatically
+                    props.station.state = "available";
+                } catch (error) {
+                    console.error("Stop charge failed", error);
+                }
+            }
+        }
+        return;
+    }
+
+    // ── START FLOW ────────────────────────────────────────────────────────
+    if (isAvailable.value) {
+        if (userStore.currentUser.vehicles?.length === 0) {
+            toast.error("No vehicles available ");
+            return;
+        }
+        const vehicleOptions: Record<string, string> = {};
+        userStore.currentUser.vehicles.forEach((vehicle) => {
+            vehicleOptions[vehicle.plate] =
+                `${vehicle.plate} (${vehicle.model})`;
+        });
+
+        const result = await Swal.fire({
+            title: "Charge Station",
+            text: "Select the vehicle to start charging:",
+            icon: "question",
+            input: "select",
+            inputOptions: vehicleOptions,
+            inputPlaceholder: "Select a vehicle",
+            showCancelButton: true,
+            confirmButtonText: "Start Charge",
+            inputValidator: (value) => {
+                if (!value) return "You need to select a vehicle!";
+            },
+        });
+
+        if (result.isConfirmed) {
+            try {
+                const usage = await stationStore.startCharge(
+                    props.station,
+                    result.value,
+                );
+
+                // 1. Add to usage store (triggers isUsage computed)
+                usageStore.usages = [...usageStore.usages, usage];
+
+                // 2. Update local station state (triggers isAvailable computed)
+                // Assuming 'unavailable' or 'in_use' based on your API logic
+                props.station.state = "unavailable";
+            } catch (error) {
+                console.error("Start charge failed", error);
+            }
+        }
+    }
+};
+
+// ── State ─────────────────────────────────────────────────────────────────────
+
+const stateBadgeClass = computed(() => {
+    switch (props.station?.state) {
+        case "available":
+            return "bg-green-50 text-green-700";
+        case "unavailable":
+            return "bg-red-50 text-red-700";
+        case "maintenance":
+            return "bg-orange-50 text-orange-700";
+        default:
+            return "bg-gray-50 text-gray-600";
+    }
+});
+
+const stateDotClass = computed(() => {
+    switch (props.station?.state) {
+        case "available":
+            return "bg-green-500";
+        case "unavailable":
+            return "bg-red-500";
+        case "maintenance":
+            return "bg-orange-500";
+        default:
+            return "bg-gray-400";
+    }
+});
+
+const stateLabel = computed(() => {
+    switch (props.station?.state) {
+        case "available":
+            return "Available";
+        case "unavailable":
+            return "Unavailable";
+        case "maintenance":
+            return "Maintenance";
+        default:
+            return "Unknown";
+    }
+});
+
+// ── Connectors ────────────────────────────────────────────────────────────────
+
+const displayedConnectors = computed(
+    () => props.station?.connector.socketTypes.slice(0, 3) ?? [],
+);
+
+const userConnectors = computed(
+    () => userStore.currentUser?.vehicles?.map((v) => v.connector) ?? [],
+);
+
+function isCompatibleConnector(type: string) {
+    return userConnectors.value.includes(type.toLowerCase());
+}
+
+const isCompatible = computed(
+    () =>
+        props.station?.connector.socketTypes.some((t) =>
+            userConnectors.value.includes(t.toLowerCase()),
+        ) ?? false,
+);
+
+// ── Favorites ─────────────────────────────────────────────────────────────────
+
+const isFavorite = computed(
+    () =>
+        userStore.currentUser?.favorites?.includes(
+            props.station?.stationId ?? "",
+        ) ?? false,
+);
+
+async function toggleFavorite() {
+    if (!props.station) return;
+    favLoading.value = true;
+    try {
+        if (isFavorite.value) {
+            await userStore.removeFavorite(props.station.stationId);
+        } else {
+            await userStore.addFavorite(props.station.stationId);
+        }
+    } finally {
+        favLoading.value = false;
+    }
+}
+
+onMounted(async () => {
+    console.log(userConnectors.value);
+});
+</script>
+
 <template>
     <Transition
         enter-active-class="transition-all duration-300 ease-out"
@@ -145,14 +353,18 @@
             <button
                 :class="[
                     'flex items-center mx-auto mt-5 gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all duration-200',
-                    isAvailable
-                        ? 'bg-blue-50 border-blue-300 text-blue-600 hover:bg-blue-100'
+                    !isCompatible
+                        ? 'bg-gray-100 border-gray-300 text-gray-500 cursor-not-allowed' // Priority 1: Compatibility
                         : isUsage
-                          ? 'bg-red-50 border-red-300 text-red-600 hover:bg-red-100' // Red for Stop
-                          : 'bg-white border-gray-200 text-gray-400 cursor-not-allowed',
+                          ? 'bg-red-50 border-red-300 text-red-600 hover:bg-red-100' // Priority 2: Active Session
+                          : isAvailable
+                            ? 'bg-blue-50 border-blue-300 text-blue-600 hover:bg-blue-100' // Priority 3: Ready to use
+                            : 'bg-white border-gray-200 text-gray-400 cursor-not-allowed', // Fallback: Busy
                 ]"
                 @click="useStation"
-                :disabled="!isAvailable && !isUsage"
+                :disabled="
+                    (!isAvailable && !isUsage) || (!isCompatible && !isUsage)
+                "
             >
                 <Zap
                     :class="[
@@ -164,7 +376,15 @@
                               : '',
                     ]"
                 />
-                {{ isAvailable ? "Use" : isUsage ? "Stop Charging" : "In Use" }}
+                {{
+                    !isCompatible
+                        ? "No Compatible Vehicles"
+                        : isAvailable
+                          ? "Use"
+                          : isUsage
+                            ? "Stop Charging"
+                            : "In Use"
+                }}
             </button>
         </div>
     </Transition>
@@ -183,203 +403,3 @@
         />
     </Transition>
 </template>
-
-<script setup lang="ts">
-import { computed, ref } from "vue";
-import { X, Zap, Star } from "lucide-vue-next";
-import { useUserStore } from "@/stores/user.ts";
-import { useStationStore } from "@/stores/station.ts";
-import { useUsageStore } from "@/stores/usage.ts";
-
-import type { Station } from "@/types/station";
-import Swal from "sweetalert2";
-
-const props = defineProps<{
-    station: Station | null;
-    isMobile: boolean;
-}>();
-
-const emit = defineEmits<{
-    close: [];
-}>();
-
-const userStore = useUserStore();
-const favLoading = ref(false);
-const isAvailable = computed(() => props.station?.state === "available");
-
-const stationStore = useStationStore();
-
-const usageStore = useUsageStore();
-
-const isUsage = computed(() =>
-    usageStore.usages.some((u) => u.stationId === props.station?.stationId),
-);
-
-const useStation = async () => {
-    if (!props.station) return;
-
-    // ── STOP FLOW ─────────────────────────────────────────────────────────
-    if (isUsage.value) {
-        const activeUsage = usageStore.usages.find(
-            (u) => u.stationId === props.station?.stationId,
-        );
-
-        if (activeUsage) {
-            const result = await Swal.fire({
-                title: "Stop Charging?",
-                text: "Do you want to end your charging session?",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonText: "Stop",
-                confirmButtonColor: "#ef4444",
-            });
-
-            if (result.isConfirmed) {
-                try {
-                    await stationStore.stopCharge(
-                        activeUsage.usageId,
-                        activeUsage.stationId,
-                    );
-
-                    // Update UI: Remove from store and reset local station state
-                    usageStore.usages = usageStore.usages.filter(
-                        (u) => u.usageId !== activeUsage.usageId,
-                    );
-
-                    // This triggers isAvailable and stateBadgeClass automatically
-                    props.station.state = "available";
-                } catch (error) {
-                    console.error("Stop charge failed", error);
-                }
-            }
-        }
-        return;
-    }
-
-    // ── START FLOW ────────────────────────────────────────────────────────
-    if (isAvailable.value) {
-        const vehicleOptions: Record<string, string> = {};
-        userStore.currentUser.vehicles.forEach((vehicle) => {
-            vehicleOptions[vehicle.plate] =
-                `${vehicle.plate} (${vehicle.model})`;
-        });
-
-        const result = await Swal.fire({
-            title: "Charge Station",
-            text: "Select the vehicle to start charging:",
-            icon: "question",
-            input: "select",
-            inputOptions: vehicleOptions,
-            inputPlaceholder: "Select a vehicle",
-            showCancelButton: true,
-            confirmButtonText: "Start Charge",
-            inputValidator: (value) => {
-                if (!value) return "You need to select a vehicle!";
-            },
-        });
-
-        if (result.isConfirmed) {
-            try {
-                const usage = await stationStore.startCharge(
-                    props.station,
-                    result.value,
-                );
-
-                // 1. Add to usage store (triggers isUsage computed)
-                usageStore.usages = [...usageStore.usages, usage];
-
-                // 2. Update local station state (triggers isAvailable computed)
-                // Assuming 'unavailable' or 'in_use' based on your API logic
-                props.station.state = "unavailable";
-            } catch (error) {
-                console.error("Start charge failed", error);
-            }
-        }
-    }
-};
-
-// ── State ─────────────────────────────────────────────────────────────────────
-
-const stateBadgeClass = computed(() => {
-    switch (props.station?.state) {
-        case "available":
-            return "bg-green-50 text-green-700";
-        case "unavailable":
-            return "bg-red-50 text-red-700";
-        case "maintenance":
-            return "bg-orange-50 text-orange-700";
-        default:
-            return "bg-gray-50 text-gray-600";
-    }
-});
-
-const stateDotClass = computed(() => {
-    switch (props.station?.state) {
-        case "available":
-            return "bg-green-500";
-        case "unavailable":
-            return "bg-red-500";
-        case "maintenance":
-            return "bg-orange-500";
-        default:
-            return "bg-gray-400";
-    }
-});
-
-const stateLabel = computed(() => {
-    switch (props.station?.state) {
-        case "available":
-            return "Available";
-        case "unavailable":
-            return "Unavailable";
-        case "maintenance":
-            return "Maintenance";
-        default:
-            return "Unknown";
-    }
-});
-
-// ── Connectors ────────────────────────────────────────────────────────────────
-
-const displayedConnectors = computed(
-    () => props.station?.connector.socketTypes.slice(0, 3) ?? [],
-);
-
-const userConnectors = computed(
-    () => userStore.currentUser?.vehicles?.map((v) => v.connector) ?? [],
-);
-
-function isCompatibleConnector(type: string) {
-    return userConnectors.value.includes(type);
-}
-
-const isCompatible = computed(
-    () =>
-        props.station?.connector.socketTypes.some((t) =>
-            userConnectors.value.includes(t),
-        ) ?? false,
-);
-
-// ── Favorites ─────────────────────────────────────────────────────────────────
-
-const isFavorite = computed(
-    () =>
-        userStore.currentUser?.favorites?.includes(
-            props.station?.stationId ?? "",
-        ) ?? false,
-);
-
-async function toggleFavorite() {
-    if (!props.station) return;
-    favLoading.value = true;
-    try {
-        if (isFavorite.value) {
-            await userStore.removeFavorite(props.station.stationId);
-        } else {
-            await userStore.addFavorite(props.station.stationId);
-        }
-    } finally {
-        favLoading.value = false;
-    }
-}
-</script>

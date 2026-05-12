@@ -39,6 +39,7 @@
         <MapLocateButton :locating="locating" @click="flyToUser" />
         <MapNorthButton @click="resetNorth" />
         <MapThemeButton />
+        <Toaster position="top-right" richColors closeButton theme="dark" />
     </div>
 </template>
 
@@ -52,6 +53,9 @@ import { useMapInstance } from "@/composables/useMapInstance";
 import { useMapMarkers } from "@/composables/useMapMarkers";
 import { useMapClustering } from "@/composables/useMapClustering";
 import type { Station } from "@/types/station";
+
+import "vue-sonner/style.css";
+import { Toaster } from "@/components/ui/sonner";
 
 definePageMeta({ ssr: false, layout: false });
 

@@ -57,12 +57,15 @@ export function useMapInstance(
       style: isDark.value ? TILE_DARK : TILE_LIGHT,
       center,
       zoom: 13,
-      minZoom: 5,
+      minZoom: 3,
       attributionControl: false,
     });
 
     map.on("load", () => {
       isReady.value = true;
+      map.setProjection({
+        type: "globe", // Set projection to globe
+      });
     });
 
     map.on("zoom", () => {
@@ -71,6 +74,11 @@ export function useMapInstance(
     });
 
     mapInstance.value = map;
+    map.on("style.load", () => {
+      map.setProjection({
+        type: "globe", // Set projection to globe
+      });
+    });
   });
 
   onUnmounted(() => {

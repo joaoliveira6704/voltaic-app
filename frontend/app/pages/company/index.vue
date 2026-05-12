@@ -3,11 +3,9 @@ import { useCompanyStore } from "~/stores/company";
 
 const companyStore = useCompanyStore();
 
-const currentCompany = computed(() => companyStore.currentCompany);
+const currentCompany = computed(() => companyStore.currentCompany || "");
 
-onMounted(async () => {
-    await companyStore.fetchCurrentCompany();
-});
+await companyStore.fetchCurrentCompany();
 </script>
 
 <template>
