@@ -147,6 +147,10 @@ export const updateOwnUser = async (req, res, next) => {
 
     // 3. Patch preferences with dot-notation to avoid full subdoc replacement
     if (preferences && typeof preferences === "object") {
+      if (!user.preferences) {
+        user.preferences = {};
+      }
+
       for (const [key, value] of Object.entries(preferences)) {
         user.set(`preferences.${key}`, value);
       }

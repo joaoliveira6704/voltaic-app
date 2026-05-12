@@ -38,6 +38,7 @@
 
         <MapLocateButton :locating="locating" @click="flyToUser" />
         <MapNorthButton @click="resetNorth" />
+        <MapThemeButton />
     </div>
 </template>
 
@@ -58,9 +59,10 @@ definePageMeta({ ssr: false, layout: false });
 
 const userStore = useUserStore();
 if (!userStore.currentUser) await userStore.fetchCurrentUser();
-const isDark = computed(
-    () => userStore.currentUser?.preferences?.darkMode ?? false,
-);
+
+// Writable computed that syncs with the store
+const colorMode = useColorMode();
+const isDark = computed(() => colorMode.preference === "dark");
 
 // ── Stations ──────────────────────────────────────────────────────────────────
 

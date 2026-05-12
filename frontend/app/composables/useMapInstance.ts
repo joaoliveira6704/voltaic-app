@@ -30,6 +30,12 @@ export function useMapInstance(
     mapInstance.value?.easeTo({ bearing: 0, pitch: 0, duration: 400 });
   }
 
+  watch(isDark, (dark) => {
+    const map = mapInstance.value;
+    if (!map) return;
+    map.setStyle(dark ? TILE_DARK : TILE_LIGHT);
+  });
+
   onMounted(async () => {
     if (!mapContainer.value) return;
 
