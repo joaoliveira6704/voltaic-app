@@ -58,7 +58,6 @@ const handleLogin = async () => {
         );
 
         console.log("Login successful:", response);
-        alert("Login successful!");
         document.cookie = `token=${response.token}; path=/; max-age=86400; secure; sameSite=Lax`;
         document.cookie = `user=${JSON.stringify(response.data.user)}; path=/; max-age=86400; secure; sameSite=Lax`;
         window.location.href = "/profile";

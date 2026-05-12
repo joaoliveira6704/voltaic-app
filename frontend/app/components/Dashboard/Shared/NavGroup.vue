@@ -37,6 +37,10 @@ const navigationLinks = computed(() => {
         role = (userStore.currentUser?.role as UserRole) || "admin";
     }
 
+    if (route.path.startsWith("/company")) {
+        role = (userStore.currentUser?.role as UserRole) || "worker";
+    }
+
     const links: NavItem[] = [...(navMap[role] || [])];
 
     if (

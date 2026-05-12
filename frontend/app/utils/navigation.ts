@@ -47,10 +47,10 @@ export const getNavigationMap = (
     },
   ],
   "company-manager": [
-    { label: "Dashboard", icon: LayoutDashboard, path: "/profile" },
-    { label: t("nav.stations"), icon: Zap, path: "" },
-    { label: t("nav.tickets"), icon: Ticket, path: "" },
-    { label: t("nav.personnel"), icon: Users, path: "" },
+    { label: "Dashboard", icon: LayoutDashboard, path: "/company" },
+    { label: t("nav.stations"), icon: Zap, path: "/company/stations" },
+    { label: t("nav.tickets"), icon: Ticket, path: "/company/tickets" },
+    { label: t("nav.personnel"), icon: Users, path: "/company/personnel" },
   ],
   worker: [
     { label: "Dashboard", icon: LayoutDashboard, path: "/profile" },
