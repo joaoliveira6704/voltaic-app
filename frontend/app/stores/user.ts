@@ -249,10 +249,9 @@ export const useUserStore = defineStore("user", () => {
     const userId = currentUser.value?.userId;
     if (!userId) return;
     try {
-      chargingHistory.value = await $fetch(
-        `${apiBase()}/api/usage/user/${userId}`,
-        { headers: { Authorization: `Bearer ${token()}` } },
-      );
+      chargingHistory.value = await $fetch(`${apiBase()}/api/usage/user/me`, {
+        headers: { Authorization: `Bearer ${token()}` },
+      });
     } catch (e) {
       console.error("Failed to fetch charging history:", e);
       chargingHistory.value = [];

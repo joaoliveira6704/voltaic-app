@@ -59,6 +59,6 @@ export const getNavigationMap = (
   client: [
     { label: t("nav.map"), icon: LayoutDashboard, path: "/map" },
     { label: t("nav.favoriteStations"), icon: Zap, path: "" },
-    { label: t("nav.history"), icon: History, path: "" },
+    { label: t("nav.history"), icon: History, path: "/profile/history" },
   ],
 });

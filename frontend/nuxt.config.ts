@@ -1,6 +1,17 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   compatibilityDate: "2025-07-15",
+  experimental: {
+    defaults: {
+      nuxtLink: {
+        prefetch: false, // Desativa o prefetch automático ao ver o link
+        prefetchOn: {
+          visibility: false, // Não carrega quando o link aparece no ecrã
+          interaction: false, // Não carrega ao passar o rato (hover/focus)
+        },
+      },
+    },
+  },
   app: {
     head: {
       title: "Voltaic",
@@ -67,6 +78,9 @@ export default defineNuxtConfig({
     ],
     defaultLocale: "en",
     langDir: "locales/",
+  },
+  image: {
+    domains: ["www.carlogos.org"],
   },
   colorMode: {
     classSuffix: "",

@@ -114,6 +114,46 @@ export const getUsage = async (req, res, next) => {
 export const getUserUsages = async (req, res, next) => {
   try {
     console.log("Finding Usages");
+    const usages = await usageModel.aggregate([
+      {
+        $lookup: {
+          from: "stations",
+          localField: "stationId",
+          foreignField: "stationId",
+          as: "stationDetails",
+        },
+      },
+      {
+        $addFields: {
+          // Get the first element of the lookup array, or null
+          stationObj: { $arrayElemAt: ["$stationDetails", 0] },
+        },
+      },
+      {
+        $project: {
+          endTime: 1,
+          usageId: 1,
+          userId: 1,
+          plate: 1,
+          state: 1,
+          createdAt: 1,
+          // If stationObj.name is null/missing, return "Unknown"
+          stationName: { $ifNull: ["$stationObj.title", "Unknown"] },
+        },
+      },
+      { $sort: { createdAt: -1 } },
+    ]);
+
+    res.status(200).json(usages);
+  } catch (error) {
+    next(error);
+  }
+};
+
+// GET /usages/user/me/active
+export const getActiveUserUsages = async (req, res, next) => {
+  try {
+    console.log("Finding Usages");
     const usages = await usageModel
       .find({ userId: req.user.userId, endTime: null })
       .sort({ createdAt: -1 });
@@ -141,6 +181,7 @@ export const getActiveUsages = async (req, res, next) => {
     const usages = await usageModel
       .find({ state: "active" })
       .sort({ createdAt: -1 });
+
     res.status(200).json(usages);
   } catch (error) {
     next(error);

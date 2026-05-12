@@ -31,7 +31,10 @@ const isAddVehicleModal = ref(false);
 </script>
 
 <template>
-    <div v-if="currentUser" class="flex-1 py-2 pr-4 min-w-0 overflow-y-auto">
+    <div v-if="!userStore.isLoaded">
+        <h1>loading...</h1>
+    </div>
+    <div v-else class="flex-1 py-2 pr-4 min-w-0 overflow-y-auto">
         <EditProfileModal
             :is-open="isEditModalOpen"
             :user="currentUser"

@@ -26,7 +26,7 @@ export const useUsageStore = defineStore("usage", () => {
       const tokenValue = token();
       if (!tokenValue) return;
 
-      const res = await $fetch(`${apiBase()}/api/usage/user/me`, {
+      const res = await $fetch(`${apiBase()}/api/usage/user/me/active`, {
         headers: {
           Authorization: `Bearer ${tokenValue}`,
         },

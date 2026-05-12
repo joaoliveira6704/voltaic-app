@@ -16,8 +16,8 @@ const STATUS_COLOR = {
 function resolveStatus(station) {
     if (!station.alive) return "offline";
     if (station.state === "available") return "online";
-    if (station.state === "unavailable") return "maintenance";
-    return "offline";
+    if (station.state === "maintenance") return "maintenance";
+    if (station.state === "unavailable") return "offline";
 }
 
 const W = 960;
@@ -51,18 +51,16 @@ onMounted(async () => {
 
     // 3. Project Stations to Pixel Space
     // Note: Swapping [lon, lat] if your data is [lat, lon]
-    const projectedStations = props.stations
-        .filter((s) => s.location?.coordinates?.length === 2)
-        .map((s) => {
-            const [lat, lon] = s.location.coordinates;
-            const [x, y] = projection([lon, lat]) ?? [0, 0];
-            return {
-                ...s,
-                px: x,
-                py: y,
-                status: resolveStatus(s),
-            };
-        });
+    const projectedStations = props.stations.map((s) => {
+        const [lon, lat] = s.location.coordinates;
+        const [x, y] = projection([lon, lat]) ?? [0, 0];
+        return {
+            ...s,
+            px: x,
+            py: y,
+            status: resolveStatus(s),
+        };
+    });
 
     // 4. Create Land Mask via Canvas
     const canvas = document.createElement("canvas");
@@ -105,6 +103,9 @@ onMounted(async () => {
         }
     }
 
+    console.log(result);
+    console.log(props.stations);
+
     mapGrid.value = result;
     ready.value = true;
 });
@@ -120,7 +121,7 @@ onMounted(async () => {
                 v-for="(color, key) in STATUS_COLOR"
                 :key="key"
                 v-show="key !== 'empty'"
-                class="flex items-center gap-2 text-[10px] uppercase text-white/80"
+                class="flex items-center gap-2 text-[10px] uppercase"
             >
                 <span
                     class="w-2 h-2 rounded-full"
@@ -165,7 +166,7 @@ onMounted(async () => {
                     :r="dot.count > 0 ? DOT_R * 1.4 : DOT_R"
                     :fill="dot.color"
                     :fill-opacity="dot.count > 0 ? 1 : 0.2"
-                    class="transition-all duration-300 ease-out"
+                    class="transition-all duration-300 ease-out dark:fill-white fill-black"
                     @mouseenter="hoveredDot = dot"
                     @mouseleave="hoveredDot = null"
                 />

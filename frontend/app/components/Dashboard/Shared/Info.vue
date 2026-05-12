@@ -11,7 +11,6 @@ interface UserData {
     username: string;
     email: string;
     companyId: string;
-    location?: string;
     role: string;
     avatarUrl?: string;
     language?: string;
@@ -104,7 +103,7 @@ const sendEmail = () => {
             </div>
             <p class="text-white/80">@{{ props.user.username }}</p>
 
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-x-12 gap-y-3 mt-2">
+            <div class="grid grid-cols-1 lg:grid-cols-2 mt-2">
                 <div
                     class="flex items-center gap-3 group cursor-pointer"
                     @click="sendEmail"
@@ -114,15 +113,6 @@ const sendEmail = () => {
                     />
                     <span class="text-sm font-bold lowercase">
                         {{ props.user.email }}
-                    </span>
-                </div>
-
-                <div class="flex items-center gap-3 group">
-                    <MapPin
-                        class="w-5 h-5 text-neutral-400 group-hover:text-black dark:group-hover:text-green-500 transition-colors"
-                    />
-                    <span class="text-sm font-bold capitalize">
-                        {{ props.user.location || "Unknown Location" }}
                     </span>
                 </div>
 

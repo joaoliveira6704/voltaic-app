@@ -59,10 +59,11 @@ onUnmounted(() => {
                 </div>
             </div>
             <div class="hero-image relative">
-                <img
+                <NuxtImg
                     src="/ev-mockup.webp"
                     alt="EV Car"
                     class="w-full drop-shadow-2xl"
+                    loading="lazy"
                 />
                 <div
                     class="absolute top-10 right-0 bg-white dark:bg-[#171717] dark:border-[#232323] p-4 rounded-2xl shadow-xl border border-green-100"

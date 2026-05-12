@@ -61,6 +61,8 @@ const handleImageError = (event: Event) => {
                     :src="logoSrc"
                     :alt="props.data.brand"
                     @error="handleImageError"
+                    loading="lazy"
+                    placeholder="/voltaic-logo.png"
                     class="w-16 object-contain dark:filter dark:brightness-0 dark:invert"
                 />
                 <div
