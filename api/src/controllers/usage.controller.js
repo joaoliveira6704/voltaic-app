@@ -35,13 +35,13 @@ export const startUsage = async (req, res, next) => {
     const usageId = generateUniqueId();
     const [usage] = await usageModel.create(
       [{ usageId, userId, stationId, plate }],
-      { session }
+      { session },
     );
 
     await stationModel.findOneAndUpdate(
       { stationId },
       { state: "unavailable" },
-      { session }
+      { session },
     );
 
     await session.commitTransaction();
@@ -59,7 +59,9 @@ export const endUsage = async (req, res, next) => {
   const session = await mongoose.startSession();
   session.startTransaction();
   try {
-    const usage = await usageModel.findOne({ usageId: req.params.id }).session(session);
+    const usage = await usageModel
+      .findOne({ usageId: req.params.id })
+      .session(session);
     if (!usage) {
       const error = new Error("Usage not found");
       error.status = 404;
@@ -80,7 +82,7 @@ export const endUsage = async (req, res, next) => {
     await stationModel.findOneAndUpdate(
       { stationId: usage.stationId },
       { state: "available" },
-      { session }
+      { session },
     );
 
     await session.commitTransaction();
@@ -111,8 +113,9 @@ export const getUsage = async (req, res, next) => {
 // GET /usages/user/me
 export const getUserUsages = async (req, res, next) => {
   try {
+    console.log("Finding Usages");
     const usages = await usageModel
-      .find({ userId: req.user.userId })
+      .find({ userId: req.user.userId, endTime: null })
       .sort({ createdAt: -1 });
     res.status(200).json(usages);
   } catch (error) {
@@ -147,9 +150,7 @@ export const getActiveUsages = async (req, res, next) => {
 // GET /usages  (admin)
 export const getAllUsages = async (req, res, next) => {
   try {
-    const usages = await usageModel
-      .find()
-      .sort({ createdAt: -1 });
+    const usages = await usageModel.find().sort({ createdAt: -1 });
     res.status(200).json(usages);
   } catch (error) {
     next(error);
