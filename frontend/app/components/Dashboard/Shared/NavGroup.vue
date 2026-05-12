@@ -46,6 +46,7 @@ const navigationLinks = computed(() => {
     if (
         userRole !== "client" &&
         !route.path.startsWith("/admin") &&
+        !route.path.startsWith("/company") &&
         roleMap[userRole]
     ) {
         links.push(roleMap[userRole]!);
