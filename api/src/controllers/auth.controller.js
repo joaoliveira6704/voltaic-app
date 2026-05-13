@@ -1,6 +1,7 @@
 import userModel from "../models/user.model.js";
+import resetTokenModel from "../models/resetToken.model.js";
 import jwt from "jsonwebtoken";
-import generateUniqueId from "../utils/utils.js";
+import generateUniqueId, { generateUniqueToken } from "../utils/utils.js";
 import mongoose from "mongoose";
 
 const signToken = (id) => {
@@ -72,5 +73,34 @@ export const validateToken = (req, res) => {
     userId: req.user.userId,
     role: req.user.role,
     isAdmin: req.user.role === "admin",
+  });
+};
+
+export const createResetToken = async (req, res, next) => {
+  const email = req.body.email;
+
+  if (!email || email === "") {
+    const err = new Error();
+    err.status = 400;
+    err.message = "Email can´t be empty";
+    return next(err);
+  }
+
+  const user = await userModel.findOne({ email });
+
+  if (user) {
+    await resetTokenModel.findOneAndDelete({ userId: user.userId });
+
+    const newToken = new resetTokenModel({
+      userId: user.userId,
+      token: await generateUniqueToken(),
+    });
+
+    await newToken.save();
+  }
+
+  return res.status(200).json({
+    message:
+      "If an account with that email exists, you'll receive a reset link shortly.",
   });
 };
