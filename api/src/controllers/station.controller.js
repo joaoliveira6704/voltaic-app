@@ -1,4 +1,5 @@
 import stationModel from "../models/station.model.js";
+import logModel from "../models/log.model.js";
 import generateUniqueId from "../utils/utils.js";
 
 export const getStations = async (req, res, next) => {
@@ -102,4 +103,103 @@ export const getStationsByRadius = async (req, res) => {
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });
   }
+};
+
+export const executeStationCommand = async (req, res, next) => {
+  try {
+    const { stationId } = req.params;
+    const { command } = req.body;
+    const userId = req.user?.id ?? null;
+
+    const station = await stationModel.findOne({ stationId });
+    if (!station) {
+      const err = new Error("Station not found");
+      err.status = 404;
+      return next(err);
+    }
+
+    console.log("Executing command:", command, "for station:", stationId);
+
+    if (command === "start") {
+      await startStation(station);
+      await logModel.create({
+        userId,
+        stationId,
+        type: "info",
+        action: "start",
+        details: "Station started successfully",
+      });
+      res.json({ message: "Station started" });
+    } else if (command === "restart") {
+      await restartStation(station);
+      await logModel.create({
+        userId,
+        stationId,
+        type: "info",
+        action: "restart",
+        details: "Station restarted successfully",
+      });
+      res.json({ message: "Station restarted" });
+    } else if (command === "shutdown") {
+      await shutdownStation(station);
+      await logModel.create({
+        userId,
+        stationId,
+        type: "info",
+        action: "shutdown",
+        details: "Station shut down successfully",
+      });
+      res.json({ message: "Station shutdown" });
+    } else {
+      await logModel.create({
+        userId,
+        stationId,
+        type: "critical",
+        action: command,
+        details: `Unknown command: ${command}`,
+      });
+      const result = await station.executeCommand(command);
+      res.json(result);
+    }
+  } catch (error) {
+    // Log failures too
+    try {
+      await logModel.create({
+        userId: req.user?.id ?? null,
+        stationId: req.params.stationId,
+        type: "critical",
+        action: req.body?.command ?? "unknown",
+        details: `Command failed: ${error.message}`,
+      });
+    } catch (_) {}
+    next(error);
+  }
+};
+
+const restartStation = async (station) => {
+  await stationModel.updateOne(
+    { stationId: station.stationId },
+    { $set: { state: "maintenance" } },
+  );
+
+  await new Promise((resolve) => setTimeout(resolve, 6000));
+
+  await stationModel.updateOne(
+    { stationId: station.stationId },
+    { $set: { state: "available", alive: true } },
+  );
+};
+
+const shutdownStation = async (station) => {
+  await stationModel.updateOne(
+    { stationId: station.stationId },
+    { $set: { state: "maintenance", alive: false } },
+  );
+};
+
+const startStation = async (station) => {
+  await stationModel.updateOne(
+    { stationId: station.stationId },
+    { $set: { state: "available", alive: true } },
+  );
 };

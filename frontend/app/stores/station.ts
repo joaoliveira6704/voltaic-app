@@ -5,6 +5,7 @@ import { toast } from "vue-sonner";
 
 export const useStationStore = defineStore("station", () => {
   const stations = ref([]);
+  const currentStation = ref(null);
   const isLoaded = ref(false);
 
   // ── Getters ──────────────────────────────────────────────────────────────
@@ -156,6 +157,34 @@ export const useStationStore = defineStore("station", () => {
     }
   }
 
+  async function fetchStationById(id: string) {
+    try {
+      const res = await $fetch<any>(`${apiBase()}/api/stations/${id}`, {
+        headers: { Authorization: `Bearer ${token()}` },
+      });
+      currentStation.value = res;
+      isLoaded.value = true;
+    } catch (e) {
+      console.error("Failed to fetch station by id:", e);
+      toast.error("Failed to fetch station by id");
+    }
+  }
+
+  async function executeCommand(id: string, command: string) {
+    try {
+      const res = await $fetch<any>(`${apiBase()}/api/stations/${id}/execute`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token()}` },
+        body: { command },
+      });
+      console.log(res);
+      toast.success("Command executed successfully");
+    } catch (e) {
+      console.error("Failed to execute station command:", e);
+      toast.error("Failed to execute station command");
+    }
+  }
+
   return {
     stations,
     isLoaded,
@@ -166,6 +195,9 @@ export const useStationStore = defineStore("station", () => {
     getCompanyStations,
     startCharge,
     stopCharge,
+    fetchStationById,
+    executeCommand,
+    currentStation,
   };
 });
 
