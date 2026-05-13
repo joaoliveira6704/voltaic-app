@@ -6,6 +6,7 @@ import {
   updateStation,
   getStationById,
   getStationsByRadius,
+  executeStationCommand,
 } from "../controllers/station.controller.js";
 import {
   checkOwnership,
@@ -28,5 +29,11 @@ router.patch(
 );
 router.get("/:id", protect, getStationById);
 router.get("/radius/:lat/:lng/:distance", getStationsByRadius);
+router.post(
+  "/:stationId/execute",
+  protect,
+  requireRole("admin", "worker", "company-manager"),
+  executeStationCommand,
+);
 
 export default router;

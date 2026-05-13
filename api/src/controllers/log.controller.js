@@ -2,6 +2,16 @@ import logModel from "../models/log.model.js";
 import generateUniqueId from "../utils/utils.js";
 
 export const getLogs = async (req, res, next) => {
+  const { stationId } = req.query;
+  if (stationId) {
+    try {
+      const logs = await logModel.find({ stationId });
+      console.log(`Found ${logs.length} logs for station ${stationId}.`);
+      res.json(logs);
+    } catch (error) {
+      next(error);
+    }
+  }
   try {
     const logs = await logModel.find();
     console.log(`Found ${logs.length} logs in the database.`);
