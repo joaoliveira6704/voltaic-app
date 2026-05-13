@@ -1,13 +1,17 @@
 import { MailtrapClient } from "mailtrap";
 
-const client = new MailtrapClient({ token: process.env.MAILTRAP_TOKEN });
+const client = new MailtrapClient({
+  token: process.env.MAILTRAP_TOKEN,
+});
 
 const sender = {
-  email: "reset@voltaic.com",
+  email: "hello@demomailtrap.co",
   name: "Voltaic App",
 };
 
-export const sendResetEmail = async (recipientEmail, token) => {
+const sendResetEmail = async (recipientEmail, token) => {
+  console.log(process.env.MAILTRAP_TOKEN);
+  console.log("Sending email to:", recipientEmail, "token:", token);
   await client.send({
     from: sender,
     to: [{ email: recipientEmail }],
@@ -15,3 +19,5 @@ export const sendResetEmail = async (recipientEmail, token) => {
     text: `Your password reset token is ${token}. It expires in 5 minutes.`,
   });
 };
+
+export default sendResetEmail;

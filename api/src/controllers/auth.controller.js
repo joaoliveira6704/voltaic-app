@@ -2,6 +2,7 @@ import userModel from "../models/user.model.js";
 import resetTokenModel from "../models/resetToken.model.js";
 import jwt from "jsonwebtoken";
 import generateUniqueId, { generateUniqueToken } from "../utils/utils.js";
+import sendResetEmail from "../utils/mailer.js";
 import mongoose from "mongoose";
 
 const signToken = (id) => {
@@ -77,32 +78,37 @@ export const validateToken = (req, res) => {
 };
 
 export const createResetToken = async (req, res, next) => {
-  const email = req.body.email;
+  try {
+    const email = req.body.email;
 
-  if (!email || email === "") {
-    const err = new Error();
-    err.status = 400;
-    err.message = "Email can´t be empty";
-    return next(err);
-  }
+    if (!email || email === "") {
+      const err = new Error();
+      err.status = 400;
+      err.message = "Email can´t be empty";
+      return next(err);
+    }
 
-  const user = await userModel.findOne({ email });
+    const user = await userModel.findOne({ email });
 
-  if (user) {
-    await resetTokenModel.findOneAndDelete({ userId: user.userId });
+    if (user) {
+      await resetTokenModel.findOneAndDelete({ userId: user.userId });
 
-    const newToken = new resetTokenModel({
-      userId: user.userId,
-      token: await generateUniqueToken(),
+      const newToken = new resetTokenModel({
+        userId: user.userId,
+        token: await generateUniqueToken(),
+      });
+
+      await newToken.save();
+      await sendResetEmail(email, newToken.token);
+    }
+
+    return res.status(200).json({
+      message:
+        "If an account with that email exists, you'll receive a reset link shortly.",
     });
-
-    await newToken.save();
+  } catch (err) {
+    next(err);
   }
-
-  return res.status(200).json({
-    message:
-      "If an account with that email exists, you'll receive a reset link shortly.",
-  });
 };
 
 export const validateResetToken = async (req, res, next) => {};
