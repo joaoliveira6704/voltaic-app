@@ -104,3 +104,5 @@ export const createResetToken = async (req, res, next) => {
       "If an account with that email exists, you'll receive a reset link shortly.",
   });
 };
+
+export const validateResetToken = async (req, res, next) => {};
