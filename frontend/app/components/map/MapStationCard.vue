@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
+import { useI18n } from "vue-i18n";
 import { X, Zap, Star } from "lucide-vue-next";
 import { useUserStore } from "@/stores/user.ts";
 import { useStationStore } from "@/stores/station.ts";
@@ -8,6 +9,8 @@ import { useUsageStore } from "@/stores/usage.ts";
 import type { Station } from "@/types/station";
 import Swal from "sweetalert2";
 import { toast } from "vue-sonner";
+
+const { t } = useI18n();
 
 const props = defineProps<{
     station: Station | null;
@@ -41,11 +44,11 @@ const useStation = async () => {
 
         if (activeUsage) {
             const result = await Swal.fire({
-                title: "Stop Charging?",
-                text: "Do you want to end your charging session?",
+                title: t("map.swal.stopChargingTitle"),
+                text: t("map.swal.stopChargingText"),
                 icon: "warning",
                 showCancelButton: true,
-                confirmButtonText: "Stop",
+                confirmButtonText: t("map.swal.stop"),
                 confirmButtonColor: "#ef4444",
             });
 
@@ -74,7 +77,7 @@ const useStation = async () => {
     // ── START FLOW ────────────────────────────────────────────────────────
     if (isAvailable.value) {
         if (userStore.currentUser.vehicles?.length === 0) {
-            toast.error("No vehicles available ");
+            toast.error(t("map.noVehiclesAvailable"));
             return;
         }
         const vehicleOptions: Record<string, string> = {};
@@ -84,14 +87,14 @@ const useStation = async () => {
         });
 
         const result = await Swal.fire({
-            title: "Charge Station",
-            text: "Select the vehicle to start charging:",
+            title: t("map.swal.chargeStationTitle"),
+            text: t("map.swal.chargeStationText"),
             icon: "question",
             input: "select",
             inputOptions: vehicleOptions,
-            inputPlaceholder: "Select a vehicle",
+            inputPlaceholder: t("map.swal.selectVehiclePlaceholder"),
             showCancelButton: true,
-            confirmButtonText: "Start Charge",
+            confirmButtonText: t("map.swal.startCharge"),
             inputValidator: (value) => {
                 if (!value) return "You need to select a vehicle!";
             },
@@ -271,7 +274,7 @@ onMounted(async () => {
                 <span
                     class="text-xs font-semibold text-gray-500 uppercase tracking-wide block mb-2"
                 >
-                    Connectors
+                    {{ t("map.connectors") }}
                 </span>
                 <div class="flex flex-wrap gap-2">
                     <span
@@ -300,7 +303,7 @@ onMounted(async () => {
                 <span
                     class="text-xs font-semibold text-gray-500 uppercase tracking-wide block mb-1"
                 >
-                    Max Power
+                    {{ t("map.maxPower") }}
                 </span>
                 <span class="text-sm font-semibold text-gray-800">
                     {{ station.connector.maxPower }} kW
@@ -325,7 +328,7 @@ onMounted(async () => {
                             isCompatible ? 'text-[#22c55e]' : 'text-gray-400',
                         ]"
                     >
-                        {{ isCompatible ? "Compatible" : "Not compatible" }}
+                        {{ isCompatible ? t("map.compatible") : t("map.notCompatible") }}
                     </span>
                 </div>
 
@@ -347,7 +350,7 @@ onMounted(async () => {
                             isFavorite ? 'fill-yellow-400 text-yellow-400' : '',
                         ]"
                     />
-                    {{ isFavorite ? "Saved" : "Save" }}
+                    {{ isFavorite ? t("map.saved") : t("map.save") }}
                 </button>
             </div>
             <button
@@ -378,12 +381,12 @@ onMounted(async () => {
                 />
                 {{
                     !isCompatible
-                        ? "No Compatible Vehicles"
+                        ? t("map.noCompatibleVehicles")
                         : isAvailable
-                          ? "Use"
+                          ? t("map.use")
                           : isUsage
-                            ? "Stop Charging"
-                            : "In Use"
+                            ? t("map.stopCharging")
+                            : t("map.inUse")
                 }}
             </button>
         </div>

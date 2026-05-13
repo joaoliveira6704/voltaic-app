@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { Skeleton } from "~/components/ui/Skeleton";
 import { Mail, MapPin, Globe } from "lucide-vue-next";
 import { createAvatar } from "@dicebear/core";
 import { bottts } from "@dicebear/collection";
@@ -27,7 +28,7 @@ const props = defineProps<Props>();
 const { t } = useI18n();
 const config = useRuntimeConfig();
 
-const { data: companyName } = await useAsyncData(
+const { data: companyName, pending } = await useAsyncData(
     `company-${props.user.companyId}`,
     async () => {
         try {
@@ -41,7 +42,7 @@ const { data: companyName } = await useAsyncData(
             );
             return response.name;
         } catch {
-            return "Unknown Company";
+            return t("info.unknownCompany");
         }
     },
     {
@@ -96,8 +97,13 @@ const sendEmail = () => {
                             companyName
                         "
                     >
-                        {{ companyName }} -
-                        {{ props.user.role.toLocaleUpperCase() }}
+                        <template v-if="pending">
+                            <Skeleton class="h-5 w-40" />
+                        </template>
+                        <template v-else>
+                            {{ companyName }} -
+                            {{ props.user.role.toLocaleUpperCase() }}
+                        </template>
                     </template>
                 </h2>
             </div>

@@ -69,9 +69,11 @@ export const useUserStore = defineStore("user", () => {
 
   // ── Actions ───────────────────────────────────────────────────────────────
 
-  async function fetchUsers() {
+  async function fetchUsers(limit?: number, offset?: number) {
     try {
-      const data = await $fetch<User[]>(`${apiBase()}/api/users`, {
+      let url = `${apiBase()}/api/users`;
+      if (limit !== undefined) url += `?limit=${limit}&offset=${offset ?? 0}`;
+      const data = await $fetch<User[]>(url, {
         headers: { Authorization: `Bearer ${token()}` },
       });
       users.value = data;

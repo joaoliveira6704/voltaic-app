@@ -4,7 +4,7 @@ import Swal from "sweetalert2";
 import { toast } from "vue-sonner";
 
 export const useStationStore = defineStore("station", () => {
-  const stations = ref([]);
+  const stations = shallowRef([]);
   const currentStation = ref(null);
   const isLoaded = ref(false);
 
@@ -22,9 +22,11 @@ export const useStationStore = defineStore("station", () => {
 
   // ── Actions ───────────────────────────────────────────────────────────────
 
-  async function fetchStations() {
+  async function fetchStations(limit?: number, offset?: number) {
     try {
-      const data = await $fetch<any[]>(`${apiBase()}/api/stations`, {
+      let url = `${apiBase()}/api/stations`;
+      if (limit !== undefined) url += `?limit=${limit}&offset=${offset ?? 0}`;
+      const data = await $fetch<any[]>(url, {
         headers: { Authorization: `Bearer ${token()}` },
       });
       stations.value = data;
@@ -54,7 +56,7 @@ export const useStationStore = defineStore("station", () => {
       });
 
       // Use the response from the server which contains the real DB object
-      stations.value.push(response);
+      stations.value = [...stations.value, response];
       toast.success("Station added successfully");
       return response;
     } catch (e) {

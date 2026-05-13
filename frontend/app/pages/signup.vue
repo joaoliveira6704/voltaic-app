@@ -6,6 +6,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
+const isSubmitting = ref(false);
+const { t } = useI18n();
+
 const form = ref({
     username: "",
     firstName: "",
@@ -18,17 +21,17 @@ const form = ref({
 definePageMeta({ layout: "landing" });
 
 useHead({
-    title: "Voltaic - Register",
+    title: t("signup.title"),
     meta: [
         {
             name: "description",
-            content:
-                "Register for a new Voltaic account to manage your EV charging sessions.",
+            content: t("signup.description"),
         },
     ],
 });
 
 const handleRegister = async () => {
+    isSubmitting.value = true;
     try {
         const response = await $fetch(
             "http://localhost:3000/api/auth/register",
@@ -58,9 +61,11 @@ const handleRegister = async () => {
         };
 
         const errorMessage =
-            error.data?.error || error.message || "An unknown error occurred";
+            error.data?.error || error.message || t("signup.failed");
 
-        alert(`Register failed: ${errorMessage}`);
+        alert(`${t("error")}: ${errorMessage}`);
+    } finally {
+        isSubmitting.value = false;
     }
 };
 </script>
@@ -80,13 +85,13 @@ const handleRegister = async () => {
                         <Label
                             for="username"
                             class="text-xs font-bold uppercase text-white/50"
-                            >Username</Label
+                            >{{ t("signup.username") }}</Label
                         >
                         <Input
                             id="username"
                             v-model="form.username"
                             type="text"
-                            placeholder="johndoe123"
+                            :placeholder="t('signup.usernamePlaceholder')"
                             class="h-11 dark:border-[#232323]"
                         />
                     </div>
@@ -96,12 +101,12 @@ const handleRegister = async () => {
                             <Label
                                 for="firstName"
                                 class="text-xs font-bold uppercase text-white/50"
-                                >First Name</Label
+                                >{{ t("signup.firstName") }}</Label
                             >
                             <Input
                                 id="firstName"
                                 v-model="form.firstName"
-                                placeholder="John"
+                                :placeholder="t('signup.firstNamePlaceholder')"
                                 class="h-11 dark:border-[#232323]"
                             />
                         </div>
@@ -109,12 +114,12 @@ const handleRegister = async () => {
                             <Label
                                 for="lastName"
                                 class="text-xs font-bold uppercase text-white/50"
-                                >Last Name</Label
+                                >{{ t("signup.lastName") }}</Label
                             >
                             <Input
                                 id="lastName"
                                 v-model="form.lastName"
-                                placeholder="Doe"
+                                :placeholder="t('signup.lastNamePlaceholder')"
                                 class="h-11 dark:border-[#232323]"
                             />
                         </div>
@@ -124,13 +129,13 @@ const handleRegister = async () => {
                         <Label
                             for="email"
                             class="text-xs font-bold uppercase text-white/50"
-                            >Email</Label
+                            >{{ t("signup.email") }}</Label
                         >
                         <Input
                             id="email"
                             v-model="form.email"
                             type="email"
-                            placeholder="example@voltaic.com"
+                            :placeholder="t('signup.emailPlaceholder')"
                             class="h-11 dark:border-[#232323]"
                         />
                     </div>
@@ -139,13 +144,13 @@ const handleRegister = async () => {
                         <Label
                             for="password"
                             class="text-xs font-bold uppercase text-white/50"
-                            >Password</Label
+                            >{{ t("signup.password") }}</Label
                         >
                         <Input
                             id="password"
                             v-model="form.password"
                             type="password"
-                            placeholder="********"
+                            :placeholder="t('signup.passwordPlaceholder')"
                             class="h-11 dark:border-[#232323]"
                         />
                     </div>
@@ -161,16 +166,24 @@ const handleRegister = async () => {
                                 for="terms"
                                 class="text-[10px] text-gray-900 dark:text-white cursor-pointer"
                             >
-                                I agree with the Terms & Conditions
+                                {{ t("signup.acceptTerms") }}
                             </Label>
                         </div>
                     </div>
 
                     <Button
                         type="submit"
-                        class="w-full h-12 bg-[#007bff] hover:bg-[#0069d9] uppercase dark:text-black text-sm"
+                        :disabled="isSubmitting"
+                        class="w-full h-12 bg-[#007bff] hover:bg-[#0069d9] uppercase dark:text-black text-sm disabled:opacity-50"
                     >
-                        Register
+                        <span v-if="isSubmitting" class="flex items-center justify-center gap-2">
+                            <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                            </svg>
+                            {{ t("loading") }}
+                        </span>
+                        <span v-else>{{ t("nav.signup") }}</span>
                     </Button>
                 </form>
             </CardContent>

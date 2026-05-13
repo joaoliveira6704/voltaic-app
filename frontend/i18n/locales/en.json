@@ -18,6 +18,17 @@
   "saveChanges": "Save Changes",
   "noVehicles": "No Vehicles to Display for",
   "realTimeNetwork": "Real Time Network",
+  "loading": "Loading...",
+  "error": "Error",
+  "cancel": "Cancel",
+  "submit": "Submit",
+  "save": "Save",
+  "delete": "Delete",
+  "search": "Search",
+  "actions": "Actions",
+  "status": "Status",
+  "name": "Name",
+  "description": "Description",
   "nav": {
     "home": "Home",
     "profile": "Profile",
@@ -34,7 +45,268 @@
     "assignedTickets": "Assigned Tickets",
     "map": "Map",
     "favoriteStations": "Favorite Stations",
-    "history": "Charging History"
+    "history": "Charging History",
+    "navigation": "Navigation"
+  },
+  "login": {
+    "title": "Voltaic - Login",
+    "description": "Login to your Voltaic account.",
+    "email": "Email",
+    "emailPlaceholder": "example\\@voltaic.com",
+    "password": "Password",
+    "forgot": "Forgot?",
+    "rememberMe": "Remember me",
+    "keepSessionActive": "Keep my session active",
+    "submit": "Login",
+    "newToVoltaic": "New to Voltaic?",
+    "createAccount": "Create account",
+    "error": "Login failed: {error}"
+  },
+  "signup": {
+    "title": "Voltaic - Register",
+    "description": "Register for a new Voltaic account.",
+    "username": "Username",
+    "usernamePlaceholder": "johndoe123",
+    "firstName": "First Name",
+    "firstNamePlaceholder": "John",
+    "lastName": "Last Name",
+    "lastNamePlaceholder": "Doe",
+    "email": "Email",
+    "emailPlaceholder": "example\\@voltaic.com",
+    "password": "Password",
+    "passwordPlaceholder": "********",
+    "agreeTerms": "I agree with the Terms & Conditions",
+    "submit": "Register",
+    "error": "Registration failed: {error}"
+  },
+  "recoverPassword": {
+    "title": "Voltaic - Recover Password",
+    "heading": "Recover Password",
+    "instruction": "Enter your email to receive instructions",
+    "email": "Email",
+    "emailPlaceholder": "your\\@email.com",
+    "sendInstructions": "Send Instructions",
+    "checkInbox": "Check your inbox",
+    "instructionsSent": "Recovery instructions sent to {email}",
+    "tryAnotherEmail": "Try another email",
+    "backToLogin": "Back to Login",
+    "error": "Failed to send recovery email"
+  },
+  "map": {
+    "title": "Voltaic - Map",
+    "description": "Find and locate EV charging stations near you with Voltaic's interactive map.",
+    "filter": "Filter",
+    "reset": "Reset",
+    "distance": "Distance:",
+    "off": "Off",
+    "socketType": "Socket type:",
+    "km": "{value} km",
+    "connectors": "Connectors",
+    "maxPower": "Max Power",
+    "compatible": "Compatible",
+    "notCompatible": "Not compatible",
+    "saved": "Saved",
+    "save": "Save",
+    "use": "Use",
+    "stopCharging": "Stop Charging",
+    "inUse": "In Use",
+    "noCompatibleVehicles": "No Compatible Vehicles",
+    "noVehiclesAvailable": "No vehicles available",
+    "filters": {
+      "favs": "Favs",
+      "compatible": "Compatible",
+      "free": "Available",
+      "company": "Company Managed",
+      "toggleSidebar": "Toggle filters sidebar",
+      "clearConnectors": "Clear selected connectors"
+    },
+    "locate": {
+      "ariaLabel": "Find my location"
+    },
+    "north": {
+      "ariaLabel": "Reset North",
+      "title": "Reset North"
+    },
+    "theme": {
+      "ariaLabel": "Toggle dark mode",
+      "title": "Toggle dark mode"
+    },
+    "swal": {
+      "stopChargingTitle": "Stop Charging?",
+      "stopChargingText": "Do you want to end your charging session?",
+      "chargeStationTitle": "Charge Station",
+      "chargeStationText": "Select the vehicle to start charging:",
+      "selectVehicle": "Select Vehicle",
+      "selectVehiclePlaceholder": "Select a vehicle...",
+      "startCharge": "Start Charge",
+      "stop": "Stop",
+      "noVehiclesToast": "No vehicles available"
+    }
+  },
+  "admin": {
+    "index": {
+      "title": "Voltaic - Admin Dashboard",
+      "description": "Admin overview of users, stations, tickets, and companies.",
+      "totalUsers": "Total users",
+      "totalUsersSubtext": "+12% this month",
+      "stations": "Stations",
+      "stationsActiveNow": "{count} active now",
+      "openTickets": "Open tickets",
+      "openTicketsSubtext": "+8 since yesterday",
+      "companies": "Companies",
+      "companiesSubtext": "4 added this month",
+      "ticketStatus": "Ticket status",
+      "newUsers": "New users — last 7 days",
+      "stationLocations": "Station locations",
+      "recentTickets": "Recent tickets",
+      "recentTicketsColId": "ID",
+      "recentTicketsColUser": "User",
+      "recentTicketsColStation": "Station",
+      "recentTicketsColStatus": "Status",
+      "companiesTableTitle": "Companies",
+      "companiesColCompany": "Company",
+      "companiesColUsers": "Users",
+      "companiesColStations": "Stations"
+    },
+    "users": {
+      "title": "Users",
+      "subtitle": "View and manage all user accounts",
+      "addNewUser": "Create new user",
+      "columns": {
+        "name": "Name",
+        "email": "Email",
+        "role": "Role",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "noUsers": "No users found",
+      "searchPlaceholder": "Search...",
+      "filters": {
+        "role": "Filter by role",
+        "status": "Filter by status"
+      }
+    },
+    "stations": {
+      "title": "Stations",
+      "createNew": "Create new station"
+    },
+    "companies": {
+      "title": "Companies",
+      "createNew": "Create new company"
+    },
+    "tickets": {
+      "title": "Tickets"
+    },
+    "table": {
+      "actions": "Actions"
+    },
+    "search": {
+      "placeholder": "Search..."
+    },
+    "sidebar": {
+      "navigation": "Navigation"
+    }
+  },
+  "chart": {
+    "stationsMap": {
+      "initializing": "INITIALIZING GLOBAL NETWORK...",
+      "stations": "{count} Stations",
+      "primary": "Primary: {name}",
+      "online": "online",
+      "maintenance": "maintenance",
+      "offline": "offline"
+    },
+    "userChart": {
+      "label": "New users",
+      "ariaLabel": "Line chart of new users per day over the last 7 days",
+      "dayMon": "Mon",
+      "dayTue": "Tue",
+      "dayWed": "Wed",
+      "dayThu": "Thu",
+      "dayFri": "Fri",
+      "daySat": "Sat",
+      "daySun": "Sun"
+    },
+    "ticketDonut": {
+      "open": "Open",
+      "closed": "Closed",
+      "legendOpen": "Open: {count}",
+      "legendClosed": "Closed: {count}",
+      "ariaLabel": "Ticket status donut chart"
+    }
+  },
+  "company": {
+    "index": {
+      "totalWorkers": "Total Workers",
+      "totalWorkersCount": "{count} Workers",
+      "totalWorkersSubtext": "+12% this month",
+      "stations": "Stations",
+      "stationsCount": "{count} Stations",
+      "stationsActiveNow": "{count} active now",
+      "openTickets": "Open tickets",
+      "openTicketsCount": "{count} Tickets",
+      "openTicketsSubtext": "+8 since yesterday"
+    },
+    "manage": {
+      "title": "Company Management"
+    },
+    "tickets": {
+      "openTickets": "Open Tickets"
+    },
+    "stations": {
+      "manageStation": "Manage Station",
+      "logConsole": "Station Log Console",
+      "noLogs": "No logs yet",
+      "interventions": "Interventions",
+      "stationControls": "Station Controls",
+      "registerIntervention": "Register Intervention",
+      "start": "Start",
+      "shutdown": "Shutdown",
+      "restart": "Restart",
+      "stationStatus": "Station Status: {status}"
+    },
+    "stationReport": {
+      "download": "Download Station Report"
+    }
+  },
+  "stationHeader": {
+    "status": "Station Status: {status}"
+  },
+  "error": {
+    "title": "Voltaic - Not Found",
+    "notFound": "Page not found",
+    "description": "The page you're looking for doesn't exist or has been moved.",
+    "goBack": "Go Back"
+  },
+  "layout": {
+    "navigation": "Navigation",
+    "map": "Map",
+    "footer": {
+      "copyright": "© {year} Voltaic",
+      "privacy": "Privacy",
+      "terms": "Terms"
+    }
+  },
+  "historyTable": {
+    "date": "Date",
+    "vehicle": "Vehicle",
+    "station": "Station",
+    "duration": "Duration",
+    "inProgress": "In Progress",
+    "timeError": "Time Error"
+  },
+  "stationsLabel": {
+    "available": "Available",
+    "ticketOpen": "Ticket Open",
+    "offline": "Offline"
+  },
+  "interventionCard": {
+    "remarks": "Remarks:"
+  },
+  "ticketCard": {
+    "station": "Station:",
+    "desc": "Desc:",
+    "state": "State:"
   },
   "modal": {
     "addUser": {
@@ -108,7 +380,88 @@
         "vehicleRequired": "Please select a vehicle from the list.",
         "colorRequired": "Color is required."
       }
+    },
+    "addCompany": {
+      "title": "Register Company",
+      "systemGeneratedId": "System Generated ID",
+      "companyName": "Company Name",
+      "companyNamePlaceholder": "e.g. Acme Corporation",
+      "cancel": "Cancel",
+      "create": "Create",
+      "errors": {
+        "nameRequired": "Company name is required",
+        "missingId": "Internal Error: Missing Company ID",
+        "createFailed": "Failed to create company"
+      }
+    },
+    "addStation": {
+      "title": "Register New Station",
+      "displayName": "Station Display Name",
+      "displayNamePlaceholder": "e.g. Faro Charging Station 480",
+      "latitude": "Latitude",
+      "latitudePlaceholder": "36.856...",
+      "longitude": "Longitude",
+      "longitudePlaceholder": "-8.233...",
+      "maxPower": "Max Power (kW)",
+      "initialState": "Initial State",
+      "socketTypes": "Socket Types",
+      "available": "Available",
+      "unavailable": "Unavailable",
+      "maintenance": "Maintenance",
+      "cancel": "Cancel",
+      "deploy": "Deploy",
+      "errors": {
+        "titleRequired": "Station title is required",
+        "coordinatesRequired": "Coordinates are required"
+      }
+    },
+    "registerIntervention": {
+      "title": "Register Intervention",
+      "titleField": "Title",
+      "titlePlaceholder": "Intervention title",
+      "initialStatus": "Initial Status",
+      "description": "Description",
+      "descriptionPlaceholder": "Describe the intervention...",
+      "remarks": "Remarks",
+      "remarksOptional": "Remarks (optional)",
+      "remarksPlaceholder": "Additional remarks...",
+      "resolved": "Resolved",
+      "unresolved": "Unresolved",
+      "cancel": "Cancel",
+      "submit": "Submit",
+      "errors": {
+        "titleRequired": "Title is required",
+        "descriptionRequired": "Description is required"
+      }
     }
+  },
+  "userSettings": {
+    "selectLanguage": "Select Language"
+  },
+  "info": {
+    "unknownCompany": "Unknown Company"
+  },
+  "adminPage": {
+    "search": "Search...",
+    "navigation": "Navigation"
+  },
+  "mapFilter": {
+    "filter": "Filter",
+    "reset": "Reset",
+    "distance": "Distance:",
+    "off": "Off",
+    "socketType": "Socket type:",
+    "km": "{value} km"
+  },
+  "lowerCard": {
+    "logout": "Logout"
+  },
+  "skeleton": {
+    "loading": "Loading..."
+  },
+  "modalCommon": {
+    "title": "Title",
+    "description": "Description"
   },
   "landing": {
     "head": {
@@ -148,26 +501,6 @@
       "titleHighlight": "Charge Smarter, Drive Further",
       "subtitle": "Join thousands of drivers who charge smarter every day.",
       "button": "Get Started"
-    }
-  },
-  "admin": {
-    "users": {
-      "title": "Manage Users",
-      "subtitle": "View and manage all user accounts",
-      "addNewUser": "Add New User",
-      "columns": {
-        "name": "Name",
-        "email": "Email",
-        "role": "Role",
-        "status": "Status",
-        "actions": "Actions"
-      },
-      "noUsers": "No users found",
-      "searchPlaceholder": "Search users...",
-      "filters": {
-        "role": "Filter by role",
-        "status": "Filter by status"
-      }
     }
   },
   "lang": {

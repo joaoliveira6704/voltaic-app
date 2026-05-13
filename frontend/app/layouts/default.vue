@@ -1,14 +1,23 @@
 <script setup lang="ts">
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "~/components/ui/Skeleton";
 import "vue-sonner/style.css";
 import { Toaster } from "@/components/ui/sonner";
-import { Map } from "lucide-vue-next";
+import { Map, Menu } from "lucide-vue-next";
+import {
+    Sheet,
+    SheetContent,
+    SheetTitle,
+    SheetTrigger,
+} from "~/components/ui/sheet";
 
-const navLinks = [{ path: "/map", label: "Map" }]; /* link map page */
 const { t } = useI18n();
 const userStore = useUserStore();
 
 const currentUser = userStore.currentUser;
+const isLoaded = computed(() => userStore.isLoaded);
+
+const navLinks = [{ path: "/map", label: t("nav.map") }];
 </script>
 
 <template>
@@ -21,9 +30,44 @@ const currentUser = userStore.currentUser;
             <div
                 class="container mx-auto flex h-16 max-w-7xl items-center justify-between px-4 md:px-8"
             >
-                <NuxtLink to="/" class="flex items-center gap-1">
-                    <NuxtImg src="/voltaic-logo.svg" width="50" />
-                </NuxtLink>
+                <div class="flex items-center gap-2">
+                    <Sheet>
+                        <SheetTrigger as-child>
+                            <Button variant="ghost" class="md:hidden">
+                                <Menu class="h-5 w-5" />
+                            </Button>
+                        </SheetTrigger>
+                        <SheetContent
+                            side="left"
+                            class="w-[240px] sm:max-w-[240px] p-0"
+                        >
+                            <SheetTitle class="sr-only">{{
+                                t("layout.navigation")
+                            }}</SheetTitle>
+                            <div
+                                class="flex flex-col justify-between h-full p-4 bg-white dark:bg-[#171717]"
+                            >
+                                <template v-if="isLoaded">
+                                    <NavGroup
+                                        :role="currentUser?.role"
+                                        class="mt-8"
+                                    />
+                                </template>
+                                <template v-else>
+                                    <div class="flex flex-col gap-2 py-1">
+                                        <Skeleton class="h-8 w-full" />
+                                        <Skeleton class="h-8 w-full" />
+                                    </div>
+                                </template>
+                                <LowerCard />
+                            </div>
+                        </SheetContent>
+                    </Sheet>
+
+                    <NuxtLink to="/" class="flex items-center gap-1">
+                        <NuxtImg src="/voltaic-logo.svg" width="50" />
+                    </NuxtLink>
+                </div>
 
                 <div class="flex items-center gap-1">
                     <Button
@@ -45,9 +89,17 @@ const currentUser = userStore.currentUser;
         </nav>
 
         <main class="flex pl-4 w-full h-screen gap-5 overflow-y-auto">
-            <div class="flex flex-col py-4 pl-2 justify-between">
-                <DashboardCard title="Navigation">
-                    <NavGroup :role="currentUser?.role" />
+            <div class="hidden md:flex flex-col py-4 md:pl-2 justify-between">
+                <DashboardCard>
+                    <template v-if="isLoaded">
+                        <NavGroup :role="currentUser?.role" />
+                    </template>
+                    <template v-else>
+                        <div class="flex flex-col gap-2 py-1">
+                            <Skeleton class="h-8 w-full" />
+                            <Skeleton class="h-8 w-full" />
+                        </div>
+                    </template>
                 </DashboardCard>
 
                 <DashboardCard :hasTitle="false">

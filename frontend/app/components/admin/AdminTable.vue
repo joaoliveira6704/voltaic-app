@@ -1,4 +1,5 @@
 <script setup>
+const { t } = useI18n();
 defineProps({
     columns: Array,
     rows: Array,
@@ -18,7 +19,7 @@ defineEmits(["edit", "delete"]);
                 >
                     {{ col.label }}
                 </TableHead>
-                <TableHead class="text-xs uppercase">Actions</TableHead>
+                <TableHead class="text-xs uppercase">{{ t("admin.table.actions") }}</TableHead>
             </TableRow>
         </TableHeader>
         <!-- AdminTable.vue -->

@@ -36,13 +36,13 @@
       </div>
 
       <div class="flex items-center justify-between mb-5">
-        <h2 class="text-lg font-bold text-gray-900 tracking-tight">Filter</h2>
+        <h2 class="text-lg font-bold text-gray-900 tracking-tight">{{ t("map.filter") }}</h2>
         <div class="flex items-center gap-3">
           <button
             class="text-sm font-medium text-[#22c55e] hover:text-[#16a34a] transition-colors"
             @click="emit('reset')"
           >
-            Reset
+            {{ t("map.reset") }}
           </button>
           <button
             class="flex items-center justify-center w-7 h-7 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
@@ -74,9 +74,9 @@
       <!-- Distance slider -->
       <div class="mb-5">
         <div class="flex items-center justify-between mb-3">
-          <span class="text-sm font-semibold text-gray-700">Distance:</span>
+          <span class="text-sm font-semibold text-gray-700">{{ t("map.distance") }}</span>
           <span class="text-xs font-medium text-[#22c55e]">
-            {{ distanceActive ? `${sliderValue} km` : "Off" }}
+            {{ distanceActive ? t("map.km", { value: sliderValue }) : t("map.off") }}
           </span>
         </div>
         <input
@@ -90,8 +90,8 @@
           @change="onSliderChange"
         />
         <div class="flex justify-between mt-1">
-          <span class="text-xs text-gray-400">1 km</span>
-          <span class="text-xs text-gray-400">300 km</span>
+          <span class="text-xs text-gray-400">{{ t("map.km", { value: 1 }) }}</span>
+          <span class="text-xs text-gray-400">{{ t("map.km", { value: 300 }) }}</span>
         </div>
       </div>
 
@@ -99,7 +99,7 @@
 
       <div>
         <span class="text-sm font-semibold text-gray-700 block mb-3"
-          >Socket type:</span
+          >{{ t("map.socketType") }}</span
         >
         <div class="flex flex-wrap gap-2">
           <button
@@ -124,6 +124,9 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { X } from "lucide-vue-next";
+import { useI18n } from "vue-i18n";
+
+const { t } = useI18n();
 
 defineProps<{
   open: boolean;

@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import type { StationState } from "~/composables/useStation";
+
+const { t } = useI18n();
 import {
     PowerIcon,
     PowerOffIcon,
@@ -26,7 +28,7 @@ const emit = defineEmits<{
         <span
             class="text-sm font-semibold text-gray-600 dark:text-gray-300 tracking-wide"
         >
-            Station Controls
+            {{ t("company.stations.stationControls") }}
         </span>
 
         <div class="flex gap-2">
@@ -36,7 +38,7 @@ const emit = defineEmits<{
                 @click="emit('register')"
             >
                 <PenIcon class="w-4 h-4" />
-                Registar Intervenção
+                {{ t("company.stations.registerIntervention") }}
             </button>
             <!-- Offline: show Start only -->
             <template v-if="!alive">
@@ -46,7 +48,7 @@ const emit = defineEmits<{
                     @click="emit('start')"
                 >
                     <PowerIcon class="w-4 h-4" />
-                    Start
+                    {{ t("company.stations.start") }}
                 </button>
             </template>
 
@@ -58,7 +60,7 @@ const emit = defineEmits<{
                     @click="emit('shutdown')"
                 >
                     <PowerOffIcon class="w-4 h-4" />
-                    Shutdown
+                    {{ t("company.stations.shutdown") }}
                 </button>
 
                 <button
@@ -70,7 +72,7 @@ const emit = defineEmits<{
                         :class="{ 'animate-spin': isRestarting }"
                         class="w-4 h-4"
                     />
-                    Restart
+                    {{ t("company.stations.restart") }}
                 </button>
             </template>
         </div>

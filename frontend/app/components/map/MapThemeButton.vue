@@ -1,8 +1,9 @@
 <!-- components/map/MapThemeButton.vue -->
 <template>
-    <div class="absolute bottom-32 right-4 z-[1000]">
+    <div v-if="!isPending" class="absolute bottom-32 right-4 z-[1000]">
         <button
             class="flex items-center justify-center w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm border border-white/60 shadow-md hover:bg-white transition-all duration-200 group disabled:opacity-50 disabled:cursor-not-allowed"
+            aria-label="Toggle dark mode"
             title="Toggle dark mode"
             @click="toggleDarkMode"
         >
@@ -25,12 +26,19 @@ import { MoonIcon, SunIcon } from "lucide-vue-next";
 const userStore = useUserStore();
 const colorMode = useColorMode();
 const isDark = computed(() => colorMode.preference === "dark");
+const isPending = ref(true);
 
-onMounted(async () => {
-    await userStore.fetchCurrentUser();
-    const pref = userStore.currentUser?.preferences?.darkMode;
-    if (pref !== undefined) {
-        colorMode.preference = pref ? "dark" : "light";
+onMounted(() => {
+    if (!userStore.currentUser && useCookie("token").value) {
+        userStore.fetchCurrentUser().finally(() => {
+            const pref = userStore.currentUser?.preferences?.darkMode;
+            if (pref !== undefined) {
+                colorMode.preference = pref ? "dark" : "light";
+            }
+            isPending.value = false;
+        });
+    } else {
+        isPending.value = false;
     }
 });
 

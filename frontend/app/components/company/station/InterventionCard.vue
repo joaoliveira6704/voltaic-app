@@ -2,6 +2,7 @@
 import type { Ticket } from "@/types/ticket";
 import { ChevronDownIcon, ChevronUpIcon } from "lucide-vue-next";
 
+const { t } = useI18n();
 const props = defineProps<{
     ticket: Ticket;
 }>();
@@ -43,7 +44,7 @@ const ticketTriggerOpen = ref(false);
         <div
             class="flex justify-end text-xs italic text-neutral-600 mt-3 pt-3 border-t border-[#2a2a2a]"
         >
-            Remarks: {{ ticket.description.slice(-3) }}
+            {{ t("interventionCard.remarks") }} {{ ticket.description.slice(-3) }}
         </div>
     </div>
 </template>

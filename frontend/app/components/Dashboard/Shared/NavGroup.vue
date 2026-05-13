@@ -61,12 +61,12 @@ const navigationLinks = computed(() => {
             v-for="link in navigationLinks"
             :key="link.label"
             :to="link.path"
-            class="flex items-center text-center gap-3 px-4 py-2 hover:bg-gray-100 rounded-md dark:bg-[#171717] dark:hover:bg-[#272727]"
+            class="flex items-center justify-start md:justify-start text-left sm:text-center gap-3 px-4 py-2 hover:bg-gray-100 rounded-md dark:bg-[#171717] dark:hover:bg-[#272727]"
             :class="{
                 'bg-gray-100 dark:bg-[#232323]': link.path === route.path,
             }"
         >
-            <component :is="link.icon" class="h-4 w-4" />
+            <component :is="link.icon" class="h-4 w-4 shrink-0" />
             <span class="text-sm">{{ link.label }}</span>
         </NuxtLink>
     </nav>

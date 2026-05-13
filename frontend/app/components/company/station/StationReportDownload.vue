@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { DownloadIcon } from "lucide-vue-next";
+const { t } = useI18n();
 const emit = defineEmits<{
     (e: "download"): void;
 }>();
@@ -8,6 +9,6 @@ const emit = defineEmits<{
 <template>
     <Button @click="emit('download')">
         <DownloadIcon />
-        Download Station Report
+        {{ t("company.stationReport.download") }}
     </Button>
 </template>

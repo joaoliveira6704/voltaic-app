@@ -9,6 +9,8 @@ const config = useRuntimeConfig();
 const email = ref("");
 const password = ref("");
 const rememberMe = ref(true);
+const isSubmitting = ref(false);
+const { t } = useI18n();
 
 interface LoginResponse {
     token: string;
@@ -29,17 +31,17 @@ definePageMeta({
 });
 
 useHead({
-    title: "Voltaic - Login",
+    title: t("login.title"),
     meta: [
         {
             name: "description",
-            content:
-                "Login to your Voltaic account to manage your EV charging sessions.",
+            content: t("login.description"),
         },
     ],
 });
 
 const handleLogin = async () => {
+    isSubmitting.value = true;
     console.log("Login attempt:", {
         email: email.value,
         password: password.value,
@@ -70,9 +72,11 @@ const handleLogin = async () => {
         };
 
         const errorMessage =
-            errorData?.data?.message || errorData?.message || "Login failed";
+            errorData?.data?.message || errorData?.message || t("login.failed");
 
-        alert("Login failed: " + errorMessage);
+        alert(t("error") + ": " + errorMessage);
+    } finally {
+        isSubmitting.value = false;
     }
 };
 </script>
@@ -91,13 +95,13 @@ const handleLogin = async () => {
         >
             <div class="space-y-2">
                 <Label for="email" class="text-xs font-bold uppercase">
-                    Email
+                    {{ t("login.email") }}
                 </Label>
                 <Input
                     id="email"
                     v-model="email"
                     type="email"
-                    placeholder="example@voltaic.com"
+                    :placeholder="t('login.emailPlaceholder')"
                     class="h-11 border-gray-200 dark:border-[#232323] focus-visible:ring-[#00c885]"
                 />
             </div>
@@ -105,20 +109,20 @@ const handleLogin = async () => {
             <div class="space-y-2">
                 <div class="flex justify-between items-center">
                     <Label for="password" class="text-xs font-bold uppercase">
-                        Password
+                        {{ t("login.password") }}
                     </Label>
                     <NuxtLink
                         to="/recover-password"
                         class="text-[10px] text-[#007bff] hover:underline uppercase"
                     >
-                        Forgot?
+                        {{ t("login.forgotPassword") }}
                     </NuxtLink>
                 </div>
                 <Input
                     id="password"
                     v-model="password"
                     type="password"
-                    placeholder="********"
+                    :placeholder="t('login.passwordPlaceholder')"
                     class="h-11 border-gray-200 dark:border-[#232323] focus-visible:ring-[#00c885]"
                 />
             </div>
@@ -134,10 +138,10 @@ const handleLogin = async () => {
                         for="remember"
                         class="text-sm font-bold text-gray-900 dark:text-white/50 cursor-pointer"
                     >
-                        Remember me
+                        {{ t("login.rememberMe") }}
                     </Label>
                     <p class="text-[10px] text-gray-400">
-                        Keep my session active
+                        {{ t("login.keepSessionActive") }}
                     </p>
                 </div>
             </div>
@@ -145,9 +149,17 @@ const handleLogin = async () => {
             <div class="pt-2">
                 <Button
                     type="submit"
-                    class="w-full h-12 bg-[#007bff] hover:bg-[#0069d9] dark:text-black uppercase text-sm transition-all"
+                    :disabled="isSubmitting"
+                    class="w-full h-12 bg-[#007bff] hover:bg-[#0069d9] dark:text-black uppercase text-sm transition-all disabled:opacity-50"
                 >
-                    Login
+                    <span v-if="isSubmitting" class="flex items-center justify-center gap-2">
+                        <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                        </svg>
+                        {{ t("loading") }}
+                    </span>
+                    <span v-else>{{ t("nav.login") }}</span>
                 </Button>
             </div>
 
@@ -155,12 +167,12 @@ const handleLogin = async () => {
                 class="pt-4 text-center border-t border-gray-50 dark:border-[#232323] mt-4"
             >
                 <p class="text-[10px] text-gray-400 uppercase">
-                    New to Voltaic?
+                    {{ t("login.newToVoltaic") }}
                     <NuxtLink
                         to="/signup"
                         class="text-[#007bff] font-bold hover:underline"
                     >
-                        Create account
+                        {{ t("nav.signup") }}
                     </NuxtLink>
                 </p>
             </div>

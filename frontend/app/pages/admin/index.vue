@@ -5,19 +5,19 @@ import { useTicketStore } from "~/stores/ticket";
 import { useStationStore } from "~/stores/station";
 import { useCompanyStore } from "~/stores/company";
 import { storeToRefs } from "pinia";
+import { Skeleton, SkeletonMetricCard } from "~/components/ui/Skeleton";
+
+const { t } = useI18n();
 
 useHead({
-    title: "Voltaic - Admin Dashboard",
+    title: t("admin.index.title"),
     meta: [
         {
             name: "description",
-            content:
-                "Admin overview of users, stations, tickets, and companies.",
+            content: t("admin.index.description"),
         },
     ],
 });
-
-const { t } = useI18n();
 const userStore = useUserStore();
 const ticketStore = useTicketStore();
 const stationStore = useStationStore();
@@ -28,13 +28,30 @@ const { tickets } = storeToRefs(ticketStore);
 const { stations } = storeToRefs(stationStore);
 const { companies } = storeToRefs(companyStore);
 
-await Promise.all([
-    useAsyncData("currentUser", () => userStore.fetchCurrentUser()),
-    useAsyncData("users", () => userStore.fetchUsers()),
-    useAsyncData("tickets", () => ticketStore.fetchTickets()),
-    useAsyncData("stations", () => stationStore.fetchStations()),
-    useAsyncData("companies", () => companyStore.fetchCompanies()),
-]);
+const { pending: currentUserPending } = useAsyncData("currentUser", () =>
+    userStore.fetchCurrentUser(),
+);
+const { pending: usersPending } = useAsyncData("users", () =>
+    userStore.fetchUsers(),
+);
+const { pending: ticketsPending } = useAsyncData("tickets", () =>
+    ticketStore.fetchTickets(),
+);
+const { pending: stationsPending } = useAsyncData("stations", () =>
+    stationStore.fetchStations(),
+);
+const { pending: companiesPending } = useAsyncData("companies", () =>
+    companyStore.fetchCompanies(),
+);
+
+const isPending = computed(
+    () =>
+        currentUserPending.value ||
+        usersPending.value ||
+        ticketsPending.value ||
+        stationsPending.value ||
+        companiesPending.value,
+);
 
 const openTickets = computed(
     () => tickets.value.filter((t) => t.status === "open").length,
@@ -56,41 +73,62 @@ const recentTickets = computed(() =>
 </script>
 
 <template>
-    <div class="flex-1 py-4 px-2 min-w-0 overflow-y-auto space-y-6">
+    <div
+        v-if="isPending"
+        class="flex-1 py-4 px-2 min-w-0 overflow-y-auto space-y-6"
+    >
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <SkeletonMetricCard v-for="n in 4" :key="n" />
+        </div>
+    </div>
+    <div v-else class="flex-1 py-4 px-2 min-w-0 overflow-y-auto space-y-6">
         <!-- Metric cards -->
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <DashboardCard title="Total users" :has-line="false">
+            <DashboardCard
+                :title="t('admin.index.totalUsers')"
+                :has-line="false"
+            >
                 <CardContent>
                     <p class="text-3xl font-semibold">{{ users.length }}</p>
                     <p class="text-xs text-muted-foreground mt-1">
-                        +12% this month
+                        {{ t("admin.index.totalUsersSubtext") }}
                     </p>
                 </CardContent>
             </DashboardCard>
 
-            <DashboardCard title="Stations" :has-line="false">
+            <DashboardCard :title="t('admin.index.stations')" :has-line="false">
                 <CardContent>
                     <p class="text-3xl font-semibold">{{ stations.length }}</p>
                     <p class="text-xs text-muted-foreground mt-1">
-                        {{ onlineStations }} active now
+                        {{
+                            t("admin.index.stationsActiveNow", {
+                                count: onlineStations,
+                            })
+                        }}
                     </p>
                 </CardContent>
             </DashboardCard>
 
-            <DashboardCard title="Open tickets" :has-line="false">
+            <DashboardCard
+                :title="t('admin.index.openTickets')"
+                :has-line="false"
+            >
                 <CardContent>
                     <p class="text-3xl font-semibold">{{ openTickets }}</p>
                     <p class="text-xs text-muted-foreground mt-1">
-                        +8 since yesterday
+                        {{ t("admin.index.openTicketsSubtext") }}
                     </p>
                 </CardContent>
             </DashboardCard>
 
-            <DashboardCard title="Companies" :has-line="false">
+            <DashboardCard
+                :title="t('admin.index.companies')"
+                :has-line="false"
+            >
                 <CardContent>
                     <p class="text-3xl font-semibold">{{ companies.length }}</p>
                     <p class="text-xs text-muted-foreground mt-1">
-                        4 added this month
+                        {{ t("admin.index.companiesSubtext") }}
                     </p>
                 </CardContent>
             </DashboardCard>
@@ -98,7 +136,10 @@ const recentTickets = computed(() =>
 
         <!-- Charts row -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <DashboardCard title="Ticket status" :has-line="false">
+            <DashboardCard
+                :title="t('admin.index.ticketStatus')"
+                :has-line="false"
+            >
                 <CardContent>
                     <AdminTicketDonut
                         :open="openTickets"
@@ -110,7 +151,7 @@ const recentTickets = computed(() =>
 
             <DashboardCard
                 class="h-full"
-                title="New users — last 7 days"
+                :title="t('admin.index.newUsers')"
                 :has-line="false"
             >
                 <CardContent>
@@ -120,7 +161,10 @@ const recentTickets = computed(() =>
         </div>
 
         <!-- Stations map -->
-        <DashboardCard title="Station locations" :has-line="false">
+        <DashboardCard
+            :title="t('admin.index.stationLocations')"
+            :has-line="false"
+        >
             <CardContent>
                 <AdminStationsMap :stations="stations" />
             </CardContent>
@@ -128,15 +172,26 @@ const recentTickets = computed(() =>
 
         <!-- Bottom row: tickets + companies -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <DashboardCard title="Recent tickets" :has-line="false">
+            <DashboardCard
+                :title="t('admin.index.recentTickets')"
+                :has-line="false"
+            >
                 <CardContent class="p-0">
                     <Table>
                         <TableHeader>
                             <TableRow>
-                                <TableHead class="w-[80px]">ID</TableHead>
-                                <TableHead>User</TableHead>
-                                <TableHead>Station</TableHead>
-                                <TableHead class="text-right">Status</TableHead>
+                                <TableHead class="w-[80px]">{{
+                                    t("admin.index.recentTicketsColId")
+                                }}</TableHead>
+                                <TableHead>{{
+                                    t("admin.index.recentTicketsColUser")
+                                }}</TableHead>
+                                <TableHead>{{
+                                    t("admin.index.recentTicketsColStation")
+                                }}</TableHead>
+                                <TableHead class="text-right">{{
+                                    t("admin.index.recentTicketsColStatus")
+                                }}</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -168,16 +223,23 @@ const recentTickets = computed(() =>
                 </CardContent>
             </DashboardCard>
 
-            <DashboardCard title="Companies" :has-line="false">
+            <DashboardCard
+                :title="t('admin.index.companiesTableTitle')"
+                :has-line="false"
+            >
                 <CardContent class="p-0">
                     <Table>
                         <TableHeader>
                             <TableRow>
-                                <TableHead>Company</TableHead>
-                                <TableHead class="text-right">Users</TableHead>
-                                <TableHead class="text-right"
-                                    >Stations</TableHead
-                                >
+                                <TableHead>{{
+                                    t("admin.index.companiesColCompany")
+                                }}</TableHead>
+                                <TableHead class="text-right">{{
+                                    t("admin.index.companiesColUsers")
+                                }}</TableHead>
+                                <TableHead class="text-right">{{
+                                    t("admin.index.companiesColStations")
+                                }}</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>

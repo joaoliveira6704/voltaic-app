@@ -14,11 +14,9 @@ export const useCompanyStore = defineStore("company", () => {
 
   // ── Getters ──────────────────────────────────────────────────────────────
 
-  
-  const getCompanyName = computed(() => {
-    return (companyId: string) =>
-      companies.value.find((c) => c.companyId === companyId)?.name ?? "UNKNOWN";
-  });
+  function getCompanyName(companyId: string) {
+    return companies.value.find((c) => c.companyId === companyId)?.name ?? "UNKNOWN";
+  }
 
   // ── Helpers ───────────────────────────────────────────────────────────────
 
@@ -28,9 +26,11 @@ export const useCompanyStore = defineStore("company", () => {
 
   // ── Actions ───────────────────────────────────────────────────────────────
 
-  async function fetchCompanies() {
+  async function fetchCompanies(limit?: number, offset?: number) {
     try {
-      const data = await $fetch<Company[]>(`${apiBase()}/api/companies`, {
+      let url = `${apiBase()}/api/companies`;
+      if (limit !== undefined) url += `?limit=${limit}&offset=${offset ?? 0}`;
+      const data = await $fetch<Company[]>(url, {
         headers: { Authorization: `Bearer ${token()}` },
       });
       companies.value = data;

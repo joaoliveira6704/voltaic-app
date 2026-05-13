@@ -1,7 +1,7 @@
 // composables/useMapClustering.ts
-import { ref, watch } from "vue";
+import { ref, watch, shallowRef } from "vue";
 import type { Ref, ComputedRef } from "vue";
-import type { Map, Marker } from "maplibre-gl";
+import type { Map as MapLibreMap, Marker } from "maplibre-gl";
 import type { Station } from "@/types/station";
 
 interface ClusterGroup {
@@ -15,14 +15,16 @@ export const ZOOM_INDIVIDUAL = 13; // zoom > 13: only individual markers
 // zoom <= 13: only group markers
 
 export function useMapClustering(
-  mapInstance: Ref<Map | null>,
+  mapInstance: Ref<MapLibreMap | null>,
   isReady: Ref<boolean>,
   filteredStations: ComputedRef<Station[]>,
   MarkerClass: Ref<typeof Marker | null>,
   currentZoom: Ref<number>,
 ) {
-  const clusterMarkers = ref<Marker[]>([]);
-  const clusterGroups = ref<Map<string, ClusterGroup>>(new Map());
+  const clusterMarkersMap = new Map<string, Marker>();
+  const clusterGroups = shallowRef(new Map<string, ClusterGroup>());
+
+  let zoomDebounceTimer: ReturnType<typeof setTimeout> | null = null;
 
   function calculateClusterCenter(stations: Station[]): [number, number] {
     let totalLng = 0;
@@ -73,8 +75,8 @@ export function useMapClustering(
   }
 
   function clearClusterMarkers() {
-    clusterMarkers.value.forEach((m) => m.remove());
-    clusterMarkers.value = [];
+    clusterMarkersMap.forEach((m) => m.remove());
+    clusterMarkersMap.clear();
   }
 
   function renderClusterMarkers() {
@@ -86,10 +88,29 @@ export function useMapClustering(
       return;
     }
 
-    clearClusterMarkers();
     clusterGroups.value = buildClusterGroups();
 
+    const newGroupIds = new Set(clusterGroups.value.keys());
+
+    // Remove markers for groups no longer present
+    for (const [groupId, marker] of clusterMarkersMap) {
+      if (!newGroupIds.has(groupId)) {
+        marker.remove();
+        clusterMarkersMap.delete(groupId);
+      }
+    }
+
+    // Add/update markers
     clusterGroups.value.forEach((group) => {
+      const existing = clusterMarkersMap.get(group.groupId);
+
+      if (existing) {
+        existing.setLngLat(group.center);
+        const el = existing.getElement();
+        el.textContent = group.stations.length.toString();
+        return;
+      }
+
       const stationCount = group.stations.length;
       const size = calculateMarkerSize(stationCount);
 
@@ -134,15 +155,28 @@ export function useMapClustering(
         });
       });
 
-      clusterMarkers.value.push(marker);
+      clusterMarkersMap.set(group.groupId, marker);
     });
   }
 
+  function onRenderTrigger() {
+    // Debounce zoom-only changes to avoid rapid clear/recreate cycles
+    if (zoomDebounceTimer) {
+      clearTimeout(zoomDebounceTimer);
+    }
+    zoomDebounceTimer = setTimeout(() => {
+      renderClusterMarkers();
+    }, 100);
+  }
+
   watch(
-    [isReady, filteredStations, currentZoom],
+    [isReady, filteredStations],
     () => renderClusterMarkers(),
     { immediate: true },
   );
+
+  // Debounced watch for zoom changes
+  watch(currentZoom, () => onRenderTrigger());
 
   return { renderClusterMarkers, clearClusterMarkers };
 }

@@ -2,8 +2,6 @@
 import Hero from "@/components/landing-page/Hero.vue";
 import FeatureCard from "@/components/landing-page/FeatureCard.vue";
 import { onMounted, nextTick, computed } from "vue";
-import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 const { t } = useI18n();
 const userStore = useUserStore();
@@ -15,16 +13,21 @@ useHead({
 
 definePageMeta({ layout: "landing" });
 
-if (import.meta.client) {
-    gsap.registerPlugin(ScrollTrigger);
-}
-
 onBeforeMount(async () => {
-    await userStore.fetchCurrentUser();
+    if (useCookie("token").value) {
+        await userStore.fetchCurrentUser();
+    }
 });
 
 onMounted(async () => {
     await nextTick();
+
+    const [{ default: gsap }, { ScrollTrigger }] = await Promise.all([
+        import("gsap"),
+        import("gsap/ScrollTrigger"),
+    ]);
+
+    gsap.registerPlugin(ScrollTrigger);
 
     const sections = document.querySelectorAll(".reveal");
 

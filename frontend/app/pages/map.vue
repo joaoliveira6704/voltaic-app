@@ -6,6 +6,12 @@
             class="w-full h-full"
             @click="sidebarOpen = false"
         />
+        <div
+            v-if="pageLoading || !isReady"
+            class="absolute inset-0 z-[1]"
+        >
+            <Skeleton class="w-full h-full" />
+        </div>
 
         <MapTopBar
             :filters="filters"
@@ -45,6 +51,7 @@
 
 <script setup lang="ts">
 import { computed, ref } from "vue";
+import { Skeleton } from "~/components/ui/Skeleton";
 import { useUserStore } from "@/stores/user";
 import { useStationStore } from "@/stores/station";
 import { useResponsive } from "@/composables/useResponsive";
@@ -57,12 +64,32 @@ import type { Station } from "@/types/station";
 import "vue-sonner/style.css";
 import { Toaster } from "@/components/ui/sonner";
 
-definePageMeta({ ssr: false, layout: false });
+definePageMeta({
+    ssr: false,
+    layout: false,
+});
+
+const { t } = useI18n();
+
+useHead({
+    title: t("map.title"),
+    meta: [
+        {
+            name: "description",
+            content: t("map.description"),
+        },
+    ],
+    link: [
+        {
+            rel: "preconnect",
+            href: "https://tiles.openfreemap.org",
+        },
+    ],
+});
 
 // ── User ──────────────────────────────────────────────────────────────────────
 
 const userStore = useUserStore();
-if (!userStore.currentUser) await userStore.fetchCurrentUser();
 
 // Writable computed that syncs with the store
 const colorMode = useColorMode();
@@ -71,20 +98,23 @@ const isDark = computed(() => colorMode.preference === "dark");
 // ── Stations ──────────────────────────────────────────────────────────────────
 
 const stationStore = useStationStore();
-await stationStore.fetchStations();
+const companyStore = useCompanyStore();
+const usageStore = useUsageStore();
+
 const firstStation = computed(
     () => stationStore.stations[0] as Station | undefined,
 );
 
-// --- Company ------------------------------------------------------------------
+const pageLoading = ref(true);
 
-const companyStore = useCompanyStore();
-await companyStore.fetchCurrentCompany();
-
-// --- Usage ------------------------------------------------------------------
-
-const usageStore = useUsageStore();
-await usageStore.fetchUserActiveUsages();
+Promise.all([
+    !userStore.currentUser ? userStore.fetchCurrentUser() : Promise.resolve(),
+    stationStore.fetchStations(),
+    companyStore.fetchCurrentCompany(),
+    usageStore.fetchUserActiveUsages(),
+]).finally(() => {
+    pageLoading.value = false;
+});
 
 // ── Composables ───────────────────────────────────────────────────────────────
 

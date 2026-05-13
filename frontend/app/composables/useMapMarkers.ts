@@ -1,6 +1,6 @@
-import { ref, watch } from "vue";
+import { ref, watch, computed } from "vue";
 import type { Ref, ComputedRef } from "vue";
-import type { Map, Marker } from "maplibre-gl";
+import type { Map as MapLibreMap, Marker } from "maplibre-gl";
 import type { Station, StationState } from "@/types/station";
 import { ZOOM_INDIVIDUAL } from "@/composables/useMapClustering";
 import { useUserStore } from "@/stores/user";
@@ -15,20 +15,20 @@ const STATE_COLORS: Record<StationState, string> = {
 const CLUSTER_ZOOM_THRESHOLD = 13;
 
 export function useMapMarkers(
-  mapInstance: Ref<Map | null>,
+  mapInstance: Ref<MapLibreMap | null>,
   isReady: Ref<boolean>,
   filteredStations: ComputedRef<Station[]>,
   MarkerClass: Ref<typeof Marker | null>,
   currentZoom: Ref<number>,
   onMarkerClick?: (station: Station) => void,
 ) {
-  const markers = ref<Marker[]>([]);
+  const markersMap = new Map<string, Marker>();
   const userStore = useUserStore();
   const userRole = computed(() => userStore.currentUser?.role);
 
   function clearMarkers() {
-    markers.value.forEach((m) => m.remove());
-    markers.value = [];
+    markersMap.forEach((m) => m.remove());
+    markersMap.clear();
   }
 
   function renderMarkers() {
@@ -40,14 +40,25 @@ export function useMapMarkers(
       return;
     }
 
-    clearMarkers();
-
     // Only show individual markers when zoom > threshold (zoomed in)
     if (currentZoom.value <= CLUSTER_ZOOM_THRESHOLD) {
+      clearMarkers();
       return;
     }
 
+    const newStationIds = new Set(filteredStations.value.map((s) => s.stationId));
+
+    // Remove markers for stations no longer in the filtered list
+    for (const [stationId, marker] of markersMap) {
+      if (!newStationIds.has(stationId)) {
+        marker.remove();
+        markersMap.delete(stationId);
+      }
+    }
+
+    // Add markers for new stations
     filteredStations.value.forEach((station) => {
+      if (markersMap.has(station.stationId)) return;
       if (!station.alive && userRole.value !== "admin") return;
 
       const coords = station.location?.coordinates;
@@ -67,11 +78,8 @@ export function useMapMarkers(
         });
       }
 
-      markers.value.push(marker);
+      markersMap.set(station.stationId, marker);
     });
-
-    const markerCoords = markers.value.map((m) => m.getLngLat());
-    console.log("All marker coordinates:", markerCoords);
   }
 
   watch([isReady, filteredStations, currentZoom], () => renderMarkers(), {

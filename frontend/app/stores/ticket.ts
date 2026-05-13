@@ -17,9 +17,11 @@ export const useTicketStore = defineStore("ticket", () => {
 
     // ── Actions ───────────────────────────────────────────────────────────────
 
-    async function fetchTickets() {
+    async function fetchTickets(limit?: number, offset?: number) {
         try {
-            const data = await $fetch<any[]>(`${apiBase()}/api/tickets`, {
+            let url = `${apiBase()}/api/tickets`;
+            if (limit !== undefined) url += `?limit=${limit}&offset=${offset ?? 0}`;
+            const data = await $fetch<any[]>(url, {
                 headers: { Authorization: `Bearer ${token()}` },
             });
             tickets.value = data;

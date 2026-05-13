@@ -70,7 +70,6 @@ export function useMapInstance(
 
     map.on("zoom", () => {
       currentZoom.value = map.getZoom();
-      console.log("Map zoom level:", currentZoom.value);
     });
 
     mapInstance.value = map;
