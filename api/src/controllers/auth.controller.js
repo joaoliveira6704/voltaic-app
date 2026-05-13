@@ -111,4 +111,28 @@ export const createResetToken = async (req, res, next) => {
   }
 };
 
-export const validateResetToken = async (req, res, next) => {};
+export const validateResetToken = async (req, res, next) => {
+  try {
+    const token = req.params.token;
+
+    if (!token) {
+      const err = new Error();
+      err.status = 400;
+      err.message = "Token is not valid";
+      return next(err);
+    }
+
+    const resetToken = await resetTokenModel.findOne({ token: token });
+
+    if (!resetToken) {
+      const err = new Error();
+      err.status = 400;
+      err.message = "Token is not valid or has expired";
+      return next(err);
+    }
+
+    return res.status(200).json({ message: "Token is valid." });
+  } catch (err) {
+    next(err);
+  }
+};
