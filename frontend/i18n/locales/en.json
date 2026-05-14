@@ -57,6 +57,7 @@
     "forgot": "Forgot?",
     "rememberMe": "Remember me",
     "keepSessionActive": "Keep my session active",
+    "passwordPlaceholder": "*********",
     "submit": "Login",
     "newToVoltaic": "New to Voltaic?",
     "createAccount": "Create account",
@@ -263,6 +264,7 @@
       "start": "Start",
       "shutdown": "Shutdown",
       "restart": "Restart",
+      "commandPlaceholder": "restart station",
       "stationStatus": "Station Status: {status}"
     },
     "stationReport": {
@@ -329,13 +331,22 @@
       "allFieldsRequired": "All fields required",
       "cancel": "Cancel",
       "create": "Create",
+      "firstNamePlaceholder": "First name",
+      "lastNamePlaceholder": "Last name",
+      "usernamePlaceholder": "username",
+      "emailPlaceholder": "email\\@example.com",
+      "passwordPlaceholder": "••••••••",
+      "showPassword": "Show",
+      "hidePassword": "Hide",
+      "dismiss": "Dismiss",
       "errors": {
         "firstNameRequired": "First name is required.",
         "lastNameRequired": "Last name is required.",
         "usernameRequired": "Username is required.",
         "invalidEmail": "Please enter a valid email address.",
-        "roleRequired": "Please select a role.",
-        "passwordTooShort": "Password must be at least 8 characters."
+"roleRequired": "Please select a role.",
+        "passwordTooShort": "Password must be at least 8 characters.",
+        "unknown": "An unknown error occurred"
       }
     },
     "editProfile": {
@@ -347,9 +358,17 @@
       "passwordSection": "Password change",
       "currentPassword": "Current password",
       "newPassword": "New password",
+      "firstNamePlaceholder": "John",
+      "lastNamePlaceholder": "Doe",
+      "usernamePlaceholder": "johndoe123",
+      "emailPlaceholder": "example\\@voltaic.com",
+      "passwordPlaceholder": "••••••••",
       "noChanges": "No changes",
       "fieldsModified": "{n} field modified",
       "fieldsModifiedPlural": "{n} fields modified",
+      "showPassword": "Show",
+      "hidePassword": "Hide",
+      "dismiss": "Dismiss",
       "cancel": "Cancel",
       "save": "Save",
       "errors": {
@@ -375,6 +394,9 @@
       "noVehiclesFound": "No vehicles found.",
       "cancel": "Cancel",
       "add": "Add",
+      "clear": "Clear",
+      "notApplicable": "—",
+      "dismiss": "Dismiss",
       "errors": {
         "plateRequired": "License plate is required.",
         "vehicleRequired": "Please select a vehicle from the list.",
@@ -412,7 +434,10 @@
       "deploy": "Deploy",
       "errors": {
         "titleRequired": "Station title is required",
-        "coordinatesRequired": "Coordinates are required"
+        "coordinatesRequired": "Coordinates are required",
+        "socketTypeRequired": "Select at least one socket type",
+        "maxPowerRequired": "Max power must be defined",
+        "createFailed": "Failed to create station"
       }
     },
     "registerIntervention": {
@@ -431,7 +456,8 @@
       "submit": "Submit",
       "errors": {
         "titleRequired": "Title is required",
-        "descriptionRequired": "Description is required"
+        "descriptionRequired": "Description is required",
+        "createFailed": "Failed to create ticket"
       }
     }
   },
@@ -508,6 +534,15 @@
       "subtitle": "Join thousands of drivers who charge smarter every day.",
       "button": "Get Started"
     }
+  },
+  "ticketDetail": {
+    "description": "Description",
+    "remarks": "Remarks",
+    "createdBy": "Created By",
+    "station": "Station",
+    "created": "Created",
+    "closed": "Closed",
+    "updated": "Updated"
   },
   "lang": {
     "en": "English (US)",

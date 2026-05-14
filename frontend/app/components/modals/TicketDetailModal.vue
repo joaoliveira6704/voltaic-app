@@ -62,7 +62,7 @@ function formatDate(date: Date | string | undefined) {
           <div class="flex items-start gap-2">
             <FileText class="w-4 h-4 mt-0.5 shrink-0 text-gray-400" />
             <div>
-              <span class="font-semibold text-xs text-gray-500 uppercase tracking-wide block mb-1">Description</span>
+              <span class="font-semibold text-xs text-gray-500 uppercase tracking-wide block mb-1">{{ t("ticketDetail.description") }}</span>
               <p class="text-gray-800 dark:text-white/80 whitespace-pre-wrap">{{ ticket.description }}</p>
             </div>
           </div>
@@ -70,7 +70,7 @@ function formatDate(date: Date | string | undefined) {
           <div v-if="ticket.remarks" class="flex items-start gap-2">
             <FileText class="w-4 h-4 mt-0.5 shrink-0 text-gray-400" />
             <div>
-              <span class="font-semibold text-xs text-gray-500 uppercase tracking-wide block mb-1">Remarks</span>
+              <span class="font-semibold text-xs text-gray-500 uppercase tracking-wide block mb-1">{{ t("ticketDetail.remarks") }}</span>
               <p class="text-gray-800 dark:text-white/80 whitespace-pre-wrap">{{ ticket.remarks }}</p>
             </div>
           </div>
@@ -81,7 +81,7 @@ function formatDate(date: Date | string | undefined) {
             <div class="flex items-center gap-2">
               <User class="w-4 h-4 shrink-0 text-gray-400" />
               <div>
-                <span class="text-xs text-gray-500 block">Created By</span>
+                <span class="text-xs text-gray-500 block">{{ t("ticketDetail.createdBy") }}</span>
                 <span class="text-sm font-medium">{{ ticket.createdBy?.slice(0, 12) ?? "—" }}</span>
               </div>
             </div>
@@ -89,7 +89,7 @@ function formatDate(date: Date | string | undefined) {
             <div v-if="ticket.stationId" class="flex items-center gap-2">
               <MapPin class="w-4 h-4 shrink-0 text-gray-400" />
               <div>
-                <span class="text-xs text-gray-500 block">Station</span>
+                <span class="text-xs text-gray-500 block">{{ t("ticketDetail.station") }}</span>
                 <span class="text-sm font-medium">{{ ticket.stationId.slice(0, 12) }}...</span>
               </div>
             </div>
@@ -97,7 +97,7 @@ function formatDate(date: Date | string | undefined) {
             <div class="flex items-center gap-2">
               <Calendar class="w-4 h-4 shrink-0 text-gray-400" />
               <div>
-                <span class="text-xs text-gray-500 block">Created</span>
+                <span class="text-xs text-gray-500 block">{{ t("ticketDetail.created") }}</span>
                 <span class="text-sm font-medium">{{ formatDate(ticket.createdAt) }}</span>
               </div>
             </div>
@@ -105,7 +105,7 @@ function formatDate(date: Date | string | undefined) {
             <div v-if="ticket.closedAt" class="flex items-center gap-2">
               <Clock class="w-4 h-4 shrink-0 text-gray-400" />
               <div>
-                <span class="text-xs text-gray-500 block">Closed</span>
+                <span class="text-xs text-gray-500 block">{{ t("ticketDetail.closed") }}</span>
                 <span class="text-sm font-medium">{{ formatDate(ticket.closedAt) }}</span>
               </div>
             </div>
@@ -113,7 +113,7 @@ function formatDate(date: Date | string | undefined) {
             <div class="flex items-center gap-2">
               <Clock class="w-4 h-4 shrink-0 text-gray-400" />
               <div>
-                <span class="text-xs text-gray-500 block">Updated</span>
+                <span class="text-xs text-gray-500 block">{{ t("ticketDetail.updated") }}</span>
                 <span class="text-sm font-medium">{{ formatDate(ticket.updatedAt) }}</span>
               </div>
             </div>

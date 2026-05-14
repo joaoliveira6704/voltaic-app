@@ -40,7 +40,7 @@ const handleRecovery = async () => {
                         {{ t("recoverPassword.heading") }}
                     </h1>
                     <p class="text-[10px] text-gray-400 uppercase">
-                        {{ t("recoverPassword.instructions") }}
+                        {{ t("recoverPassword.instruction") }}
                     </p>
                 </div>
 

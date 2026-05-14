@@ -80,7 +80,7 @@ const handleSave = async () => {
                 <SelectTrigger
                     class="w-full border-neutral-200 dark:border-[#232323]"
                 >
-                    <SelectValue placeholder="Select Language" />
+                    <SelectValue :placeholder="t('userSettings.selectLanguage')" />
                 </SelectTrigger>
                 <SelectContent
                     class="bg-white dark:bg-[#1a1a1a] dark:text-white/80 dark:border-[#232323]"

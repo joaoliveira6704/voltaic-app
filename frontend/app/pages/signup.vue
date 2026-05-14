@@ -61,7 +61,7 @@ const handleRegister = async () => {
         };
 
         const errorMessage =
-            error.data?.error || error.message || t("signup.failed");
+            error.data?.error || error.message || t("signup.error");
 
         alert(`${t("error")}: ${errorMessage}`);
     } finally {
@@ -150,7 +150,7 @@ const handleRegister = async () => {
                             id="password"
                             v-model="form.password"
                             type="password"
-                            :placeholder="t('signup.passwordPlaceholder')"
+                            placeholder="••••••••"
                             class="h-11 dark:border-[#232323]"
                         />
                     </div>
@@ -166,7 +166,7 @@ const handleRegister = async () => {
                                 for="terms"
                                 class="text-[10px] text-gray-900 dark:text-white cursor-pointer"
                             >
-                                {{ t("signup.acceptTerms") }}
+                                {{ t("signup.agreeTerms") }}
                             </Label>
                         </div>
                     </div>
@@ -183,7 +183,7 @@ const handleRegister = async () => {
                             </svg>
                             {{ t("loading") }}
                         </span>
-                        <span v-else>{{ t("nav.signup") }}</span>
+                        <span v-else>{{ t("signup.submit") }}</span>
                     </Button>
                 </form>
             </CardContent>

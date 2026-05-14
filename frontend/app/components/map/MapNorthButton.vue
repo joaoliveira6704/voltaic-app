@@ -2,8 +2,8 @@
   <div class="absolute bottom-8 right-4 z-[1000]">
     <button
       class="flex items-center justify-center w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm border border-white/60 shadow-md hover:bg-white transition-all duration-200 group"
-      aria-label="Reset North"
-      title="Reset North"
+      :aria-label="t('map.north.ariaLabel')"
+      :title="t('map.north.title')"
       @click="emit('click')"
     >
       <Navigation
@@ -15,6 +15,8 @@
 
 <script setup lang="ts">
 import { Navigation } from "lucide-vue-next";
+import { useI18n } from "vue-i18n";
 
+const { t } = useI18n();
 const emit = defineEmits<{ click: [] }>();
 </script>

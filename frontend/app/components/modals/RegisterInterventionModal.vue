@@ -29,6 +29,8 @@ const emit = defineEmits<{
 
 const ticketStore = useTicketStore();
 
+const { t } = useI18n();
+
 const isSubmitting = ref(false);
 const errors = ref<string[]>([]);
 
@@ -58,8 +60,8 @@ watch(
 
 const validate = () => {
     const errs: string[] = [];
-    if (!form.value.title.trim()) errs.push("Title is required");
-    if (!form.value.description.trim()) errs.push("Description is required");
+    if (!form.value.title.trim()) errs.push(t("modal.registerIntervention.errors.titleRequired"));
+    if (!form.value.description.trim()) errs.push(t("modal.registerIntervention.errors.descriptionRequired"));
     return errs;
 };
 
@@ -85,7 +87,7 @@ const handleCreate = async () => {
         emit("created");
         emit("close");
     } catch (e) {
-        errors.value = [e?.data?.message || "Failed to create ticket"];
+        errors.value = [e?.data?.message || t("modal.registerIntervention.errors.createFailed")];
     } finally {
         isSubmitting.value = false;
     }
@@ -107,7 +109,7 @@ const handleClose = () => emit("close");
                     <DialogTitle
                         class="text-xs font-semibold text-neutral-800 dark:text-white/80 uppercase"
                     >
-                        Register Intervention
+                        {{ t("modal.registerIntervention.title") }}
                     </DialogTitle>
                 </div>
                 <span
@@ -126,12 +128,12 @@ const handleClose = () => emit("close");
                     <Label
                         class="text-[10px] text-neutral-400 dark:text-white/40 uppercase"
                     >
-                        Title
+                        {{ t("modal.registerIntervention.titleField") }}
                     </Label>
                     <Input
                         v-model="form.title"
                         type="text"
-                        placeholder="e.g. Connector not responding"
+                        :placeholder="t('modal.registerIntervention.titlePlaceholder')"
                         class="h-8 rounded-none text-xs bg-neutral-50 dark:bg-[#171717] dark:border-[#232323]"
                     />
                 </div>
@@ -140,7 +142,7 @@ const handleClose = () => emit("close");
                     <Label
                         class="text-[10px] text-neutral-400 dark:text-white/40 uppercase"
                     >
-                        Initial Status
+                        {{ t("modal.registerIntervention.initialStatus") }}
                     </Label>
                     <Select
                         :model-value="form.status"
@@ -156,10 +158,10 @@ const handleClose = () => emit("close");
                         >
                             <SelectItem value="open" class="text-xs">Open</SelectItem>
                             <SelectItem value="resolved" class="text-xs"
-                                >Resolved</SelectItem
+                                >{{ t("modal.registerIntervention.resolved") }}</SelectItem
                             >
                             <SelectItem value="unresolved" class="text-xs"
-                                >Unresolved</SelectItem
+                                >{{ t("modal.registerIntervention.unresolved") }}</SelectItem
                             >
                         </SelectContent>
                     </Select>
@@ -169,11 +171,11 @@ const handleClose = () => emit("close");
                     <Label
                         class="text-[10px] text-neutral-400 dark:text-white/40 uppercase"
                     >
-                        Description
+                        {{ t("modal.registerIntervention.description") }}
                     </Label>
                     <Textarea
                         v-model="form.description"
-                        placeholder="Describe the issue in detail..."
+                        :placeholder="t('modal.registerIntervention.descriptionPlaceholder')"
                         rows="3"
                         class="rounded-none text-xs resize-none bg-neutral-50 dark:bg-[#171717] dark:border-[#232323]"
                     />
@@ -183,14 +185,11 @@ const handleClose = () => emit("close");
                     <Label
                         class="text-[10px] text-neutral-400 dark:text-white/40 uppercase"
                     >
-                        Remarks
-                        <span class="text-white/20 normal-case"
-                            >(optional)</span
-                        >
+                        {{ t("modal.registerIntervention.remarksOptional") }}
                     </Label>
                     <Textarea
                         v-model="form.remarks"
-                        placeholder="Any additional notes..."
+                        :placeholder="t('modal.registerIntervention.remarksPlaceholder')"
                         rows="2"
                         class="rounded-none text-xs resize-none bg-neutral-50 dark:bg-[#171717] dark:border-[#232323]"
                     />
@@ -224,7 +223,7 @@ const handleClose = () => emit("close");
                             class="h-7 text-[11px] uppercase rounded-none dark:border-white/10 dark:text-white/40"
                             @click="handleClose"
                         >
-                            Cancel
+                            {{ t("modal.registerIntervention.cancel") }}
                         </Button>
                         <Button
                             type="submit"
@@ -236,7 +235,7 @@ const handleClose = () => emit("close");
                                 v-if="isSubmitting"
                                 class="w-3 h-3 animate-spin mr-2"
                             />
-                            Submit
+                            {{ t("modal.registerIntervention.submit") }}
                         </Button>
                     </div>
                 </div>

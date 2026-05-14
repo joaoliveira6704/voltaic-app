@@ -57,6 +57,7 @@
     "forgot": "Esqueceu-se?",
     "rememberMe": "Lembrar-me",
     "keepSessionActive": "Manter a minha sessão ativa",
+    "passwordPlaceholder": "*********",
     "submit": "Entrar",
     "newToVoltaic": "Novo no Voltaic?",
     "createAccount": "Criar conta",
@@ -263,6 +264,7 @@
       "start": "Iniciar",
       "shutdown": "Desligar",
       "restart": "Reiniciar",
+      "commandPlaceholder": "reiniciar posto",
       "stationStatus": "Estado do Posto: {status}"
     },
     "stationReport": {
@@ -329,13 +331,22 @@
       "allFieldsRequired": "Todos os campos são obrigatórios",
       "cancel": "Cancelar",
       "create": "Criar",
+      "firstNamePlaceholder": "Nome próprio",
+      "lastNamePlaceholder": "Apelido",
+      "usernamePlaceholder": "nome de utilizador",
+      "emailPlaceholder": "email\\@exemplo.com",
+      "passwordPlaceholder": "••••••••",
+      "showPassword": "Mostrar",
+      "hidePassword": "Ocultar",
+      "dismiss": "Dispensar",
       "errors": {
         "firstNameRequired": "O nome é obrigatório.",
         "lastNameRequired": "O apelido é obrigatório.",
         "usernameRequired": "O nome de utilizador é obrigatório.",
         "invalidEmail": "Introduza um endereço de email válido.",
-        "roleRequired": "Selecione uma função.",
-        "passwordTooShort": "A palavra-passe deve ter pelo menos 8 caracteres."
+"roleRequired": "Selecione uma função.",
+        "passwordTooShort": "A palavra-passe deve ter pelo menos 8 caracteres.",
+        "unknown": "Ocorreu um erro desconhecido"
       }
     },
     "editProfile": {
@@ -350,6 +361,9 @@
       "noChanges": "Sem alterações",
       "fieldsModified": "{n} campo modificado",
       "fieldsModifiedPlural": "{n} campos modificados",
+      "showPassword": "Mostrar",
+      "hidePassword": "Ocultar",
+      "dismiss": "Dispensar",
       "cancel": "Cancelar",
       "save": "Guardar",
       "errors": {
@@ -375,6 +389,9 @@
       "noVehiclesFound": "Nenhum veículo encontrado.",
       "cancel": "Cancelar",
       "add": "Adicionar",
+      "clear": "Limpar",
+      "notApplicable": "—",
+      "dismiss": "Dispensar",
       "errors": {
         "plateRequired": "A matrícula é obrigatória.",
         "vehicleRequired": "Por favor, selecione um veículo da lista.",
@@ -412,7 +429,10 @@
       "deploy": "Implementar",
       "errors": {
         "titleRequired": "O título do posto é obrigatório",
-        "coordinatesRequired": "As coordenadas são obrigatórias"
+        "coordinatesRequired": "As coordenadas são obrigatórias",
+        "socketTypeRequired": "Selecione pelo menos um tipo de tomada",
+        "maxPowerRequired": "A potência máxima deve ser definida",
+        "createFailed": "Falha ao criar posto"
       }
     },
     "registerIntervention": {
@@ -431,7 +451,8 @@
       "submit": "Submeter",
       "errors": {
         "titleRequired": "O título é obrigatório",
-        "descriptionRequired": "A descrição é obrigatória"
+        "descriptionRequired": "A descrição é obrigatória",
+        "createFailed": "Falha ao criar ticket"
       }
     }
   },
@@ -508,6 +529,15 @@
       "subtitle": "Junte-se a milhares de condutores que carregam de forma mais inteligente todos os dias.",
       "button": "Começar Agora"
     }
+  },
+  "ticketDetail": {
+    "description": "Descrição",
+    "remarks": "Observações",
+    "createdBy": "Criado Por",
+    "station": "Estação",
+    "created": "Criado",
+    "closed": "Fechado",
+    "updated": "Atualizado"
   },
   "lang": {
     "en": "Inglês (US)",

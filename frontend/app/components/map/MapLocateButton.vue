@@ -4,7 +4,7 @@
     <button
       :disabled="locating"
       class="flex items-center justify-center w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm border border-white/60 shadow-md hover:bg-white transition-all duration-200 group disabled:opacity-50 disabled:cursor-not-allowed"
-      aria-label="Find my location"
+      :aria-label="t('map.locate.ariaLabel')"
       @click="emit('click')"
     >
       <LocateFixed
@@ -18,10 +18,12 @@
 
 <script setup lang="ts">
 import { LocateFixed, Loader2 } from "lucide-vue-next";
+import { useI18n } from "vue-i18n";
 
 defineProps<{
   locating: boolean;
 }>();
 
+const { t } = useI18n();
 const emit = defineEmits<{ click: [] }>();
 </script>

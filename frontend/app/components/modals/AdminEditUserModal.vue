@@ -171,7 +171,7 @@ const handleOpenChange = (open) => {
                             v-model="form.firstName"
                             type="text"
                             class="h-8 rounded-none text-xs bg-neutral-50 dark:bg-[#171717] dark:border-[#232323] dark:text-white/80 dark:placeholder-white/30"
-                            :placeholder="user?.firstName || 'First name'"
+                            :placeholder="user?.firstName || t('modal.editProfile.firstNamePlaceholder')"
                             autocomplete="given-name"
                         />
                     </div>
@@ -185,7 +185,7 @@ const handleOpenChange = (open) => {
                             v-model="form.lastName"
                             type="text"
                             class="h-8 rounded-none text-xs bg-neutral-50 dark:bg-[#171717] dark:border-[#232323] dark:text-white/80 dark:placeholder-white/30"
-                            :placeholder="user?.lastName || 'Last name'"
+                            :placeholder="user?.lastName || t('modal.editProfile.lastNamePlaceholder')"
                             autocomplete="family-name"
                         />
                     </div>
@@ -207,7 +207,7 @@ const handleOpenChange = (open) => {
                             v-model="form.username"
                             type="text"
                             class="h-8 rounded-none text-xs bg-neutral-50 dark:bg-[#171717] dark:border-[#232323] dark:text-white/80 dark:placeholder-white/30 pl-6"
-                            :placeholder="user?.username || 'username'"
+                            :placeholder="user?.username || t('modal.editProfile.usernamePlaceholder')"
                             autocomplete="username"
                         />
                     </div>
@@ -224,7 +224,7 @@ const handleOpenChange = (open) => {
                         v-model="form.email"
                         type="email"
                         class="h-8 rounded-none text-xs bg-neutral-50 dark:bg-[#171717] dark:border-[#232323] dark:text-white/80 dark:placeholder-white/30"
-                        :placeholder="user?.email || 'email@example.com'"
+                        :placeholder="user?.email || t('modal.editProfile.emailPlaceholder')"
                         autocomplete="email"
                     />
                 </div>
@@ -380,11 +380,16 @@ const handleOpenChange = (open) => {
                                 : 'text-neutral-300 dark:text-white/20'
                         "
                     >
-                        {{
-                            hasChanges
-                                ? `${Object.keys(changedFields).length} field${Object.keys(changedFields).length > 1 ? "s" : ""} modified`
-                                : t("modal.addUser.noChanges")
-                        }}
+                    {{
+                        hasChanges
+                            ? t(
+                                  Object.keys(changedFields).length === 1
+                                      ? "modal.editProfile.fieldsModified"
+                                      : "modal.editProfile.fieldsModifiedPlural",
+                                  { n: Object.keys(changedFields).length },
+                              )
+                            : t("modal.editProfile.noChanges")
+                    }}
                     </span>
                     <div class="flex gap-2">
                         <Button

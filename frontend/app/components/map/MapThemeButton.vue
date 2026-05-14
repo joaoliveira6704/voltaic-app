@@ -3,8 +3,8 @@
     <div v-if="!isPending" class="absolute bottom-32 right-4 z-[1000]">
         <button
             class="flex items-center justify-center w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm border border-white/60 shadow-md hover:bg-white transition-all duration-200 group disabled:opacity-50 disabled:cursor-not-allowed"
-            aria-label="Toggle dark mode"
-            title="Toggle dark mode"
+            :aria-label="t('map.theme.ariaLabel')"
+            :title="t('map.theme.title')"
             @click="toggleDarkMode"
         >
             <MoonIcon
@@ -23,6 +23,9 @@
 import { watch, onMounted, computed } from "vue";
 import { MoonIcon, SunIcon } from "lucide-vue-next";
 
+import { useI18n } from "vue-i18n";
+
+const { t } = useI18n();
 const userStore = useUserStore();
 const colorMode = useColorMode();
 const isDark = computed(() => colorMode.preference === "dark");

@@ -68,12 +68,12 @@ watch(
 const validate = () => {
     const errs = [];
     const f = form.value;
-    if (!f.title.trim()) errs.push("Station title is required");
+    if (!f.title.trim()) errs.push(t("modal.addStation.errors.titleRequired"));
     if (!f.location.lat || !f.location.lng)
-        errs.push("Coordinates are required");
+        errs.push(t("modal.addStation.errors.coordinatesRequired"));
     if (f.connector.socketTypes.length === 0)
-        errs.push("Select at least one socket type");
-    if (!f.connector.maxPower) errs.push("Max power must be defined");
+        errs.push(t("modal.addStation.errors.socketTypeRequired"));
+    if (!f.connector.maxPower) errs.push(t("modal.addStation.errors.maxPowerRequired"));
     return errs;
 };
 
@@ -107,7 +107,7 @@ const handleCreate = async () => {
         emit("created", newStation);
         emit("close");
     } catch (e) {
-        errors.value = [e?.data?.message || "Failed to create station"];
+        errors.value = [e?.data?.message || t("modal.addStation.errors.createFailed")];
     } finally {
         isSubmitting.value = false;
     }
@@ -134,7 +134,7 @@ const handleClose = () => emit("close");
                 <DialogTitle
                     class="text-xs font-semibold text-neutral-800 dark:text-white/80 uppercase"
                 >
-                    Register New Station
+                    {{ t("modal.addStation.title") }}
                 </DialogTitle>
             </DialogHeader>
 
@@ -146,12 +146,12 @@ const handleClose = () => emit("close");
                 <div class="flex flex-col gap-1.5">
                     <Label
                         class="text-[10px] text-neutral-400 dark:text-white/40 uppercase"
-                        >Station Display Name</Label
+                        >{{ t("modal.addStation.displayName") }}</Label
                     >
                     <Input
                         v-model="form.title"
                         type="text"
-                        placeholder="e.g. Faro Charging Station 480"
+                        :placeholder="t('modal.addStation.displayNamePlaceholder')"
                         class="h-8 rounded-none text-xs bg-neutral-50 dark:bg-[#171717] dark:border-[#232323]"
                     />
                 </div>
@@ -161,7 +161,7 @@ const handleClose = () => emit("close");
                     <div class="flex flex-col gap-1.5">
                         <Label
                             class="text-[10px] text-neutral-400 dark:text-white/40 uppercase"
-                            >Latitude</Label
+                            >{{ t("modal.addStation.latitude") }}</Label
                         >
                         <div class="relative">
                             <MapPin
@@ -171,7 +171,7 @@ const handleClose = () => emit("close");
                                 v-model.number="form.location.lat"
                                 type="number"
                                 step="any"
-                                placeholder="36.856..."
+                                :placeholder="t('modal.addStation.latitudePlaceholder')"
                                 class="h-8 pl-8 rounded-none text-xs bg-neutral-50 dark:bg-[#171717] dark:border-[#232323]"
                             />
                         </div>
@@ -179,13 +179,13 @@ const handleClose = () => emit("close");
                     <div class="flex flex-col gap-1.5">
                         <Label
                             class="text-[10px] text-neutral-400 dark:text-white/40 uppercase"
-                            >Longitude</Label
+                            >{{ t("modal.addStation.longitude") }}</Label
                         >
                         <Input
                             v-model.number="form.location.lng"
                             type="number"
                             step="any"
-                            placeholder="-8.233..."
+                            :placeholder="t('modal.addStation.longitudePlaceholder')"
                             class="h-8 rounded-none text-xs bg-neutral-50 dark:bg-[#171717] dark:border-[#232323]"
                         />
                     </div>
@@ -196,7 +196,7 @@ const handleClose = () => emit("close");
                     <div class="flex flex-col gap-1.5">
                         <Label
                             class="text-[10px] text-neutral-400 dark:text-white/40 uppercase"
-                            >Max Power (kW)</Label
+                            >{{ t("modal.addStation.maxPower") }}</Label
                         >
                         <div class="relative">
                             <Zap
@@ -212,7 +212,7 @@ const handleClose = () => emit("close");
                     <div class="flex flex-col gap-1.5">
                         <Label
                             class="text-[10px] text-neutral-400 dark:text-white/40 uppercase"
-                            >Initial State</Label
+                            >{{ t("modal.addStation.initialState") }}</Label
                         >
                         <Select v-model="form.state">
                             <SelectTrigger
@@ -224,13 +224,13 @@ const handleClose = () => emit("close");
                                 class="rounded-none dark:bg-[#171717] dark:border-[#232323]"
                             >
                                 <SelectItem value="available" class="text-xs"
-                                    >Available</SelectItem
+                                    >{{ t("modal.addStation.available") }}</SelectItem
                                 >
                                 <SelectItem value="unavailable" class="text-xs"
-                                    >Unavailable</SelectItem
+                                    >{{ t("modal.addStation.unavailable") }}</SelectItem
                                 >
                                 <SelectItem value="maintenance" class="text-xs"
-                                    >Maintenance</SelectItem
+                                    >{{ t("modal.addStation.maintenance") }}</SelectItem
                                 >
                             </SelectContent>
                         </Select>
@@ -241,7 +241,7 @@ const handleClose = () => emit("close");
                 <div class="flex flex-col gap-1.5">
                     <Label
                         class="text-[10px] text-neutral-400 dark:text-white/40 uppercase"
-                        >Socket Types</Label
+                        >{{ t("modal.addStation.socketTypes") }}</Label
                     >
                     <div class="grid grid-cols-2 gap-2 mt-1">
                         <button
@@ -291,7 +291,7 @@ const handleClose = () => emit("close");
                             class="h-7 text-[11px] uppercase rounded-none dark:border-white/10 dark:text-white/40"
                             @click="handleClose"
                         >
-                            Cancel
+                            {{ t("modal.addStation.cancel") }}
                         </Button>
                         <Button
                             type="submit"
@@ -303,7 +303,7 @@ const handleClose = () => emit("close");
                                 v-if="isSubmitting"
                                 class="w-3 h-3 animate-spin mr-2"
                             />
-                            Deploy
+                            {{ t("modal.addStation.deploy") }}
                         </Button>
                     </div>
                 </div>

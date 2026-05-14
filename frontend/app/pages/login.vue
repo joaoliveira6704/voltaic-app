@@ -72,7 +72,7 @@ const handleLogin = async () => {
         };
 
         const errorMessage =
-            errorData?.data?.message || errorData?.message || t("login.failed");
+            errorData?.data?.message || errorData?.message || t("login.error");
 
         alert(t("error") + ": " + errorMessage);
     } finally {
@@ -115,14 +115,14 @@ const handleLogin = async () => {
                         to="/recover-password"
                         class="text-[10px] text-[#007bff] hover:underline uppercase"
                     >
-                        {{ t("login.forgotPassword") }}
+                        {{ t("login.forgot") }}
                     </NuxtLink>
                 </div>
                 <Input
                     id="password"
                     v-model="password"
                     type="password"
-                    placeholder="*********"
+                    placeholder="••••••••"
                     class="h-11 border-gray-200 dark:border-[#232323] focus-visible:ring-[#00c885]"
                 />
             </div>
@@ -159,7 +159,7 @@ const handleLogin = async () => {
                         </svg>
                         {{ t("loading") }}
                     </span>
-                    <span v-else>{{ t("nav.login") }}</span>
+                    <span v-else>{{ t("login.submit") }}</span>
                 </Button>
             </div>
 

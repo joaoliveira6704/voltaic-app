@@ -60,7 +60,7 @@ watch(
             </div>
         </template>
         <div v-else class="flex items-center justify-center h-full text-gray-500 text-xs">
-            {{ t("noLogs") }}
+            {{ t("company.stations.noLogs") }}
         </div>
     </div>
 </template>

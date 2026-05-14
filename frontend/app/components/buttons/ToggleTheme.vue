@@ -1,6 +1,8 @@
 <script setup lang="ts">
+import { useI18n } from "vue-i18n";
 import { MoonIcon, SunIcon } from "lucide-vue-next";
 import { useColorMode } from "@vueuse/core";
+const { t } = useI18n();
 const userStore = useUserStore();
 const colorMode = useColorMode();
 const isDark = computed(() => colorMode.preference === "dark");
@@ -36,7 +38,7 @@ watch(
     <button
         v-if="!isPending"
         class="w-full flex items-center rounded-md justify-center md:justify-start gap-3 h-11 px-4 transition-all group dark:bg-[#171717] dark:text-white cursor-pointer bg-white text-black hover:bg-gray-100 dark:hover:bg-[#272727]"
-        aria-label="Toggle dark mode"
+        :aria-label="t('map.theme.ariaLabel')"
         @click="toggleDarkMode"
     ><SunIcon
 

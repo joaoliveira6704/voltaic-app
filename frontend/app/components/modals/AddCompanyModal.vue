@@ -52,7 +52,7 @@ watch(
 
 const validate = () => {
     const errs = [];
-    if (!form.value.name.trim()) errs.push(t("modal.addCompany.errors.requiredName"));
+    if (!form.value.name.trim()) errs.push(t("modal.addCompany.errors.nameRequired"));
     // Ensure the generated ID didn't somehow get cleared
     if (!form.value.companyId.trim())
         errs.push(t("modal.addCompany.errors.missingId"));
@@ -73,7 +73,7 @@ const handleCreate = async () => {
         emit("created", newCompany);
         emit("close");
     } catch (e) {
-        errors.value = [e?.data?.message || t("modal.addCompany.errors.failedCreate")];
+        errors.value = [e?.data?.message || t("modal.addCompany.errors.createFailed")];
     } finally {
         isSubmitting.value = false;
     }
