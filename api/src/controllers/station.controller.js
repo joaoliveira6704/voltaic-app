@@ -1,4 +1,5 @@
 import stationModel from "../models/station.model.js";
+import companyModel from "../models/company.model.js";
 import logModel from "../models/log.model.js";
 import generateUniqueId from "../utils/utils.js";
 
@@ -62,6 +63,39 @@ export const updateStation = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
+};
+
+export const getCompanyStations = async (req, res, next) => {
+  try {
+    const company = await companyModel.findOne({ companyId: req.user.companyId });
+    if (!company) {
+      return res.json([]);
+    }
+    const stations = await stationModel.find({ groupId: { $in: company.groups } });
+    res.json(stations);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const checkStationOwnership = async (req, res, next) => {
+  if (req.user.role === "admin") return next();
+
+  const station = await stationModel.findOne({ stationId: req.params.id });
+  if (!station) {
+    const err = new Error("Station not found");
+    err.status = 404;
+    return next(err);
+  }
+
+  const company = await companyModel.findOne({ companyId: req.user.companyId });
+  if (!company || !company.groups.includes(station.groupId)) {
+    const err = new Error("Access denied.");
+    err.status = 403;
+    return next(err);
+  }
+
+  next();
 };
 
 export const getStationById = async (req, res, next) => {

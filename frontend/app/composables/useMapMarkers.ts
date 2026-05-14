@@ -56,9 +56,10 @@ export function useMapMarkers(
       }
     }
 
-    // Add markers for new stations
+    // Clear all markers before re-rendering to pick up state changes
+    clearMarkers();
+
     filteredStations.value.forEach((station) => {
-      if (markersMap.has(station.stationId)) return;
       if (!station.alive && userRole.value !== "admin") return;
 
       const coords = station.location?.coordinates;

@@ -6,7 +6,7 @@
   "yourFleet": "A Sua Frota",
   "addNewVehicle": "Adicionar novo Veículo",
   "plate": "Matrícula",
-  "history": "Histórico de Carregamentos",
+  "history": "Carregamentos Recentes",
   "date": "Data",
   "vehicle": "Veículo",
   "station": "Posto",
@@ -440,6 +440,12 @@
   },
   "info": {
     "unknownCompany": "Empresa Desconhecida"
+  },
+  "pagination": {
+    "previous": "Anterior",
+    "next": "Próximo",
+    "page": "Página {page}",
+    "of": "de {total}"
   },
   "adminPage": {
     "search": "Pesquisar...",

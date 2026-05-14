@@ -5,7 +5,7 @@ defineProps({
     rows: Array,
     type: "users" | "tickets" | "stations" | "companies",
 });
-defineEmits(["edit", "delete"]);
+defineEmits(["edit", "delete", "click"]);
 </script>
 
 <template>
@@ -27,7 +27,8 @@ defineEmits(["edit", "delete"]);
             <TableRow
                 v-for="row in rows"
                 :key="row.id"
-                class="cursor-pointer hover:bg-muted/50"
+                class="cursor-pointer hover:bg-muted/50 w-full justify-between"
+                @click="$emit('click', row)"
             >
                 <slot :row="row" />
                 <!-- ← this must be here, passing row back out -->

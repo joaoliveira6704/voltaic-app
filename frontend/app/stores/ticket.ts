@@ -1,32 +1,145 @@
-// stores/user.ts
 import { defineStore } from "pinia";
 import Swal from "sweetalert2";
 import { toast } from "vue-sonner";
+import type { Ticket, PaginatedResponse } from "@/types/ticket";
+
+interface CreateTicketPayload {
+  stationId?: string;
+  title: string;
+  description: string;
+  remarks?: string;
+  status?: string;
+}
+
+interface UpdateTicketPayload {
+  title?: string;
+  description?: string;
+  remarks?: string;
+  status?: string;
+}
 
 export const useTicketStore = defineStore("ticket", () => {
-    const tickets = ref([]);
+    const tickets = ref<Ticket[]>([]);
     const isLoaded = ref(false);
+    const currentPage = ref(1);
+    const totalPages = ref(1);
+    const total = ref(0);
 
-    // ── Getters ──────────────────────────────────────────────────────────────
-
-    // ── Helpers ───────────────────────────────────────────────────────────────
-
-    // Call composables lazily inside actions, not at store setup time
     const token = () => useCookie("token").value;
     const apiBase = () => useRuntimeConfig().public.apiBaseUrl;
 
-    // ── Actions ───────────────────────────────────────────────────────────────
-
-    async function fetchTickets(limit?: number, offset?: number) {
+    async function fetchTickets(page = 1, limit = 20) {
         try {
-            let url = `${apiBase()}/api/tickets`;
-            if (limit !== undefined) url += `?limit=${limit}&offset=${offset ?? 0}`;
-            const data = await $fetch<any[]>(url, {
-                headers: { Authorization: `Bearer ${token()}` },
-            });
-            tickets.value = data;
+            const data = await $fetch<PaginatedResponse<Ticket>>(
+                `${apiBase()}/api/tickets?page=${page}&limit=${limit}`,
+                {
+                    headers: { Authorization: `Bearer ${token()}` },
+                },
+            );
+            tickets.value = data.tickets;
+            currentPage.value = data.page;
+            totalPages.value = data.pages;
+            total.value = data.total;
         } catch (e) {
             console.error("Failed to fetch tickets:", e);
+        }
+    }
+
+    async function fetchMyTickets(page = 1, limit = 20) {
+        try {
+            const data = await $fetch<PaginatedResponse<Ticket>>(
+                `${apiBase()}/api/tickets/my?page=${page}&limit=${limit}`,
+                {
+                    headers: { Authorization: `Bearer ${token()}` },
+                },
+            );
+            tickets.value = data.tickets;
+            currentPage.value = data.page;
+            totalPages.value = data.pages;
+            total.value = data.total;
+        } catch (e) {
+            console.error("Failed to fetch my tickets:", e);
+        }
+    }
+
+    async function fetchCompanyTickets(page = 1, limit = 20) {
+        try {
+            const data = await $fetch<PaginatedResponse<Ticket>>(
+                `${apiBase()}/api/tickets/company?page=${page}&limit=${limit}`,
+                {
+                    headers: { Authorization: `Bearer ${token()}` },
+                },
+            );
+            tickets.value = data.tickets;
+            currentPage.value = data.page;
+            totalPages.value = data.pages;
+            total.value = data.total;
+        } catch (e) {
+            console.error("Failed to fetch company tickets:", e);
+        }
+    }
+
+    async function fetchStationTickets(stationId: string, page = 1, limit = 20) {
+        try {
+            const data = await $fetch<PaginatedResponse<Ticket>>(
+                `${apiBase()}/api/tickets/station/${stationId}?page=${page}&limit=${limit}`,
+                {
+                    headers: { Authorization: `Bearer ${token()}` },
+                },
+            );
+            tickets.value = data.tickets;
+            currentPage.value = data.page;
+            totalPages.value = data.pages;
+            total.value = data.total;
+        } catch (e) {
+            console.error("Failed to fetch station tickets:", e);
+        }
+    }
+
+    async function createTicket(payload: CreateTicketPayload) {
+        try {
+            const data = await $fetch<{ ticketId: string }>(
+                `${apiBase()}/api/tickets`,
+                {
+                    method: "POST",
+                    headers: {
+                        Authorization: `Bearer ${token()}`,
+                        "Content-Type": "application/json",
+                    },
+                    body: payload,
+                },
+            );
+            toast.success("Ticket created successfully");
+            return data;
+        } catch (e) {
+            console.error("Failed to create ticket:", e);
+            toast.error("Failed to create ticket");
+            throw e;
+        }
+    }
+
+    async function updateTicket(ticketId: string, payload: UpdateTicketPayload) {
+        try {
+            const data = await $fetch<Ticket>(
+                `${apiBase()}/api/tickets/${ticketId}`,
+                {
+                    method: "PATCH",
+                    headers: {
+                        Authorization: `Bearer ${token()}`,
+                        "Content-Type": "application/json",
+                    },
+                    body: payload,
+                },
+            );
+            tickets.value = tickets.value.map((t) =>
+                t.ticketId === ticketId ? { ...t, ...data } : t,
+            );
+            toast.success("Ticket updated successfully");
+            return data;
+        } catch (e) {
+            console.error("Failed to update ticket:", e);
+            toast.error("Failed to update ticket");
+            throw e;
         }
     }
 
@@ -49,7 +162,7 @@ export const useTicketStore = defineStore("ticket", () => {
         if (!confirmed.isConfirmed) return;
 
         try {
-            await $fetch<any>(`${apiBase()}/api/tickets/${ticketId}`, {
+            await $fetch(`${apiBase()}/api/tickets/${ticketId}`, {
                 method: "DELETE",
                 headers: { Authorization: `Bearer ${token()}` },
             });
@@ -68,7 +181,15 @@ export const useTicketStore = defineStore("ticket", () => {
     return {
         tickets,
         isLoaded,
+        currentPage,
+        totalPages,
+        total,
         fetchTickets,
+        fetchMyTickets,
+        fetchCompanyTickets,
+        fetchStationTickets,
+        createTicket,
+        updateTicket,
         deleteTicket,
     };
 });

@@ -39,6 +39,7 @@ export const useUserStore = defineStore("user", () => {
   const currentUser = ref<User | null>(null);
   const isLoaded = ref(false);
   const chargingHistory = ref<any[] | null>(null);
+  const favoriteStations = ref<any[]>([]);
   const colorMode = useColorMode();
   const { setLocale, setLocaleCookie } = useI18n();
 
@@ -372,6 +373,18 @@ export const useUserStore = defineStore("user", () => {
     }
   }
 
+  async function fetchFavoriteStations() {
+    try {
+      const data = await $fetch<any[]>(
+        `${apiBase()}/api/users/me/favorites/stations`,
+        { headers: { Authorization: `Bearer ${token()}` } },
+      );
+      favoriteStations.value = data;
+    } catch (e) {
+      console.error("Failed to fetch favorite stations:", e);
+    }
+  }
+
   async function confirmLogout() {
     const result = await Swal.fire({
       title: "Confirm Logout",
@@ -422,5 +435,7 @@ export const useUserStore = defineStore("user", () => {
     editUserRole,
     addFavorite,
     removeFavorite,
+    favoriteStations,
+    fetchFavoriteStations,
   };
 });

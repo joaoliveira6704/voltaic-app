@@ -40,13 +40,30 @@
             :station="selectedStation"
             :is-mobile="isMobile"
             @close="selectedStation = null"
+            @stop="handleStopRequest"
+            @start="handleStartRequest"
         />
 
         <MapLocateButton :locating="locating" @click="flyToUser" />
         <MapNorthButton @click="resetNorth" />
         <MapThemeButton />
-        <Toaster position="top-right" richColors closeButton theme="dark" />
+        <Toaster position="top-right" rich-colors close-button theme="dark" />
+
+
     </div>
+    <StopChargingModal
+    class="!z-99"
+        :is-open="isStopModalOpen"
+        @close="isStopModalOpen = false"
+        @confirm="handleStopConfirm"
+    />
+    <StartChargingModal
+        class="!z-99"
+        :is-open="isStartModalOpen"
+        :vehicles="compatibleVehicles"
+        @close="isStartModalOpen = false"
+        @confirm="handleStartConfirm"
+    />
 </template>
 
 <script setup lang="ts">
@@ -54,12 +71,15 @@ import { computed, ref } from "vue";
 import { Skeleton } from "~/components/ui/Skeleton";
 import { useUserStore } from "@/stores/user";
 import { useStationStore } from "@/stores/station";
+import { useUsageStore } from "@/stores/usage";
 import { useResponsive } from "@/composables/useResponsive";
 import { useMapFilters } from "@/composables/useMapFilters";
 import { useMapInstance } from "@/composables/useMapInstance";
 import { useMapMarkers } from "@/composables/useMapMarkers";
 import { useMapClustering } from "@/composables/useMapClustering";
 import type { Station } from "@/types/station";
+import StartChargingModal from "@/components/modals/StartChargingModal.vue";
+import StopChargingModal from "@/components/modals/StopChargingModal.vue";
 
 import "vue-sonner/style.css";
 import { Toaster } from "@/components/ui/sonner";
@@ -100,6 +120,61 @@ const isDark = computed(() => colorMode.preference === "dark");
 const stationStore = useStationStore();
 const companyStore = useCompanyStore();
 const usageStore = useUsageStore();
+
+// ── Charging Modals ──────────────────────────────────────────────────────────
+
+const isStopModalOpen = ref(false);
+const isStartModalOpen = ref(false);
+const pendingStopUsage = ref<{ usageId: string; stationId: string } | null>(null);
+
+const compatibleVehicles = computed(() =>
+    (userStore.currentUser?.vehicles ?? []).filter((v) =>
+        selectedStation.value?.connector.socketTypes.some(
+            (t) => v.connector.toLowerCase() === t.toLowerCase(),
+        ),
+    ),
+);
+
+function handleStopRequest(usageId: string, stationId: string) {
+    pendingStopUsage.value = { usageId, stationId };
+    isStopModalOpen.value = true;
+}
+
+function handleStartRequest() {
+    isStartModalOpen.value = true;
+}
+
+async function handleStopConfirm() {
+    if (!pendingStopUsage.value) return;
+    try {
+        await stationStore.stopCharge(
+            pendingStopUsage.value.usageId,
+            pendingStopUsage.value.stationId,
+        );
+        usageStore.usages = usageStore.usages.filter(
+            (u) => u.usageId !== pendingStopUsage.value!.usageId,
+        );
+        if (selectedStation.value) selectedStation.value.state = "available";
+    } catch (error) {
+        console.error("Stop charge failed", error);
+    } finally {
+        isStopModalOpen.value = false;
+        pendingStopUsage.value = null;
+    }
+}
+
+async function handleStartConfirm(plate: string) {
+    if (!selectedStation.value) return;
+    try {
+        const usage = await stationStore.startCharge(selectedStation.value, plate);
+        usageStore.usages = [...usageStore.usages, usage];
+        selectedStation.value.state = "unavailable";
+    } catch (error) {
+        console.error("Start charge failed", error);
+    } finally {
+        isStartModalOpen.value = false;
+    }
+}
 
 const firstStation = computed(
     () => stationStore.stations[0] as Station | undefined,

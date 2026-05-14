@@ -2,6 +2,7 @@
 import { useCompanyStore } from "~/stores/company";
 import { useTicketStore } from "~/stores/ticket";
 import RegisterInterventionModal from "~/components/modals/RegisterInterventionModal.vue";
+import TicketDetailModal from "~/components/modals/TicketDetailModal.vue";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-vue-next";
 import { Swiper, SwiperSlide } from "swiper/vue";
 import { FreeMode } from "swiper/modules";
@@ -9,22 +10,26 @@ import "swiper/css";
 import "swiper/css/free-mode";
 import type { Swiper as SwiperType } from "swiper";
 import { Skeleton, SkeletonInterventionCard } from "~/components/ui/Skeleton";
+import Pagination from "~/components/ui/Pagination.vue";
 
 const { t } = useI18n();
 const companyStore = useCompanyStore();
 const ticketStore = useTicketStore();
 
 const isPending = ref(true);
+const page = ref(1);
 
-companyStore
-    .fetchCurrentCompany()
-    .then(() => ticketStore.fetchTickets())
-    .finally(() => {
-        isPending.value = false;
-    });
+Promise.all([
+    companyStore.fetchCurrentCompany(),
+    ticketStore.fetchCompanyTickets(1),
+]).finally(() => {
+    isPending.value = false;
+});
 
 const tickets = computed(() => ticketStore.tickets);
 const isInterventionModalOpen = ref(false);
+const selectedTicket = ref<any>(null);
+const isTicketDetailOpen = ref(false);
 
 const swiperInstance = ref<SwiperType | null>(null);
 const isBeginning = ref(true);
@@ -45,6 +50,15 @@ function slidePrev() {
 
 function slideNext() {
     swiperInstance.value?.slideNext();
+}
+
+function onPageChange(p: number) {
+    page.value = p;
+    ticketStore.fetchCompanyTickets(p);
+}
+
+function handleStatusUpdate(ticketId: string, status: string) {
+    ticketStore.updateTicket(ticketId, { status });
 }
 </script>
 
@@ -109,6 +123,8 @@ function slideNext() {
                                     <InterventionCard
                                         :ticket="ticket"
                                         class="h-full"
+                                        @update:status="handleStatusUpdate"
+                                        @select="selectedTicket = ticket; isTicketDetailOpen = true"
                                     />
                                 </SwiperSlide>
                             </Swiper>
@@ -138,11 +154,24 @@ function slideNext() {
                             v-for="ticket in tickets"
                             :key="ticket.ticketId"
                             :ticket="ticket"
+                            @update:status="handleStatusUpdate"
+                            @select="selectedTicket = ticket; isTicketDetailOpen = true"
                         />
                     </div>
+                    <Pagination
+                        :current-page="ticketStore.currentPage"
+                        :total-pages="ticketStore.totalPages"
+                        @update:page="onPageChange"
+                    />
                 </CardContent>
             </DashboardCard>
 
+            <TicketDetailModal
+                :is-open="isTicketDetailOpen"
+                :ticket="selectedTicket"
+                @close="isTicketDetailOpen = false"
+                @update:status="handleStatusUpdate"
+            />
             <RegisterInterventionModal
                 :is-open="isInterventionModalOpen"
                 @close="isInterventionModalOpen = false"

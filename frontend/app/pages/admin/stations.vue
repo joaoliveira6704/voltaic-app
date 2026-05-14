@@ -2,6 +2,7 @@
 import { AdminStationColumns } from "@/utils/constants";
 import { Circle } from "lucide-vue-next";
 import { Skeleton, SkeletonTable } from "~/components/ui/Skeleton";
+import { CONNECTOR_LABELS } from "@/constants/connectors";
 
 const { t } = useI18n();
 
@@ -96,7 +97,7 @@ stationStore
                     row.location.coordinates.join(", ")
                 }}</TableCell>
                 <TableCell class="text-xs">{{
-                    row.connector.socketTypes.join(", ")
+                    row.connector.socketTypes.map(t => CONNECTOR_LABELS[t] ?? t).join(", ")
                 }}</TableCell>
                 <TableCell class="text-xs"
                     >{{ row.connector.maxPower }} kW/h</TableCell

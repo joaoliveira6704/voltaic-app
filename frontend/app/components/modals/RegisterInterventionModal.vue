@@ -1,6 +1,5 @@
-<script setup>
-import { ref, watch } from "vue";
-import { Loader, X, Wrench, User, FileText } from "lucide-vue-next";
+<script setup lang="ts">
+import { Loader, X, Wrench } from "lucide-vue-next";
 import {
     Dialog,
     DialogContent,
@@ -19,18 +18,19 @@ import {
     SelectValue,
 } from "~/components/ui/select";
 
-const props = defineProps({
-    isOpen: { type: Boolean, default: false },
-    stationId: { type: String, required: true },
-});
+const props = defineProps<{
+    isOpen: boolean;
+    stationId?: string;
+}>();
 
-const emit = defineEmits(["close", "created"]);
+const emit = defineEmits<{
+    (e: "close" | "created"): void;
+}>();
 
 const ticketStore = useTicketStore();
-const userStore = useUserStore();
 
 const isSubmitting = ref(false);
-const errors = ref([]);
+const errors = ref<string[]>([]);
 
 const form = ref({
     title: "",
@@ -44,7 +44,7 @@ const resetForm = () => {
         title: "",
         description: "",
         remarks: "",
-        status: "resolved",
+        status: "open",
     };
     errors.value = [];
 };
@@ -57,7 +57,7 @@ watch(
 );
 
 const validate = () => {
-    const errs = [];
+    const errs: string[] = [];
     if (!form.value.title.trim()) errs.push("Title is required");
     if (!form.value.description.trim()) errs.push("Description is required");
     return errs;
@@ -73,18 +73,16 @@ const handleCreate = async () => {
 
     isSubmitting.value = true;
     try {
-        const payload = {
-            ticketId: crypto.randomUUID(),
-            stationId: props.stationId,
-            createdBy: userStore.currentUser?.id,
+        const payload: Record<string, string> = {
             title: form.value.title,
             description: form.value.description,
-            remarks: form.value.remarks || undefined,
             status: form.value.status,
         };
+        if (form.value.remarks) payload.remarks = form.value.remarks;
+        if (props.stationId) payload.stationId = props.stationId;
 
-        const newTicket = await ticketStore.createTicket(payload);
-        emit("created", newTicket);
+        await ticketStore.createTicket(payload);
+        emit("created");
         emit("close");
     } catch (e) {
         errors.value = [e?.data?.message || "Failed to create ticket"];
@@ -97,11 +95,10 @@ const handleClose = () => emit("close");
 </script>
 
 <template>
-    <Dialog :open="isOpen" @update:open="(val) => !val && handleClose()">
+    <Dialog :open="isOpen" @update:open="(val: boolean) => !val && handleClose()">
         <DialogContent
             class="max-w-md p-0 gap-0 rounded-none dark:bg-[#171717] dark:border-[#232323] dark:text-white/80"
         >
-            <!-- Header -->
             <DialogHeader
                 class="flex flex-row items-center justify-between px-5 py-4 border-b border-neutral-200 dark:border-[#232323] space-y-0"
             >
@@ -114,6 +111,7 @@ const handleClose = () => emit("close");
                     </DialogTitle>
                 </div>
                 <span
+                    v-if="stationId"
                     class="font-mono text-[10px] text-neutral-400 dark:text-white/30"
                 >
                     {{ stationId }}
@@ -124,7 +122,6 @@ const handleClose = () => emit("close");
                 class="px-5 py-5 flex flex-col gap-4"
                 @submit.prevent="handleCreate"
             >
-                <!-- Title -->
                 <div class="flex flex-col gap-1.5">
                     <Label
                         class="text-[10px] text-neutral-400 dark:text-white/40 uppercase"
@@ -139,7 +136,6 @@ const handleClose = () => emit("close");
                     />
                 </div>
 
-                <!-- Status -->
                 <div class="flex flex-col gap-1.5">
                     <Label
                         class="text-[10px] text-neutral-400 dark:text-white/40 uppercase"
@@ -158,6 +154,7 @@ const handleClose = () => emit("close");
                         <SelectContent
                             class="rounded-none dark:bg-[#171717] dark:border-[#232323]"
                         >
+                            <SelectItem value="open" class="text-xs">Open</SelectItem>
                             <SelectItem value="resolved" class="text-xs"
                                 >Resolved</SelectItem
                             >
@@ -168,7 +165,6 @@ const handleClose = () => emit("close");
                     </Select>
                 </div>
 
-                <!-- Description -->
                 <div class="flex flex-col gap-1.5">
                     <Label
                         class="text-[10px] text-neutral-400 dark:text-white/40 uppercase"
@@ -183,7 +179,6 @@ const handleClose = () => emit("close");
                     />
                 </div>
 
-                <!-- Remarks -->
                 <div class="flex flex-col gap-1.5">
                     <Label
                         class="text-[10px] text-neutral-400 dark:text-white/40 uppercase"
@@ -201,7 +196,6 @@ const handleClose = () => emit("close");
                     />
                 </div>
 
-                <!-- Errors -->
                 <div v-if="errors.length" class="flex flex-col gap-2">
                     <div
                         v-for="(error, i) in errors"
@@ -219,7 +213,6 @@ const handleClose = () => emit("close");
                     </div>
                 </div>
 
-                <!-- Footer -->
                 <div
                     class="flex items-center justify-end pt-3 mt-2 border-t border-neutral-100 dark:border-[#232323]"
                 >

@@ -10,7 +10,9 @@ import StationConsole from "~/components/company/station/StationConsole.vue";
 import StationCommandInput from "~/components/company/station/StationCommandInput.vue";
 import StationReportDownload from "~/components/company/station/StationReportDownload.vue";
 import RegisterInterventionModal from "~/components/modals/RegisterInterventionModal.vue";
+import TicketDetailModal from "~/components/modals/TicketDetailModal.vue";
 import { Skeleton, SkeletonInterventionCard } from "~/components/ui/Skeleton";
+import Pagination from "~/components/ui/Pagination.vue";
 
 const { t } = useI18n();
 const { id } = useRoute().params;
@@ -20,40 +22,39 @@ const logStore = useLogStore();
 const ticketStore = useTicketStore();
 
 const isPending = ref(true);
+const page = ref(1);
+const stationId = id as string;
 
-companyStore
-    .fetchCurrentCompany()
-    .then(() => stationStore.fetchStationById(id))
-    .then(() => logStore.fetchStationLogs(id))
-    .then(() => ticketStore.fetchTickets())
-    .finally(() => {
-        isPending.value = false;
-    });
+Promise.all([
+    companyStore.fetchCurrentCompany(),
+    stationStore.fetchStationById(stationId),
+    logStore.fetchStationLogs(stationId),
+    ticketStore.fetchStationTickets(stationId, 1),
+]).finally(() => {
+    isPending.value = false;
+});
 
 const currentStation = computed(() => stationStore.currentStation || "");
 
-// User
 const userStore = useUserStore();
-const username = userStore.currentUser.username;
+const username = userStore.currentUser?.username;
 
 const stationLogs = computed(() => logStore.logs);
 const tickets = computed(() => ticketStore.tickets);
 
-console.log(currentStation.value);
-
-console.log(stationLogs.value);
 const mappedStoreLogs = computed(() =>
-    (stationLogs.value ?? []).map((l) => ({
-        time: new Date(l.createdAt).toLocaleString(),
+    (stationLogs.value ?? []).map((l: Record<string, unknown>) => ({
+        time: new Date(l.createdAt as string).toLocaleString(),
         type: l.type as LogType,
-        message: l.details ?? l.action ?? "",
+        message: (l.details ?? l.action ?? "") as string,
     })),
 );
 
 const isInterventionModalOpen = ref(false);
+const selectedTicket = ref<any>(null);
+const isTicketDetailOpen = ref(false);
 
 const {
-    logs,
     state,
     alive,
     statusLabel,
@@ -64,7 +65,16 @@ const {
     restart,
     executeCommand,
     downloadReport,
-} = useStation(id, stationStore, logStore);
+} = useStation(stationId, stationStore, logStore);
+
+function onPageChange(p: number) {
+    page.value = p;
+    ticketStore.fetchStationTickets(stationId, p);
+}
+
+function handleStatusUpdate(ticketId: string, status: string) {
+    ticketStore.updateTicket(ticketId, { status });
+}
 </script>
 
 <template>
@@ -109,7 +119,7 @@ const {
                     <div class="space-y-4">
                         <StationHeader
                             :title="currentStation.title"
-                            :station-id="String(id)"
+                            :station-id="stationId"
                             :state="state"
                             :alive="alive"
                             :status-label="statusLabel"
@@ -142,7 +152,7 @@ const {
 
                             <div class="mx-2 my-2">
                                 <StationCommandInput
-                                    :station-id="String(id)"
+                                    :station-id="stationId"
                                     :username="username"
                                     @execute="executeCommand"
                                 />
@@ -162,13 +172,28 @@ const {
                             v-for="ticket in tickets"
                             :key="ticket.ticketId"
                             :ticket="ticket"
+                            @update:status="handleStatusUpdate"
+                            @select="selectedTicket = ticket; isTicketDetailOpen = true"
                         />
                     </div>
+                    <Pagination
+                        :current-page="ticketStore.currentPage"
+                        :total-pages="ticketStore.totalPages"
+                        @update:page="onPageChange"
+                    />
                 </CardContent>
             </DashboardCard>
+            <TicketDetailModal
+                :is-open="isTicketDetailOpen"
+                :ticket="selectedTicket"
+                @close="isTicketDetailOpen = false"
+                @update:status="handleStatusUpdate"
+            />
             <RegisterInterventionModal
                 :is-open="isInterventionModalOpen"
+                :station-id="stationId"
                 @close="isInterventionModalOpen = false"
+                @created="ticketStore.fetchStationTickets(stationId, page)"
             />
         </template>
     </div>

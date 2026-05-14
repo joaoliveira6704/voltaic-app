@@ -36,7 +36,7 @@ const handleLogout = () => {
 
 <template>
     <nav class="flex flex-col w-full gap-1 py-1">
-        <ToggleTheme v-if="!route.path.startsWith('/profile')" />
+        <ToggleTheme v-if="!route.path !== '/profile'" />
         <Button
             as-child
             class="w-full flex justify-start gap-3 h-11 px-4 transition-all text-black group cursor-pointer bg-white dark:bg-[#171717] hover:bg-gray-200 dark:hover:bg-[#232323] dark:text-white"
@@ -51,7 +51,7 @@ const handleLogout = () => {
                     v-if="avatarUrl"
                     :src="avatarUrl"
                     class="h-6 w-6 shrink-0"
-                />
+                >
                 <Skeleton
                     v-else
                     class="h-6 w-6 shrink-0 rounded-full"

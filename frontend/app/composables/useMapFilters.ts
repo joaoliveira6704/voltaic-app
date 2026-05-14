@@ -67,14 +67,9 @@ export function useMapFilters() {
 
     // When toggling company filter on, fetch company stations
     if (key === "company" && filter.active && currentCompany.value) {
-      const groupIds = currentCompany.value.groups;
-      const stations = await stationStore.getCompanyStations(groupIds);
-      // getCompanyStations should return the ids, or read them from the store
-      console.log(stations, groupIds);
+      await stationStore.fetchCompanyStations();
       companyStationIds.value = (
-        stations ??
-        stationStore.companyStations ??
-        []
+        stationStore.companyStations ?? []
       ).map((s: Station) => s.stationId);
     } else if (key === "company" && !filter.active) {
       companyStationIds.value = [];

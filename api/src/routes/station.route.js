@@ -1,19 +1,19 @@
 import { Router } from "express";
 import {
   getStations,
+  getCompanyStations,
   createStation,
   deleteStation,
   updateStation,
   getStationById,
   getStationsByRadius,
   executeStationCommand,
+  checkStationOwnership,
 } from "../controllers/station.controller.js";
 import {
-  checkOwnership,
   protect,
   requireRole,
 } from "../middleware/auth.middleware.js";
-import stationModel from "../models/station.model.js";
 
 const router = Router();
 
@@ -24,11 +24,12 @@ router.patch(
   "/:id",
   protect,
   requireRole("admin", "company-manager", "worker"),
-  checkOwnership(stationModel),
+  checkStationOwnership,
   updateStation,
 );
-router.get("/:id", protect, getStationById);
+router.get("/company", protect, getCompanyStations);
 router.get("/radius/:lat/:lng/:distance", getStationsByRadius);
+router.get("/:id", protect, getStationById);
 router.post(
   "/:stationId/execute",
   protect,

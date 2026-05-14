@@ -3,11 +3,10 @@ import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { X, Zap, Star } from "lucide-vue-next";
 import { useUserStore } from "@/stores/user.ts";
-import { useStationStore } from "@/stores/station.ts";
 import { useUsageStore } from "@/stores/usage.ts";
+import { CONNECTOR_LABELS } from "@/constants/connectors";
 
 import type { Station } from "@/types/station";
-import Swal from "sweetalert2";
 import { toast } from "vue-sonner";
 
 const { t } = useI18n();
@@ -19,13 +18,13 @@ const props = defineProps<{
 
 const emit = defineEmits<{
     close: [];
+    stop: [usageId: string, stationId: string];
+    start: [];
 }>();
 
 const userStore = useUserStore();
 const favLoading = ref(false);
 const isAvailable = computed(() => props.station?.state === "available");
-
-const stationStore = useStationStore();
 
 const usageStore = useUsageStore();
 
@@ -33,90 +32,25 @@ const isUsage = computed(() =>
     usageStore.usages.some((u) => u.stationId === props.station?.stationId),
 );
 
-const useStation = async () => {
+const useStation = () => {
     if (!props.station) return;
 
-    // ── STOP FLOW ─────────────────────────────────────────────────────────
     if (isUsage.value) {
-        const activeUsage = usageStore.usages.find(
+        const usage = usageStore.usages.find(
             (u) => u.stationId === props.station?.stationId,
         );
-
-        if (activeUsage) {
-            const result = await Swal.fire({
-                title: t("map.swal.stopChargingTitle"),
-                text: t("map.swal.stopChargingText"),
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonText: t("map.swal.stop"),
-                confirmButtonColor: "#ef4444",
-            });
-
-            if (result.isConfirmed) {
-                try {
-                    await stationStore.stopCharge(
-                        activeUsage.usageId,
-                        activeUsage.stationId,
-                    );
-
-                    // Update UI: Remove from store and reset local station state
-                    usageStore.usages = usageStore.usages.filter(
-                        (u) => u.usageId !== activeUsage.usageId,
-                    );
-
-                    // This triggers isAvailable and stateBadgeClass automatically
-                    props.station.state = "available";
-                } catch (error) {
-                    console.error("Stop charge failed", error);
-                }
-            }
+        if (usage) {
+            emit("stop", usage.usageId, usage.stationId);
         }
         return;
     }
 
-    // ── START FLOW ────────────────────────────────────────────────────────
     if (isAvailable.value) {
-        if (userStore.currentUser.vehicles?.length === 0) {
+        if (!userStore.currentUser?.vehicles?.length) {
             toast.error(t("map.noVehiclesAvailable"));
             return;
         }
-        const vehicleOptions: Record<string, string> = {};
-        userStore.currentUser.vehicles.forEach((vehicle) => {
-            vehicleOptions[vehicle.plate] =
-                `${vehicle.plate} (${vehicle.model})`;
-        });
-
-        const result = await Swal.fire({
-            title: t("map.swal.chargeStationTitle"),
-            text: t("map.swal.chargeStationText"),
-            icon: "question",
-            input: "select",
-            inputOptions: vehicleOptions,
-            inputPlaceholder: t("map.swal.selectVehiclePlaceholder"),
-            showCancelButton: true,
-            confirmButtonText: t("map.swal.startCharge"),
-            inputValidator: (value) => {
-                if (!value) return "You need to select a vehicle!";
-            },
-        });
-
-        if (result.isConfirmed) {
-            try {
-                const usage = await stationStore.startCharge(
-                    props.station,
-                    result.value,
-                );
-
-                // 1. Add to usage store (triggers isUsage computed)
-                usageStore.usages = [...usageStore.usages, usage];
-
-                // 2. Update local station state (triggers isAvailable computed)
-                // Assuming 'unavailable' or 'in_use' based on your API logic
-                props.station.state = "unavailable";
-            } catch (error) {
-                console.error("Start charge failed", error);
-            }
-        }
+        emit("start");
     }
 };
 
@@ -180,6 +114,14 @@ const isCompatible = computed(
         props.station?.connector.socketTypes.some((t) =>
             userConnectors.value.includes(t.toLowerCase()),
         ) ?? false,
+);
+
+const compatibleVehicles = computed(() =>
+    (userStore.currentUser?.vehicles ?? []).filter((v) =>
+        props.station?.connector.socketTypes.some(
+            (t) => v.connector.toLowerCase() === t.toLowerCase(),
+        ),
+    ),
 );
 
 // ── Favorites ─────────────────────────────────────────────────────────────────
@@ -287,7 +229,7 @@ onMounted(async () => {
                                 : 'bg-gray-50 border-gray-200 text-gray-600',
                         ]"
                     >
-                        {{ type }}
+                        {{ CONNECTOR_LABELS[type] ?? type }}
                     </span>
                     <span
                         v-if="station.connector.socketTypes.length > 3"
@@ -405,4 +347,5 @@ onMounted(async () => {
             @click="emit('close')"
         />
     </Transition>
+
 </template>

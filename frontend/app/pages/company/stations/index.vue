@@ -5,6 +5,7 @@ import { AdminStationColumns } from "@/utils/constants";
 import { Circle } from "lucide-vue-next";
 import StationsTable from "~/components/company/station/StationsTable.vue";
 import { Skeleton, SkeletonTable } from "~/components/ui/Skeleton";
+import { CONNECTOR_LABELS } from "@/constants/connectors";
 
 const { t } = useI18n();
 const companyStore = useCompanyStore();
@@ -13,15 +14,17 @@ const router = useRouter();
 
 const isPending = ref(true);
 
-companyStore
-    .fetchCurrentCompany()
-    .then(() => stationStore.fetchStations())
-    .finally(() => {
-        isPending.value = false;
-    });
+async function init() {
+    await Promise.all([
+        companyStore.fetchCurrentCompany(),
+        stationStore.fetchCompanyStations(),
+    ]);
+    isPending.value = false;
+}
+init();
 
 const currentCompany = computed(() => companyStore.currentCompany || "");
-const stations = computed(() => stationStore.stations);
+const stations = computed(() => stationStore.companyStations);
 
 const getStateClass = (state) => {
     switch (state) {
@@ -70,7 +73,7 @@ const navigateToStation = (id: string) => {
                                 row.location.coordinates.join(", ")
                             }}</TableCell>
                             <TableCell class="text-sm">{{
-                                row.connector.socketTypes.join(", ")
+                                row.connector.socketTypes.map(t => CONNECTOR_LABELS[t] ?? t).join(", ")
                             }}</TableCell>
                             <TableCell class="text-sm"
                                 >{{ row.connector.maxPower }} kW/h</TableCell

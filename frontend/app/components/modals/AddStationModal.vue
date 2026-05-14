@@ -1,7 +1,8 @@
 <script setup>
 import { ref, watch } from "vue";
 import { Loader, X, MapPin, Zap } from "lucide-vue-next";
-import { useStationStore } from "~/stores/station"; // Assuming you have a station store
+import { useStationStore } from "~/stores/station";
+import { ALL_CONNECTORS, CONNECTOR_LABELS } from "@/constants/connectors";
 import {
     Dialog,
     DialogContent,
@@ -30,21 +31,7 @@ const { t } = useI18n();
 const isSubmitting = ref(false);
 const errors = ref([]);
 
-// Available socket types based on your model
-const socketOptions = [
-    "Type2",
-    "CHAdeMO",
-    "CCS/SAE",
-    "Type3",
-    "Tesla",
-    "J-1772",
-    "Wall_Euro",
-    "Caravan_Mains_Socket",
-    "Dual_J-1772",
-    "Dual_CHAdeMO",
-    "Mennekes",
-    "Dual_Mennekes",
-];
+const socketOptions = ALL_CONNECTORS;
 
 const form = ref({
     title: "",
@@ -269,7 +256,7 @@ const handleClose = () => emit("close");
                                     : 'border-neutral-200 dark:border-[#232323] text-neutral-500 dark:text-white/40',
                             ]"
                         >
-                            {{ type.replace("_", " ") }}
+                            {{ CONNECTOR_LABELS[type] }}
                         </button>
                     </div>
                 </div>

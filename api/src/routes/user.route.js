@@ -11,6 +11,7 @@ import {
   editVehicle,
   getVehicles,
   getFavorites,
+  getFavoriteStations,
   deleteOwnUser,
   addFavorite,
   removeFavorite,
@@ -35,6 +36,7 @@ router.delete("/me", protect, deleteOwnUser);
 
 router.get("/me/favorites", protect, getFavorites);
 router.post("/me/favorites", protect, addFavorite);
+router.get("/me/favorites/stations", protect, getFavoriteStations);
 router.delete("/me/favorites/:stationId", protect, removeFavorite);
 
 router.get(

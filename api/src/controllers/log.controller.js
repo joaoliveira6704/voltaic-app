@@ -7,9 +7,9 @@ export const getLogs = async (req, res, next) => {
     try {
       const logs = await logModel.find({ stationId });
       console.log(`Found ${logs.length} logs for station ${stationId}.`);
-      res.json(logs);
+      return res.json(logs);
     } catch (error) {
-      next(error);
+      return next(error);
     }
   }
   try {

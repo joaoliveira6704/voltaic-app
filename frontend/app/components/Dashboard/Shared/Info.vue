@@ -76,7 +76,7 @@ const sendEmail = () => {
                     :src="avatarUrl"
                     :alt="props.user.firstName + ' ' + props.user.lastName"
                     class="w-full h-full object-cover"
-                />
+                >
             </div>
         </div>
 
@@ -89,19 +89,20 @@ const sendEmail = () => {
                 >
                     {{ props.user.firstName }} {{ props.user.lastName }}
                 </h1>
-                <h2 class="font-semibold">
+                <h2 class="font-semibold mt-2">
                     <template
                         v-if="
-                            props.user.role !== 'client' &&
-                            props.user.role !== 'admin' &&
-                            companyName
+                            props.user.role !== 'client'
                         "
                     >
                         <template v-if="pending">
                             <Skeleton class="h-5 w-40" />
                         </template>
-                        <template v-else>
+                        <template v-else-if="companyName">
                             {{ companyName }} -
+                            {{ props.user.role.toLocaleUpperCase() }}
+                        </template>
+                        <template v-else>
                             {{ props.user.role.toLocaleUpperCase() }}
                         </template>
                     </template>

@@ -144,12 +144,12 @@ const isAddVehicleModal = ref(false);
 
             <template #cell-d-left>
                 <DashboardCard :title="t('history')">
-                    <HistoryTable :sessions="chargingHistory" />
+                    <HistoryTable :sessions="chargingHistory.slice(0, 4)" />
                 </DashboardCard>
             </template>
 
             <template #cell-d-right>
-                <DashboardCard :title="t('preferences')">
+                <DashboardCard :title="t('preferences')" class="h-full">
                     <UserSettings />
                 </DashboardCard>
             </template>

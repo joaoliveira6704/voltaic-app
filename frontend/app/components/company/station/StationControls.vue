@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import type { StationState } from "~/composables/useStation";
-
-const { t } = useI18n();
 import {
     PowerIcon,
     PowerOffIcon,
     RotateCwIcon,
     PenIcon,
 } from "lucide-vue-next";
+
+const { t } = useI18n();
 
 defineProps<{
     isBusy: boolean;
@@ -17,9 +17,7 @@ defineProps<{
 }>();
 
 const emit = defineEmits<{
-    (e: "shutdown"): void;
-    (e: "restart"): void;
-    (e: "start"): void;
+    (e: "shutdown" | "restart" | "start" | "register"): void;
 }>();
 </script>
 

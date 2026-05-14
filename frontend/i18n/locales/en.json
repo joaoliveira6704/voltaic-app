@@ -6,7 +6,7 @@
   "yourFleet": "Your Fleet",
   "addNewVehicle": "Add new Vehicle",
   "plate": "Plate",
-  "history": "Charging History",
+  "history": "Recent Charges",
   "date": "Date",
   "vehicle": "Vehicle",
   "station": "Station",
@@ -440,6 +440,12 @@
   },
   "info": {
     "unknownCompany": "Unknown Company"
+  },
+  "pagination": {
+    "previous": "Previous",
+    "next": "Next",
+    "page": "Page {page}",
+    "of": "of {total}"
   },
   "adminPage": {
     "search": "Search...",
