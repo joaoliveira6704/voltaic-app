@@ -60,8 +60,8 @@ const handleLogin = async () => {
         );
 
         console.log("Login successful:", response);
-        document.cookie = `token=${response.token}; path=/; max-age=86400; secure; sameSite=Lax`;
-        document.cookie = `user=${JSON.stringify(response.data.user)}; path=/; max-age=86400; secure; sameSite=Lax`;
+        document.cookie = `token=${response.token}; path=/; max-age=86400; sameSite=Lax`;
+        document.cookie = `user=${JSON.stringify(response.data.user)}; path=/; max-age=86400; sameSite=Lax`;
         window.location.href = "/profile";
     } catch (err: unknown) {
         console.error("Login failed:", err);
@@ -122,7 +122,7 @@ const handleLogin = async () => {
                     id="password"
                     v-model="password"
                     type="password"
-                    :placeholder="t('login.passwordPlaceholder')"
+                    placeholder="*********"
                     class="h-11 border-gray-200 dark:border-[#232323] focus-visible:ring-[#00c885]"
                 />
             </div>

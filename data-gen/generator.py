@@ -241,7 +241,7 @@ def generate_users(count, companies=None, outpath="users.txt"):
                 )
 
         username = fake.user_name()[:20]
-        while username in used_usernames:
+        while username in used_usernames or len(username) < 8:
             username = fake.user_name()[:20]
         used_usernames.add(username)
 

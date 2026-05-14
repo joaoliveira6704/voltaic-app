@@ -24,23 +24,21 @@ const darkMode = ref(userStore.currentUser?.preferences?.darkMode ?? false);
 const hidePlates = ref(userStore.currentUser?.preferences?.hidePlates ?? false);
 const language = ref(userStore.currentUser?.preferences?.language ?? "en");
 
-const emit = defineEmits(["saveUserSettings"]);
-
-const handleSave = () => {
+const handleSave = async () => {
     const preferencesData = {
         darkMode: darkMode.value,
         hidePlates: hidePlates.value,
         language: language.value,
     };
 
-    // Emit and update store
-    emit("saveUserSettings", preferencesData);
-    userStore.editUserProfile({ preferences: preferencesData });
-
-    // 3. Update the theme engine ONLY now
-    isDark.value = darkMode.value;
-
-    console.log("Settings applied and saved local theme state.");
+    try {
+        await userStore.editUserProfile({ preferences: preferencesData });
+        isDark.value = darkMode.value;
+    } catch {
+        darkMode.value = userStore.currentUser?.preferences?.darkMode ?? false;
+        hidePlates.value = userStore.currentUser?.preferences?.hidePlates ?? false;
+        language.value = userStore.currentUser?.preferences?.language ?? "en";
+    }
 };
 </script>
 
