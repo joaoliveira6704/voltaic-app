@@ -10,7 +10,6 @@ const sender = {
 };
 
 const sendResetEmail = async (recipientEmail, token) => {
-  console.log(process.env.MAILTRAP_TOKEN);
   console.log("Sending email to:", recipientEmail, "token:", token);
   await client.send({
     from: sender,

@@ -89,6 +89,7 @@ export const createResetToken = async (req, res, next) => {
     }
 
     const user = await userModel.findOne({ email });
+    console.log("User found:", user);
 
     if (user) {
       await resetTokenModel.findOneAndDelete({ userId: user.userId });
@@ -99,13 +100,14 @@ export const createResetToken = async (req, res, next) => {
       });
 
       await newToken.save();
-      await sendResetEmail(email, newToken.token);
+      //await sendResetEmail(email, newToken.token);
     }
 
     return res.status(200).json({
       message:
         "If an account with that email exists, you'll receive a reset link shortly.",
     });
+    console.log("reached");
   } catch (err) {
     next(err);
   }
