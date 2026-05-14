@@ -2,7 +2,7 @@
 import { defineStore } from "pinia";
 import { toast } from "vue-sonner";
 
-type ResetStep = "email" | "sent" | "token" | "password" | "success";
+type ResetStep = "email" | "token" | "password" | "success";
 
 export const useAuthStore = defineStore("auth", () => {
   const apiBase = () => useRuntimeConfig().public.apiBaseUrl;
@@ -24,7 +24,7 @@ export const useAuthStore = defineStore("auth", () => {
         body: { email },
       });
       resetEmail.value = email;
-      resetStep.value = "sent";
+      resetStep.value = "token";
     } catch (e) {
       toast.error("Failed to send recovery email", {
         description: e?.data?.message || "Please try again.",
