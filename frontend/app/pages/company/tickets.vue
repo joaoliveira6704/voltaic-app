@@ -44,20 +44,12 @@ function handleStatusUpdate(ticketId: string, status: string) {
 <template>
     <div class="flex-1 py-4 px-2 min-w-0 overflow-y-auto space-y-6">
         <template v-if="isPending">
-            <div class="relative">
-                <Skeleton class="h-8 w-[180px] mb-4" />
-                <div class="flex gap-4 overflow-hidden">
-                    <SkeletonInterventionCard class="!w-[260px] !shrink-0" />
-                    <SkeletonInterventionCard class="!w-[260px] !shrink-0" />
-                    <SkeletonInterventionCard class="!w-[260px] !shrink-0" />
-                </div>
-            </div>
-            <div class="mt-6">
+            <DashboardCard>
                 <Skeleton class="h-8 w-[180px] mb-4" />
                 <div class="flex flex-col gap-4">
                     <SkeletonInterventionCard v-for="n in 4" :key="n" />
                 </div>
-            </div>
+            </DashboardCard>
         </template>
         <template v-else>
             <DashboardCard :title="t('company.tickets.openTickets')">

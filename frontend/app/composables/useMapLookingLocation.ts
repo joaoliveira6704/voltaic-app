@@ -19,6 +19,13 @@ function haversineKm(
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
+function getOptimisticMultiplier(zoom: number): number {
+  if (zoom <= 8) return 1.2;
+  if (zoom <= 11) return 1.5;
+  if (zoom <= 14) return 2.0;
+  return 3.0;
+}
+
 export function useMapLookingLocation(
   mapInstance: Ref<Map | null>,
   isReady: Ref<boolean>,
@@ -32,6 +39,8 @@ export function useMapLookingLocation(
   let moveEndHandler: (() => void) | null = null;
   let lastFetchCenter: [number, number] | null = null;
   let lastFetchZoom: number | null = null;
+  let fetchedCenter: [number, number] | null = null;
+  let fetchedExpandedRadius: number | null = null;
 
   function getLookingInfo() {
     const map = mapInstance.value;
@@ -84,7 +93,22 @@ export function useMapLookingLocation(
     return dist > radius * 0.25 || zoomChanged;
   }
 
-  function onLookingChange(skipMovementCheck = false) {
+  function isInsideFetchedArea(
+    center: [number, number],
+    radius: number,
+  ): boolean {
+    if (!fetchedCenter || fetchedExpandedRadius === null) return false;
+
+    const dist = haversineKm(
+      center[1],
+      center[0],
+      fetchedCenter[1],
+      fetchedCenter[0],
+    );
+    return dist + radius <= fetchedExpandedRadius;
+  }
+
+  function onLookingChange(skipMovementCheck = false, force = false) {
     logLookingInfo();
 
     if (distanceActive.value) return;
@@ -93,16 +117,25 @@ export function useMapLookingLocation(
     const [lng, lat] = lookingCenter.value;
     const map = mapInstance.value;
     const zoom = map?.getZoom() ?? 0;
+    const currentRadius = lookingRadius.value;
 
-    const shouldFetch =
-      skipMovementCheck ||
-      isSignificantMovement(lookingCenter.value, zoom, lookingRadius.value);
-
-    if (shouldFetch) {
-      lastFetchCenter = lookingCenter.value;
-      lastFetchZoom = zoom;
-      stationStore.fetchNearbyStations(lat, lng, lookingRadius.value);
+    if (
+      !skipMovementCheck &&
+      !isSignificantMovement(lookingCenter.value, zoom, currentRadius)
+    ) {
+      return;
     }
+
+    if (!force && isInsideFetchedArea(lookingCenter.value, currentRadius)) return;
+
+    const expandedRadius = Math.round(currentRadius * getOptimisticMultiplier(zoom) * 100) / 100;
+
+    lastFetchCenter = lookingCenter.value;
+    lastFetchZoom = zoom;
+    fetchedCenter = lookingCenter.value;
+    fetchedExpandedRadius = expandedRadius;
+
+    stationStore.fetchNearbyStations(lat, lng, expandedRadius);
   }
 
   function start() {
@@ -112,7 +145,7 @@ export function useMapLookingLocation(
     moveEndHandler = () => onLookingChange();
     map.on("moveend", moveEndHandler);
 
-    intervalId = setInterval(() => onLookingChange(), 10_000);
+    intervalId = setInterval(() => onLookingChange(true, true), 10_000);
 
     onLookingChange(true);
   }

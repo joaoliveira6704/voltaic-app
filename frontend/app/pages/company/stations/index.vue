@@ -45,10 +45,14 @@ const navigateToStation = (id: string) => {
 <template>
     <div class="flex-1 py-4 px-2 min-w-0 overflow-y-auto space-y-6">
         <template v-if="isPending">
-            <Skeleton class="h-8 w-[250px]" />
-            <div class="rounded-xl border border-gray-100 dark:border-[#232323] overflow-hidden dark:bg-[#171717]">
-                <SkeletonTable :columns="6" :rows="5" />
-            </div>
+            <DashboardCard>
+                <Skeleton class="h-8 w-[250px]" />
+                <div
+                    class="mt-6 rounded-xl border border-gray-100 dark:border-[#232323] overflow-hidden dark:bg-[#171717]"
+                >
+                    <SkeletonTable :columns="6" :rows="5" />
+                </div>
+            </DashboardCard>
         </template>
         <template v-else>
             <DashboardCard
@@ -73,7 +77,9 @@ const navigateToStation = (id: string) => {
                                 row.location.coordinates.join(", ")
                             }}</TableCell>
                             <TableCell class="text-sm">{{
-                                row.connector.socketTypes.map(t => CONNECTOR_LABELS[t] ?? t).join(", ")
+                                row.connector.socketTypes
+                                    .map((t) => CONNECTOR_LABELS[t] ?? t)
+                                    .join(", ")
                             }}</TableCell>
                             <TableCell class="text-sm"
                                 >{{ row.connector.maxPower }} kW/h</TableCell

@@ -6,10 +6,7 @@
             class="w-full h-full"
             @click="sidebarOpen = false"
         />
-        <div
-            v-if="pageLoading || !isReady"
-            class="absolute inset-0 z-[1]"
-        >
+        <div v-if="pageLoading || !isReady" class="absolute inset-0 z-[1]">
             <Skeleton class="w-full h-full" />
         </div>
 
@@ -48,11 +45,9 @@
         <MapNorthButton @click="resetNorth" />
         <MapThemeButton />
         <Toaster position="top-right" rich-colors close-button theme="dark" />
-
-
     </div>
     <StopChargingModal
-    class="!z-99"
+        class="!z-99"
         :is-open="isStopModalOpen"
         @close="isStopModalOpen = false"
         @confirm="handleStopConfirm"
@@ -126,7 +121,9 @@ const usageStore = useUsageStore();
 
 const isStopModalOpen = ref(false);
 const isStartModalOpen = ref(false);
-const pendingStopUsage = ref<{ usageId: string; stationId: string } | null>(null);
+const pendingStopUsage = ref<{ usageId: string; stationId: string } | null>(
+    null,
+);
 
 const compatibleVehicles = computed(() =>
     (userStore.currentUser?.vehicles ?? []).filter((v) =>
@@ -167,7 +164,10 @@ async function handleStopConfirm() {
 async function handleStartConfirm(plate: string) {
     if (!selectedStation.value) return;
     try {
-        const usage = await stationStore.startCharge(selectedStation.value, plate);
+        const usage = await stationStore.startCharge(
+            selectedStation.value,
+            plate,
+        );
         usageStore.usages = [...usageStore.usages, usage];
         selectedStation.value.state = "unavailable";
     } catch (error) {
@@ -246,5 +246,9 @@ useMapClustering(
     currentZoom,
 );
 
-const { lookingCenter, lookingRadius } = useMapLookingLocation(mapInstance, isReady, distanceActive);
+const { lookingCenter, lookingRadius } = useMapLookingLocation(
+    mapInstance,
+    isReady,
+    distanceActive,
+);
 </script>

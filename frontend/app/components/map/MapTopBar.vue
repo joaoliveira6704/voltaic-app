@@ -1,6 +1,6 @@
 <template>
     <div
-        class="absolute top-0 left-0 right-0 z-[1000] flex items-center justify-between px-4 py-3 pointer-events-none"
+        class="absolute top-0 left-0 right-0 z-[11] flex items-center justify-between px-4 py-3 pointer-events-none"
     >
         <div class="flex items-center gap-2 pointer-events-auto">
             <button

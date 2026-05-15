@@ -166,7 +166,7 @@ onMounted(async () => {
         <div
             v-if="station"
             :class="[
-                'absolute z-[999] bg-white shadow-2xl pointer-events-auto',
+                'absolute z-[10] bg-white shadow-2xl pointer-events-auto',
                 isMobile
                     ? 'bottom-0 left-0 right-0 rounded-t-2xl px-5 pt-4 pb-8'
                     : 'left-4 top-1/2 -translate-y-1/2 w-80 rounded-2xl px-5 py-5',
@@ -270,7 +270,11 @@ onMounted(async () => {
                             isCompatible ? 'text-[#22c55e]' : 'text-gray-400',
                         ]"
                     >
-                        {{ isCompatible ? t("map.compatible") : t("map.notCompatible") }}
+                        {{
+                            isCompatible
+                                ? t("map.compatible")
+                                : t("map.notCompatible")
+                        }}
                     </span>
                 </div>
 
@@ -343,9 +347,8 @@ onMounted(async () => {
     >
         <div
             v-if="station && isMobile"
-            class="absolute inset-0 z-[998] bg-black/30 backdrop-blur-sm"
+            class="absolute inset-0 z-[9] bg-black/30 backdrop-blur-sm"
             @click="emit('close')"
         />
     </Transition>
-
 </template>
