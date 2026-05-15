@@ -20,8 +20,6 @@ const isTicketDetailOpen = ref(false);
 const ticketStore = useTicketStore();
 const { tickets } = storeToRefs(ticketStore);
 
-const userStore = useUserStore();
-
 const filtered = computed(() =>
     tickets.value.filter((t) =>
         t.title.toLowerCase().includes(searchTerm.value.toLowerCase()),
@@ -36,23 +34,16 @@ const deleteTicket = (ticket: Ticket) => {
     }
 };
 
-const getUserName = (userId: string) => {
-    return userStore.getUserById(userId);
-};
-
 const handleStatusUpdate = ({ ticketId, status }: { ticketId: string; status: string }) => {
     ticketStore.updateTicket(ticketId, { status });
 };
 
 function onPageChange(p: number) {
     page.value = p;
-    ticketStore.fetchTickets(p).then(() => userStore.fetchUsers(100));
+    ticketStore.fetchTickets(p);
 }
 
-Promise.all([
-    ticketStore.fetchTickets(1),
-    userStore.fetchUsers(100),
-]).finally(() => {
+ticketStore.fetchTickets(1).finally(() => {
     isPending.value = false;
 });
 </script>
@@ -98,12 +89,12 @@ Promise.all([
                         row.ticketId.slice(0, 20) + "..."
                     }}</TableCell>
                     <TableCell class="text-xs"
-                        >@{{ getUserName(row.createdBy) || "-" }}</TableCell
+                        >@{{ row.createdByUser?.username ?? "-" }}</TableCell
                     >
                     <TableCell>{{ row.title.slice(0, 40) }}...</TableCell>
                     <TableCell>{{ row.description.slice(0, 60) }}...</TableCell>
                     <TableCell class="text-xs text-muted-foreground">{{
-                        row.remarks || "No remarks"
+                        row.remarks || t("admin.tickets.noRemarks")
                     }}</TableCell>
                     <TableCell
                         ><StatusBadge

@@ -19,177 +19,176 @@ interface UpdateTicketPayload {
 }
 
 export const useTicketStore = defineStore("ticket", () => {
-    const tickets = ref<Ticket[]>([]);
-    const isLoaded = ref(false);
-    const currentPage = ref(1);
-    const totalPages = ref(1);
-    const total = ref(0);
+  const tickets = ref<Ticket[]>([]);
+  const isLoaded = ref(false);
+  const currentPage = ref(1);
+  const totalPages = ref(1);
+  const total = ref(0);
 
-    const token = () => useCookie("token").value;
-    const apiBase = () => useRuntimeConfig().public.apiBaseUrl;
+  const token = () => useCookie("token").value;
+  const apiBase = () => useRuntimeConfig().public.apiBaseUrl;
 
-    async function fetchTickets(page = 1, limit = 20) {
-        try {
-            const data = await $fetch<PaginatedResponse<Ticket>>(
-                `${apiBase()}/api/tickets?page=${page}&limit=${limit}`,
-                {
-                    headers: { Authorization: `Bearer ${token()}` },
-                },
-            );
-            tickets.value = data.tickets;
-            currentPage.value = data.page;
-            totalPages.value = data.pages;
-            total.value = data.total;
-        } catch (e) {
-            console.error("Failed to fetch tickets:", e);
-        }
+  async function fetchTickets(page = 1, limit = 20) {
+    try {
+      const data = await $fetch<PaginatedResponse<Ticket>>(
+        `${apiBase()}/api/tickets?page=${page}&limit=${limit}`,
+        {
+          headers: { Authorization: `Bearer ${token()}` },
+        },
+      );
+      tickets.value = data.tickets;
+      currentPage.value = data.page;
+      totalPages.value = data.pages;
+      total.value = data.total;
+    } catch (e) {
+      console.error("Failed to fetch tickets:", e);
     }
+  }
 
-    async function fetchMyTickets(page = 1, limit = 20) {
-        try {
-            const data = await $fetch<PaginatedResponse<Ticket>>(
-                `${apiBase()}/api/tickets/my?page=${page}&limit=${limit}`,
-                {
-                    headers: { Authorization: `Bearer ${token()}` },
-                },
-            );
-            tickets.value = data.tickets;
-            currentPage.value = data.page;
-            totalPages.value = data.pages;
-            total.value = data.total;
-        } catch (e) {
-            console.error("Failed to fetch my tickets:", e);
-        }
+  async function fetchMyTickets(page = 1, limit = 5) {
+    try {
+      const data = await $fetch<PaginatedResponse<Ticket>>(
+        `${apiBase()}/api/tickets/my?page=${page}&limit=${limit}`,
+        {
+          headers: { Authorization: `Bearer ${token()}` },
+        },
+      );
+      tickets.value = data.tickets;
+      currentPage.value = data.page;
+      totalPages.value = data.pages;
+      total.value = data.total;
+    } catch (e) {
+      console.error("Failed to fetch my tickets:", e);
     }
+  }
 
-    async function fetchCompanyTickets(page = 1, limit = 20) {
-        try {
-            const data = await $fetch<PaginatedResponse<Ticket>>(
-                `${apiBase()}/api/tickets/company?page=${page}&limit=${limit}`,
-                {
-                    headers: { Authorization: `Bearer ${token()}` },
-                },
-            );
-            tickets.value = data.tickets;
-            currentPage.value = data.page;
-            totalPages.value = data.pages;
-            total.value = data.total;
-        } catch (e) {
-            console.error("Failed to fetch company tickets:", e);
-        }
+  async function fetchCompanyTickets(page = 1, limit = 5) {
+    try {
+      const data = await $fetch<PaginatedResponse<Ticket>>(
+        `${apiBase()}/api/tickets/company?page=${page}&limit=${limit}`,
+        {
+          headers: { Authorization: `Bearer ${token()}` },
+        },
+      );
+      tickets.value = data.tickets;
+      currentPage.value = data.page;
+      totalPages.value = data.pages;
+      total.value = data.total;
+    } catch (e) {
+      console.error("Failed to fetch company tickets:", e);
     }
+  }
 
-    async function fetchStationTickets(stationId: string, page = 1, limit = 20) {
-        try {
-            const data = await $fetch<PaginatedResponse<Ticket>>(
-                `${apiBase()}/api/tickets/station/${stationId}?page=${page}&limit=${limit}`,
-                {
-                    headers: { Authorization: `Bearer ${token()}` },
-                },
-            );
-            tickets.value = data.tickets;
-            currentPage.value = data.page;
-            totalPages.value = data.pages;
-            total.value = data.total;
-        } catch (e) {
-            console.error("Failed to fetch station tickets:", e);
-        }
+  async function fetchStationTickets(stationId: string, page = 1, limit = 2) {
+    try {
+      const data = await $fetch<PaginatedResponse<Ticket>>(
+        `${apiBase()}/api/tickets/station/${stationId}?page=${page}&limit=${limit}`,
+        {
+          headers: { Authorization: `Bearer ${token()}` },
+        },
+      );
+      tickets.value = data.tickets;
+      currentPage.value = data.page;
+      totalPages.value = data.pages;
+      total.value = data.total;
+    } catch (e) {
+      console.error("Failed to fetch station tickets:", e);
     }
+  }
 
-    async function createTicket(payload: CreateTicketPayload) {
-        try {
-            const data = await $fetch<{ ticketId: string }>(
-                `${apiBase()}/api/tickets`,
-                {
-                    method: "POST",
-                    headers: {
-                        Authorization: `Bearer ${token()}`,
-                        "Content-Type": "application/json",
-                    },
-                    body: payload,
-                },
-            );
-            toast.success("Ticket created successfully");
-            return data;
-        } catch (e) {
-            console.error("Failed to create ticket:", e);
-            toast.error("Failed to create ticket");
-            throw e;
-        }
+  async function createTicket(payload: CreateTicketPayload) {
+    try {
+      const data = await $fetch<{ ticketId: string }>(
+        `${apiBase()}/api/tickets`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token()}`,
+            "Content-Type": "application/json",
+          },
+          body: payload,
+        },
+      );
+      toast.success("Ticket created successfully");
+      return data;
+    } catch (e) {
+      console.error("Failed to create ticket:", e);
+      toast.error("Failed to create ticket");
+      throw e;
     }
+  }
 
-    async function updateTicket(ticketId: string, payload: UpdateTicketPayload) {
-        try {
-            const data = await $fetch<Ticket>(
-                `${apiBase()}/api/tickets/${ticketId}`,
-                {
-                    method: "PATCH",
-                    headers: {
-                        Authorization: `Bearer ${token()}`,
-                        "Content-Type": "application/json",
-                    },
-                    body: payload,
-                },
-            );
-            tickets.value = tickets.value.map((t) =>
-                t.ticketId === ticketId ? { ...t, ...data } : t,
-            );
-            toast.success("Ticket updated successfully");
-            return data;
-        } catch (e) {
-            console.error("Failed to update ticket:", e);
-            toast.error("Failed to update ticket");
-            throw e;
-        }
+  async function updateTicket(ticketId: string, payload: UpdateTicketPayload) {
+    try {
+      const data = await $fetch<Ticket>(
+        `${apiBase()}/api/tickets/${ticketId}`,
+        {
+          method: "PATCH",
+          headers: {
+            Authorization: `Bearer ${token()}`,
+            "Content-Type": "application/json",
+          },
+          body: payload,
+        },
+      );
+      tickets.value = tickets.value.map((t) =>
+        t.ticketId === ticketId ? { ...t, ...data } : t,
+      );
+      toast.success("Ticket updated successfully");
+      return data;
+    } catch (e) {
+      console.error("Failed to update ticket:", e);
+      toast.error("Failed to update ticket");
+      throw e;
     }
+  }
 
-    async function deleteTicket(ticketId: string, ticketTitle: string) {
-        const confirmed = await Swal.fire({
-            title: "Confirm Delete",
-            text: `You are about to delete the following ticket: ${ticketTitle}`,
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#dc2626",
-            confirmButtonText: "Yes, Delete",
-            reverseButtons: true,
-            customClass: {
-                popup: " text-sm dark:bg-[#0a0a0a] dark:border dark:border-[#171717] rounded-xl dark:text-white/80",
-                cancelButton:
-                    "bg-white text-black hover:bg-gray-300 dark:bg-[#1a1a1a] dark:text-white dark:hover:bg-[#2a2a2a]",
-            },
-        });
+  async function deleteTicket(ticketId: string, ticketTitle: string) {
+    const confirmed = await Swal.fire({
+      title: "Confirm Delete",
+      text: `You are about to delete the following ticket: ${ticketTitle}`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#dc2626",
+      confirmButtonText: "Yes, Delete",
+      reverseButtons: true,
+      customClass: {
+        popup:
+          " text-sm dark:bg-[#0a0a0a] dark:border dark:border-[#171717] rounded-xl dark:text-white/80",
+        cancelButton:
+          "bg-white text-black hover:bg-gray-300 dark:bg-[#1a1a1a] dark:text-white dark:hover:bg-[#2a2a2a]",
+      },
+    });
 
-        if (!confirmed.isConfirmed) return;
+    if (!confirmed.isConfirmed) return;
 
-        try {
-            await $fetch(`${apiBase()}/api/tickets/${ticketId}`, {
-                method: "DELETE",
-                headers: { Authorization: `Bearer ${token()}` },
-            });
+    try {
+      await $fetch(`${apiBase()}/api/tickets/${ticketId}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token()}` },
+      });
 
-            tickets.value = tickets.value.filter(
-                (t) => t.ticketId !== ticketId,
-            );
-            toast.success("Ticket deleted successfully");
-        } catch (e) {
-            console.error("Failed to delete ticket:", e);
-            toast.error("Failed to delete ticket");
-            throw e;
-        }
+      tickets.value = tickets.value.filter((t) => t.ticketId !== ticketId);
+      toast.success("Ticket deleted successfully");
+    } catch (e) {
+      console.error("Failed to delete ticket:", e);
+      toast.error("Failed to delete ticket");
+      throw e;
     }
+  }
 
-    return {
-        tickets,
-        isLoaded,
-        currentPage,
-        totalPages,
-        total,
-        fetchTickets,
-        fetchMyTickets,
-        fetchCompanyTickets,
-        fetchStationTickets,
-        createTicket,
-        updateTicket,
-        deleteTicket,
-    };
+  return {
+    tickets,
+    isLoaded,
+    currentPage,
+    totalPages,
+    total,
+    fetchTickets,
+    fetchMyTickets,
+    fetchCompanyTickets,
+    fetchStationTickets,
+    createTicket,
+    updateTicket,
+    deleteTicket,
+  };
 });

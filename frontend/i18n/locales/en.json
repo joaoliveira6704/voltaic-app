@@ -196,7 +196,8 @@
       "createNew": "Create new company"
     },
     "tickets": {
-      "title": "Tickets"
+      "title": "Tickets",
+      "noRemarks": "No remarks"
     },
     "table": {
       "actions": "Actions"
@@ -303,6 +304,11 @@
     "offline": "Offline"
   },
   "interventionCard": {
+    "lastName": "Last Name",
+    "firstName": "First Name",
+    "phoneNumber": "Phone Number",
+    "idNumber": "ID",
+    "agentNote": "Agent Note",
     "remarks": "Remarks:"
   },
   "ticketCard": {

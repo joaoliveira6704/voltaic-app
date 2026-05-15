@@ -204,11 +204,11 @@ const recentTickets = computed(() =>
                                         ticket.ticketId.slice(-4)
                                     }}...</TableCell
                                 >
-                                <TableCell>{{ ticket.title ?? "—" }}</TableCell>
+                                <TableCell>{{ ticket.createdByUser ? `${ticket.createdByUser.firstName} ${ticket.createdByUser.lastName}` : "—" }}</TableCell>
                                 <TableCell
                                     class="text-muted-foreground text-xs"
                                     >{{
-                                        ticket.station?.name ?? "—"
+                                        ticket.station?.title ?? "—"
                                     }}</TableCell
                                 >
                                 <TableCell class="text-right">

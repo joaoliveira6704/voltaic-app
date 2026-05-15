@@ -81,7 +81,9 @@ function handleStatusUpdate(ticketId: string, status: string) {
     <div class="flex-1 py-4 px-2 min-w-0 overflow-y-auto space-y-6">
         <template v-if="isPending">
             <Skeleton class="h-8 w-[250px]" />
-            <div class="rounded-xl border border-gray-100 dark:border-[#232323] p-6 space-y-4 dark:bg-[#171717]">
+            <div
+                class="rounded-xl border border-gray-100 dark:border-[#232323] p-6 space-y-4 dark:bg-[#171717]"
+            >
                 <div class="flex items-center justify-between">
                     <div class="space-y-2">
                         <Skeleton class="h-5 w-[200px]" />
@@ -105,7 +107,9 @@ function handleStatusUpdate(ticketId: string, status: string) {
             </div>
             <div>
                 <Skeleton class="h-6 w-[140px] mb-4" />
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div
+                    class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"
+                >
                     <SkeletonInterventionCard v-for="n in 4" :key="n" />
                 </div>
             </div>
@@ -165,15 +169,17 @@ function handleStatusUpdate(ticketId: string, status: string) {
             </DashboardCard>
             <DashboardCard :title="t('company.stations.interventions')">
                 <CardContent>
-                    <div
-                        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 w-full"
-                    >
+                    <div class="flex gap-4 w-full">
                         <InterventionCard
+                            class="h-60"
                             v-for="ticket in tickets"
                             :key="ticket.ticketId"
                             :ticket="ticket"
                             @update:status="handleStatusUpdate"
-                            @select="selectedTicket = ticket; isTicketDetailOpen = true"
+                            @select="
+                                selectedTicket = ticket;
+                                isTicketDetailOpen = true;
+                            "
                         />
                     </div>
                     <Pagination

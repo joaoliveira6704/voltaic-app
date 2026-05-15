@@ -78,6 +78,14 @@ export function useMapInstance(
         type: "globe", // Set projection to globe
       });
     });
+    map.addControl(
+      new maplibre.GeolocateControl({
+        positionOptions: {
+          enableHighAccuracy: true,
+        },
+        trackUserLocation: true,
+      }),
+    );
   });
 
   onUnmounted(() => {

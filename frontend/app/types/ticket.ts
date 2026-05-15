@@ -5,6 +5,14 @@ export interface Ticket {
   stationId?: string;
   companyId?: string;
   createdBy?: string;
+  createdByUser?: {
+    firstName: string;
+    lastName: string;
+    username: string;
+  } | null;
+  station?: {
+    title: string;
+  } | null;
   remarks?: string;
   status: "open" | "closed" | "resolved" | "unresolved";
   closedAt?: Date;

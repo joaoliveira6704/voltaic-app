@@ -33,7 +33,7 @@
             @reset="resetSidebarFilters"
             @toggle-connector="toggleConnector"
             @slider-change="onSliderChange"
-            @slider-commit="(val) => onSliderCommit(val, userLocation)"
+            @slider-commit="(val) => onSliderCommit(val, lookingCenter)"
         />
 
         <MapStationCard
@@ -77,6 +77,7 @@ import { useMapFilters } from "@/composables/useMapFilters";
 import { useMapInstance } from "@/composables/useMapInstance";
 import { useMapMarkers } from "@/composables/useMapMarkers";
 import { useMapClustering } from "@/composables/useMapClustering";
+import { useMapLookingLocation } from "@/composables/useMapLookingLocation";
 import type { Station } from "@/types/station";
 import StartChargingModal from "@/components/modals/StartChargingModal.vue";
 import StopChargingModal from "@/components/modals/StopChargingModal.vue";
@@ -244,4 +245,6 @@ useMapClustering(
     MarkerClass,
     currentZoom,
 );
+
+const { lookingCenter, lookingRadius } = useMapLookingLocation(mapInstance, isReady, distanceActive);
 </script>

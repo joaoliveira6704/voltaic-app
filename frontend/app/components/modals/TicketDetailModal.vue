@@ -82,7 +82,7 @@ function formatDate(date: Date | string | undefined) {
               <User class="w-4 h-4 shrink-0 text-gray-400" />
               <div>
                 <span class="text-xs text-gray-500 block">{{ t("ticketDetail.createdBy") }}</span>
-                <span class="text-sm font-medium">{{ ticket.createdBy?.slice(0, 12) ?? "—" }}</span>
+                <span class="text-sm font-medium">{{ ticket.createdByUser ? `${ticket.createdByUser.firstName} ${ticket.createdByUser.lastName}` : "—" }}</span>
               </div>
             </div>
 
@@ -90,7 +90,7 @@ function formatDate(date: Date | string | undefined) {
               <MapPin class="w-4 h-4 shrink-0 text-gray-400" />
               <div>
                 <span class="text-xs text-gray-500 block">{{ t("ticketDetail.station") }}</span>
-                <span class="text-sm font-medium">{{ ticket.stationId.slice(0, 12) }}...</span>
+                <span class="text-sm font-medium">{{ ticket.station?.title ?? "—" }}</span>
               </div>
             </div>
 

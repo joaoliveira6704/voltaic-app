@@ -8,10 +8,51 @@ const paginate = async (Model, filter, page = 1, limit = 20, sort = { createdAt:
   page = Math.max(1, parseInt(page) || 1);
   limit = Math.min(100, Math.max(1, parseInt(limit) || 20));
   const skip = (page - 1) * limit;
-  const [tickets, total] = await Promise.all([
-    Model.find(filter).sort(sort).skip(skip).limit(limit),
-    Model.countDocuments(filter),
-  ]);
+
+  const pipeline = [
+    { $match: filter },
+    {
+      $lookup: {
+        from: "users",
+        let: { createdBy: "$createdBy" },
+        pipeline: [
+          { $match: { $expr: { $eq: ["$userId", "$$createdBy"] } } },
+          { $project: { _id: 0, firstName: 1, lastName: 1, username: 1, email: 1 } },
+        ],
+        as: "createdByUser",
+      },
+    },
+    {
+      $lookup: {
+        from: "stations",
+        let: { stationId: "$stationId" },
+        pipeline: [
+          { $match: { $expr: { $eq: ["$stationId", "$$stationId"] } } },
+          { $project: { _id: 0, title: 1 } },
+        ],
+        as: "station",
+      },
+    },
+    {
+      $addFields: {
+        createdByUser: { $arrayElemAt: ["$createdByUser", 0] },
+        station: { $arrayElemAt: ["$station", 0] },
+      },
+    },
+    { $project: { __v: 0 } },
+    { $sort: sort },
+    {
+      $facet: {
+        metadata: [{ $count: "total" }],
+        data: [{ $skip: skip }, { $limit: limit }],
+      },
+    },
+  ];
+
+  const [result] = await Model.aggregate(pipeline);
+  const total = result?.metadata?.[0]?.total || 0;
+  const tickets = result?.data || [];
+
   return { tickets, page, limit, total, pages: Math.ceil(total / limit) };
 };
 

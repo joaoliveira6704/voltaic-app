@@ -2,6 +2,7 @@
 import { defineStore } from "pinia";
 import Swal from "sweetalert2";
 import { toast } from "vue-sonner";
+import type { Station } from "~/types/station";
 
 export const useStationStore = defineStore("station", () => {
   const stations = shallowRef([]);
@@ -20,7 +21,7 @@ export const useStationStore = defineStore("station", () => {
     try {
       let url = `${apiBaseUrl}/api/stations`;
       if (limit !== undefined) url += `?limit=${limit}&offset=${offset ?? 0}`;
-      const data = await $fetch<any[]>(url, {
+      const data = await $fetch<Station[]>(url, {
         headers: { Authorization: `Bearer ${token.value}` },
       });
       stations.value = data;
@@ -31,16 +32,19 @@ export const useStationStore = defineStore("station", () => {
 
   async function fetchCompanyStations() {
     try {
-      const data = await $fetch<any[]>(`${apiBaseUrl}/api/stations/company`, {
-        headers: { Authorization: `Bearer ${token.value}` },
-      });
+      const data = await $fetch<Station[]>(
+        `${apiBaseUrl}/api/stations/company`,
+        {
+          headers: { Authorization: `Bearer ${token.value}` },
+        },
+      );
       companyStations.value = data;
     } catch (e) {
       console.error("Failed to fetch company stations:", e);
     }
   }
 
-  async function createStation(station: any) {
+  async function createStation(station: Station) {
     const telemetry = {
       temperature: 0,
       amperage: 0,
@@ -114,7 +118,7 @@ export const useStationStore = defineStore("station", () => {
       const data = await $fetch<{
         success: boolean;
         count: number;
-        data: any[];
+        data: Station[];
       }>(`${apiBaseUrl}/api/stations/radius/${lat}/${lng}/${distanceKm}`, {
         headers: { Authorization: `Bearer ${token.value}` },
       });
@@ -179,11 +183,14 @@ export const useStationStore = defineStore("station", () => {
 
   async function executeCommand(id: string, command: string) {
     try {
-      const res = await $fetch<any>(`${apiBaseUrl}/api/stations/${id}/execute`, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token.value}` },
-        body: { command },
-      });
+      const res = await $fetch<any>(
+        `${apiBaseUrl}/api/stations/${id}/execute`,
+        {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token.value}` },
+          body: { command },
+        },
+      );
       console.log(res);
       toast.success("Command executed successfully");
     } catch (e) {

@@ -13,8 +13,6 @@ const navLinks = computed(() => {
     const user = userStore.currentUser;
     const userRole = userStore.userRole;
 
-    if (!isLoaded.value) return [];
-
     if (!user) {
         return [
             { path: "/", label: t("nav.home") },
@@ -82,9 +80,9 @@ const navLinks = computed(() => {
             <div
                 class="container mx-auto max-w-7xl px-4 md:px-8 flex justify-between items-center"
             >
-                <Label class="text-[10px] text-gray-400 uppercase"
-                    >{{ t("layout.footer.copyright", { year: 2026 }) }}</Label
-                >
+                <Label class="text-[10px] text-gray-400 uppercase">{{
+                    t("layout.footer.copyright", { year: 2026 })
+                }}</Label>
                 <div class="flex gap-4">
                     <Button
                         variant="link"
