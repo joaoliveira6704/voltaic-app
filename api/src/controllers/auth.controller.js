@@ -1,6 +1,7 @@
 import userModel from "../models/user.model.js";
 import resetTokenModel from "../models/resetToken.model.js";
 import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
 import generateUniqueId, { generateUniqueToken } from "../utils/utils.js";
 import sendResetEmail from "../utils/mailer.js";
 import mongoose from "mongoose";
@@ -100,6 +101,8 @@ export const createResetToken = async (req, res, next) => {
       });
 
       await newToken.save();
+      console.log("generated token: ", newToken.token);
+
       //await sendResetEmail(email, newToken.token);
     }
 
@@ -114,13 +117,15 @@ export const createResetToken = async (req, res, next) => {
 };
 
 export const validateResetToken = async (req, res, next) => {
+  console.log("validateReseToken");
+
   try {
     const token = req.params.token;
 
     if (!token) {
       const err = new Error();
       err.status = 400;
-      err.message = "Token is not valid";
+      err.message = "Token is not valid or has expired";
       return next(err);
     }
 
@@ -128,12 +133,57 @@ export const validateResetToken = async (req, res, next) => {
 
     if (!resetToken) {
       const err = new Error();
-      err.status = 400;
+      err.status = 404;
       err.message = "Token is not valid or has expired";
       return next(err);
     }
 
     return res.status(200).json({ message: "Token is valid." });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const resetPassword = async (req, res, next) => {
+  try {
+    const newPassword = req.body.newPassword;
+    const token = req.body.token;
+    console.log(token, newPassword);
+
+    if (!newPassword || newPassword === "") {
+      const err = new Error();
+      err.status = 400;
+      err.message = "Password can´t be empty";
+      return next(err);
+    }
+
+    console.log("resetToken findOne");
+    const resetToken = await resetTokenModel.findOne({ token }); //TOKEN reseting before calling
+    console.log(resetToken.token);
+
+    const user = await userModel.findOne({ userId: resetToken.userId });
+
+    const isSamePassword = await user.correctPassword(
+      newPassword,
+      user.password,
+    );
+    console.log(isSamePassword);
+
+    if (isSamePassword) {
+      const err = new Error();
+      err.status = 400;
+      err.message = "New password must differ from current password";
+      return next(err);
+    }
+
+    user.password = await bcrypt.hash(newPassword, 10);
+    await user.save();
+
+    return res.status(200).json({
+      message:
+        "If an account with that email exists, you'll receive a reset link shortly.",
+    });
+    console.log("reached");
   } catch (err) {
     next(err);
   }
