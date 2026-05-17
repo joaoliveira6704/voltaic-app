@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Skeleton } from "~/components/ui/Skeleton";
-import { Mail, MapPin, Globe } from "lucide-vue-next";
+import { Mail, Globe } from "lucide-vue-next";
 import { createAvatar } from "@dicebear/core";
 import { bottts } from "@dicebear/collection";
 import type { Preferences } from "~/stores/user";
@@ -26,31 +26,6 @@ interface Props {
 // 3. Set the props
 const props = defineProps<Props>();
 const { t } = useI18n();
-const config = useRuntimeConfig();
-
-const { data: companyName, pending } = await useAsyncData(
-    `company-${props.user.companyId}`,
-    async () => {
-        try {
-            const response = await $fetch<{ name: string }>(
-                `${config.public.apiBaseUrl}/api/companies/${props.user.companyId}`,
-                {
-                    headers: {
-                        Authorization: `Bearer ${useCookie("token").value}`,
-                    },
-                },
-            );
-            return response.name;
-        } catch {
-            return t("info.unknownCompany");
-        }
-    },
-    {
-        // Only run if the user isn't a client or admin (logic from your template)
-        watch: [() => props.user.companyId],
-        immediate: props.user.role !== "client" && props.user.role !== "admin",
-    },
-);
 
 const avatar = createAvatar(bottts, {
     seed: `${props.user.username}`,
@@ -76,7 +51,7 @@ const sendEmail = () => {
                     :src="avatarUrl"
                     :alt="props.user.firstName + ' ' + props.user.lastName"
                     class="w-full h-full object-cover"
-                >
+                />
             </div>
         </div>
 
@@ -90,16 +65,12 @@ const sendEmail = () => {
                     {{ props.user.firstName }} {{ props.user.lastName }}
                 </h1>
                 <h2 class="font-semibold mt-2">
-                    <template
-                        v-if="
-                            props.user.role !== 'client'
-                        "
-                    >
+                    <template v-if="props.user.role !== 'client'">
                         <template v-if="pending">
                             <Skeleton class="h-5 w-40" />
                         </template>
-                        <template v-else-if="companyName">
-                            {{ companyName }} -
+                        <template v-else-if="props.user.companyName">
+                            {{ props.user.companyName }} -
                             {{ props.user.role.toLocaleUpperCase() }}
                         </template>
                         <template v-else>
@@ -108,7 +79,9 @@ const sendEmail = () => {
                     </template>
                 </h2>
             </div>
-            <p class="text-white/80">@{{ props.user.username }}</p>
+            <p class="text-neutral-400 dark:text-white/80">
+                @{{ props.user.username }}
+            </p>
 
             <div class="grid grid-cols-1 lg:grid-cols-2 mt-2">
                 <div

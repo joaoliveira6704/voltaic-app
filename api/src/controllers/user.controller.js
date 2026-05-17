@@ -65,7 +65,120 @@ export const updateUser = async (req, res, next) => {
 
 export const getCurrentUser = async (req, res, next) => {
   try {
-    const user = await userModel.findOne({ userId: req.user.userId });
+    const userId = req.user.userId;
+    const isProfile = req.query.profile;
+
+    const user = await userModel.findOne({ userId: userId });
+
+    if (isProfile) {
+      console.log("Getting user profile");
+      const userProfile = await userModel.aggregate([
+        { $match: { userId: userId } },
+        {
+          $lookup: {
+            from: "companies",
+            localField: "companyId",
+            foreignField: "companyId",
+            as: "companyData",
+          },
+        },
+        { $unwind: "$companyData" },
+        {
+          $set: { companyName: "$companyData.name" },
+        },
+        {
+          $lookup: {
+            from: "usages",
+            let: { userId: "$userId" },
+            pipeline: [
+              { $match: { $expr: { $eq: ["$userId", "$$userId"] } } },
+              { $sort: { createdAt: -1 } },
+              { $limit: 4 },
+              {
+                $lookup: {
+                  from: "stations",
+                  localField: "stationId",
+                  foreignField: "stationId",
+                  as: "stationData",
+                },
+              },
+              {
+                $unwind: {
+                  path: "$stationData",
+                  preserveNullAndEmptyArrays: true,
+                },
+              },
+              {
+                $addFields: {
+                  stationName: "$stationData.title",
+                  duration: {
+                    $cond: {
+                      if: { $eq: ["$state", "completed"] },
+                      then: {
+                        $let: {
+                          vars: {
+                            totalMinutes: {
+                              $floor: {
+                                $divide: [
+                                  { $subtract: ["$endTime", "$createdAt"] },
+                                  60000,
+                                ],
+                              },
+                            },
+                          },
+                          in: {
+                            $let: {
+                              vars: {
+                                hours: {
+                                  $floor: { $divide: ["$$totalMinutes", 60] },
+                                },
+                                minutes: { $mod: ["$$totalMinutes", 60] },
+                              },
+                              in: {
+                                $cond: {
+                                  if: { $eq: ["$$hours", 0] },
+                                  then: {
+                                    $concat: [{ $toString: "$$minutes" }, "m"],
+                                  },
+                                  else: {
+                                    $concat: [
+                                      { $toString: "$$hours" },
+                                      "h ",
+                                      { $toString: "$$minutes" },
+                                      "m",
+                                    ],
+                                  },
+                                },
+                              },
+                            },
+                          },
+                        },
+                      },
+                      else: "$state",
+                    },
+                  },
+                },
+              },
+              { $project: { stationData: 0 } },
+            ],
+            as: "chargingHistory",
+          },
+        },
+        {
+          $project: {
+            endTime: 0,
+            password: 0,
+            _id: 0,
+            companyId: 0,
+            companyData: 0,
+          },
+        },
+      ]);
+
+      console.log(userProfile);
+
+      return res.json(userProfile[0]);
+    }
     if (!user) {
       const err = new Error("User not found");
       err.status = 404;
@@ -315,7 +428,9 @@ export const getFavoriteStations = async (req, res, next) => {
       err.status = 404;
       return next(err);
     }
-    const stations = await stationModel.find({ stationId: { $in: user.favorites } });
+    const stations = await stationModel.find({
+      stationId: { $in: user.favorites },
+    });
     res.json(stations);
   } catch (error) {
     next(error);

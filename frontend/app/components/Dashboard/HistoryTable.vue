@@ -10,32 +10,16 @@ interface ChargingSession {
     createdAt: string;
     endTime?: string;
     plate: string;
+    duration: string;
 }
 
 interface Props {
     sessions: ChargingSession[];
 }
 
-defineProps<Props>();
+const props = defineProps<Props>();
 
-const duration = (session: ChargingSession) => {
-    console.log(session);
-    if (!session.endTime) return t("historyTable.inProgress");
-
-    const start = new Date(session.createdAt).getTime();
-    const end = new Date(session.endTime).getTime();
-    const diffMs = end - start;
-
-    if (diffMs < 0) {
-        return t("historyTable.timeError");
-    }
-
-    const totalMinutes = Math.floor(diffMs / 60000);
-    const hrs = Math.floor(totalMinutes / 60);
-    const mins = totalMinutes % 60;
-
-    return hrs > 0 ? `${hrs}h ${mins}m` : `${mins}m`;
-};
+console.log(props.sessions);
 </script>
 
 <template>
@@ -110,7 +94,11 @@ const duration = (session: ChargingSession) => {
                     <TableCell
                         class="px-6 py-4 text-right text-neutral-800 dark:text-white/80 text-xs tabular-nums"
                     >
-                        {{ duration(session) }}
+                        {{
+                            session.duration === "active"
+                                ? "In Progress"
+                                : session.duration
+                        }}
                     </TableCell>
                 </TableRow>
             </TableBody>

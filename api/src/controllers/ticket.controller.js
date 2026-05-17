@@ -4,7 +4,13 @@ import companyModel from "../models/company.model.js";
 import logModel from "../models/log.model.js";
 import generateUniqueId from "../utils/utils.js";
 
-const paginate = async (Model, filter, page = 1, limit = 20, sort = { createdAt: -1 }) => {
+const paginate = async (
+  Model,
+  filter,
+  page = 1,
+  limit = 20,
+  sort = { createdAt: -1 },
+) => {
   page = Math.max(1, parseInt(page) || 1);
   limit = Math.min(100, Math.max(1, parseInt(limit) || 20));
   const skip = (page - 1) * limit;
@@ -17,7 +23,15 @@ const paginate = async (Model, filter, page = 1, limit = 20, sort = { createdAt:
         let: { createdBy: "$createdBy" },
         pipeline: [
           { $match: { $expr: { $eq: ["$userId", "$$createdBy"] } } },
-          { $project: { _id: 0, firstName: 1, lastName: 1, username: 1, email: 1 } },
+          {
+            $project: {
+              _id: 0,
+              firstName: 1,
+              lastName: 1,
+              username: 1,
+              email: 1,
+            },
+          },
         ],
         as: "createdByUser",
       },
@@ -115,7 +129,12 @@ export const getTickets = async (req, res, next) => {
 export const getMyTickets = async (req, res, next) => {
   try {
     const { page, limit } = req.query;
-    const result = await paginate(ticketModel, { createdBy: req.user.userId }, page, limit);
+    const result = await paginate(
+      ticketModel,
+      { createdBy: req.user.userId },
+      page,
+      limit,
+    );
     res.json(result);
   } catch (error) {
     next(error);
@@ -125,7 +144,12 @@ export const getMyTickets = async (req, res, next) => {
 export const getCompanyTickets = async (req, res, next) => {
   try {
     const { page, limit } = req.query;
-    const result = await paginate(ticketModel, { companyId: req.user.companyId }, page, limit);
+    const result = await paginate(
+      ticketModel,
+      { companyId: req.user.companyId },
+      page,
+      limit,
+    );
     res.json(result);
   } catch (error) {
     next(error);
@@ -135,7 +159,12 @@ export const getCompanyTickets = async (req, res, next) => {
 export const getAdminTickets = async (req, res, next) => {
   try {
     const { page, limit } = req.query;
-    const result = await paginate(ticketModel, { stationId: null }, page, limit);
+    const result = await paginate(
+      ticketModel,
+      { stationId: null },
+      page,
+      limit,
+    );
     res.json(result);
   } catch (error) {
     next(error);
@@ -175,9 +204,13 @@ export const updateTicket = async (req, res, next) => {
       let ownsStation = false;
 
       if (existing.stationId) {
-        const station = await stationModel.findOne({ stationId: existing.stationId });
+        const station = await stationModel.findOne({
+          stationId: existing.stationId,
+        });
         if (station) {
-          const company = await companyModel.findOne({ companyId: req.user.companyId });
+          const company = await companyModel.findOne({
+            companyId: req.user.companyId,
+          });
           ownsStation = company?.groups.includes(station.groupId) ?? false;
         }
       }

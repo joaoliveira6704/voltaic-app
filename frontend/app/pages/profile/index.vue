@@ -23,17 +23,15 @@ useHead({
 const { t } = useI18n();
 
 const userStore = useUserStore(); // Pinia must be called before any awaits
-const { currentUser, chargingHistory, userRole } = storeToRefs(userStore);
-const { confirmLogout, deleteVehicle, fetchCurrentUser, fetchChargingHistory } =
+const { currentUser } = storeToRefs(userStore);
+const { confirmLogout, deleteVehicle, fetchUserProfile, fetchChargingHistory } =
     userStore;
 
 const isPending = ref(true);
 
-fetchCurrentUser()
-    .then(() => fetchChargingHistory())
-    .finally(() => {
-        isPending.value = false;
-    });
+fetchUserProfile().finally(() => {
+    isPending.value = false;
+});
 
 const isEditModalOpen = ref(false);
 const isAddVehicleModal = ref(false);
@@ -144,7 +142,7 @@ const isAddVehicleModal = ref(false);
 
             <template #cell-d-left>
                 <DashboardCard :title="t('history')">
-                    <HistoryTable :sessions="chargingHistory.slice(0, 4)" />
+                    <HistoryTable :sessions="currentUser.chargingHistory" />
                 </DashboardCard>
             </template>
 

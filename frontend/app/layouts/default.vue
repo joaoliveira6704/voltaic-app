@@ -15,7 +15,7 @@ const { t } = useI18n();
 const userStore = useUserStore();
 
 const currentUser = userStore.currentUser;
-const isLoaded = computed(() => userStore.isLoaded);
+const isLoaded = true;
 
 const navLinks = [{ path: "/map", label: t("nav.map") }];
 </script>

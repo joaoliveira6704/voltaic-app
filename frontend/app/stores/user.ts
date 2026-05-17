@@ -3,6 +3,7 @@ import { useColorMode } from "@vueuse/core";
 import { toast } from "vue-sonner";
 import { defineStore } from "pinia";
 import Swal from "sweetalert2";
+import type { Usage } from "~/types/usage";
 
 interface User {
   userId: string;
@@ -13,10 +14,10 @@ interface User {
   password?: string;
   currentPassword?: string;
   newPassword?: string;
+  companyName?: string;
   role: "client" | "worker" | "company-manager" | "admin";
   vehicles?: Vehicle[];
-  assignedTickets?: any[];
-  tickets?: any[];
+  chargingHistory?: Usage[];
   preferences?: Preferences;
 }
 
@@ -179,20 +180,55 @@ export const useUserStore = defineStore("user", () => {
       }
     >,
   ) {
-    await $fetch(`${apiBase()}/api/users/me`, {
-      method: "PATCH",
-      headers: {
-        Authorization: `Bearer ${token()}`,
-        "Content-Type": "application/json",
-      },
-      body: changes,
-    });
+    try {
+      await $fetch(`${apiBase()}/api/users/me`, {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${token()}`,
+          "Content-Type": "application/json",
+        },
+        body: changes,
+      });
 
-    if (changes.preferences?.language) {
-      await setLocale(changes.preferences.language);
+      if (changes.preferences && currentUser.value) {
+        currentUser.value.preferences = changes.preferences;
+      } else {
+        fetchUserProfile();
+      }
+
+      if (changes.preferences?.language) {
+        await setLocale(changes.preferences.language);
+      }
+
+      toast.success("Changes Applied Successfully");
+    } catch (e) {
+      toast.error("Error Applying Changes: " + e);
     }
+  }
 
-    await fetchCurrentUser();
+  async function fetchUserProfile() {
+    isLoaded.value = false;
+    try {
+      const data = await $fetch<User>(
+        `${apiBase()}/api/users/me?profile=true`,
+        {
+          headers: { Authorization: `Bearer ${token()}` },
+        },
+      );
+      currentUser.value = data;
+      console.log(data);
+
+      colorMode.preference = data.preferences?.darkMode ? "dark" : "light";
+
+      if (data.preferences?.language) {
+        await setLocale(data.preferences.language);
+        await setLocaleCookie(data.preferences.language);
+      }
+    } catch (e) {
+      toast.error("Failed to fetch profile");
+    } finally {
+      isLoaded.value = true;
+    }
   }
 
   async function editUser(userId: string, payload: Partial<User>) {
@@ -436,6 +472,7 @@ export const useUserStore = defineStore("user", () => {
     addFavorite,
     removeFavorite,
     favoriteStations,
+    fetchUserProfile,
     fetchFavoriteStations,
   };
 });

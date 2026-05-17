@@ -30,7 +30,7 @@ app.use("/api/logs", logRoute);
 app.use("/api/stations", stationRoute);
 app.use("/api/tickets", ticketRoute);
 app.use("/api/vehicles", vehicleRoute);
-app.use("/api/usage", usageRoute);
+app.use("/api/usages", usageRoute);
 
 app.get("/api/status", (req, res) => res.json({ status: "Alive" }));
 

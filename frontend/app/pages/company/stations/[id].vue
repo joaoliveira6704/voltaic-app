@@ -183,6 +183,7 @@ function handleStatusUpdate(ticketId: string, status: string) {
                         />
                     </div>
                     <Pagination
+                        class="pt-4"
                         :current-page="ticketStore.currentPage"
                         :total-pages="ticketStore.totalPages"
                         @update:page="onPageChange"

@@ -1,5 +1,6 @@
 // pages/profile/index.vue
 <script setup>
+import { useUsageStore } from "~/stores/usage";
 import { useUserStore } from "~/stores/user";
 import { storeToRefs } from "pinia";
 import { Skeleton, SkeletonTable } from "~/components/ui/Skeleton";
@@ -16,17 +17,30 @@ useHead({
 
 const { t } = useI18n();
 
-const userStore = useUserStore(); // Pinia must be called before any awaits
-const { chargingHistory } = storeToRefs(userStore);
-const { fetchCurrentUser, fetchChargingHistory } = userStore;
+const userStore = useUserStore();
+const { currentUser } = storeToRefs(userStore);
+
+const usageStore = useUsageStore(); // Pinia must be called before any awaits
+const { usages } = storeToRefs(usageStore);
 
 const isPending = ref(true);
 
-fetchCurrentUser()
-    .then(() => fetchChargingHistory())
-    .finally(() => {
-        isPending.value = false;
-    });
+watch(
+    () => currentUser.value?.userId,
+    async (newUserId) => {
+        if (!newUserId) return;
+
+        try {
+            isPending.value = true;
+            await usageStore.fetchUserUsages(newUserId);
+        } catch (error) {
+            console.error("Error loading usages:", error);
+        } finally {
+            isPending.value = false;
+        }
+    },
+    { immediate: true },
+);
 </script>
 
 <template>
@@ -59,12 +73,12 @@ fetchCurrentUser()
                     {{ t("nav.history") }}
                 </h1>
                 <span class="text-xs text-gray-500 dark:text-white/40">
-                    {{ chargingHistory.length }}
-                    {{ chargingHistory.length === 1 ? "session" : "sessions" }}
+                    {{ usages.length }}
+                    {{ usages.length === 1 ? "session" : "sessions" }}
                 </span>
             </div>
 
-            <div v-if="chargingHistory.length === 0" class="text-center py-20">
+            <div v-if="usages.length === 0" class="text-center py-20">
                 <p class="text-sm text-gray-400 dark:text-white/30">
                     No charging history yet.
                 </p>
@@ -72,7 +86,7 @@ fetchCurrentUser()
                     Browse the map and save your favorites.
                 </p>
             </div>
-            <HistoryTable v-else :sessions="chargingHistory" />
+            <HistoryTable v-else :sessions="usages" />
         </DashboardCard>
     </div>
 </template>

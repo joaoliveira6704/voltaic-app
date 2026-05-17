@@ -132,7 +132,7 @@ export const useStationStore = defineStore("station", () => {
     if (station.state === "unavailable") return;
 
     try {
-      const res = await $fetch<any>(`${apiBaseUrl}/api/usage/start`, {
+      const res = await $fetch<any>(`${apiBaseUrl}/api/usages/start`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token.value}` },
         body: { stationId: station.stationId, plate: plate },
@@ -152,7 +152,7 @@ export const useStationStore = defineStore("station", () => {
 
   async function stopCharge(usageId: string, stationId: string) {
     try {
-      const res = await $fetch<any>(`${apiBaseUrl}/api/usage/${usageId}/end`, {
+      const res = await $fetch<any>(`${apiBaseUrl}/api/usages/${usageId}/end`, {
         method: "PATCH",
         headers: { Authorization: `Bearer ${token.value}` },
       });

@@ -37,10 +37,7 @@ const pages = computed(() => {
 </script>
 
 <template>
-    <div
-        v-if="totalPages > 1"
-        class="flex items-center justify-center gap-1 pt-4"
-    >
+    <div v-if="totalPages > 1" class="flex items-center justify-center gap-1">
         <Button
             variant="outline"
             size="icon-sm"
@@ -51,10 +48,9 @@ const pages = computed(() => {
         </Button>
 
         <template v-for="p in pages" :key="p">
-            <span
-                v-if="p < 0"
-                class="px-1 text-xs text-muted-foreground"
-            >...</span>
+            <span v-if="p < 0" class="px-1 text-xs text-muted-foreground"
+                >...</span
+            >
             <Button
                 v-else
                 :variant="p === currentPage ? 'default' : 'outline'"

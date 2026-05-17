@@ -187,10 +187,13 @@ Promise.all([
     !userStore.currentUser ? userStore.fetchCurrentUser() : Promise.resolve(),
     stationStore.fetchStations(),
     companyStore.fetchCurrentCompany(),
-    usageStore.fetchUserActiveUsages(),
-]).finally(() => {
-    pageLoading.value = false;
-});
+])
+    .then(() => {
+        usageStore.fetchUserActiveUsages(userStore.currentUser?.userId);
+    })
+    .finally(() => {
+        pageLoading.value = false;
+    });
 
 // ── Composables ───────────────────────────────────────────────────────────────
 

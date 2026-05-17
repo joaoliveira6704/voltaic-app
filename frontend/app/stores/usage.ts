@@ -21,12 +21,34 @@ export const useUsageStore = defineStore("usage", () => {
 
   // ── Actions ───────────────────────────────────────────────────────────────
 
-  async function fetchUserActiveUsages() {
+  async function fetchUserActiveUsages(userId: string) {
     try {
       const tokenValue = token();
       if (!tokenValue) return;
 
-      const res = await $fetch(`${apiBase()}/api/usage/user/me/active`, {
+      const res = await $fetch(
+        `${apiBase()}/api/usages?userId=${userId}&active=true`,
+        {
+          headers: {
+            Authorization: `Bearer ${tokenValue}`,
+          },
+        },
+      );
+      console.log(res);
+      usages.value = res;
+      isLoaded.value = true;
+    } catch (e) {
+      console.error("Failed to fetch user active usages:", e);
+    }
+  }
+
+  async function fetchUserUsages(userId: string) {
+    try {
+      const tokenValue = token();
+      if (!tokenValue) return;
+
+      const res = await $fetch(`${apiBase()}/api/usages`, {
+        query: { userId },
         headers: {
           Authorization: `Bearer ${tokenValue}`,
         },
@@ -43,5 +65,6 @@ export const useUsageStore = defineStore("usage", () => {
     usages,
     isLoaded,
     fetchUserActiveUsages,
+    fetchUserUsages,
   };
 });
