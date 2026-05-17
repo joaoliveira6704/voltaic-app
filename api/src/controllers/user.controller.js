@@ -2,12 +2,75 @@ import userModel from "../models/user.model.js";
 import stationModel from "../models/station.model.js";
 import generateUniqueId from "../utils/utils.js";
 import companyModel from "../models/company.model.js";
+import { paginate } from "../utils/paginate.js";
 
 export const getUsers = async (req, res, next) => {
   try {
-    const users = await userModel.find();
-    console.log(`Found ${users.length} users in the database.`);
-    res.json(users);
+    const { view } = req.query;
+
+    if (view === "dashboard") {
+      const total = await userModel.countDocuments();
+      return res.json({ total });
+    }
+
+    if (view === "admin") {
+      const pageNum = Math.max(1, parseInt(req.query.page) || 1);
+      const limitNum = Math.min(100, Math.max(1, parseInt(req.query.limit) || 20));
+      const skip = (pageNum - 1) * limitNum;
+
+      const pipeline = [
+        {
+          $lookup: {
+            from: "companies",
+            localField: "companyId",
+            foreignField: "companyId",
+            as: "company",
+          },
+        },
+        {
+          $addFields: {
+            companyName: { $arrayElemAt: ["$company.name", 0] },
+            vehicleQuantity: { $size: { $ifNull: ["$vehicles", []] } },
+            isWorkerOrManager: {
+              $in: ["$role", ["worker", "company-manager"]],
+            },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            userId: 1,
+            firstName: 1,
+            lastName: 1,
+            username: 1,
+            email: 1,
+            role: 1,
+            companyName: 1,
+            vehicleQuantity: 1,
+            isWorkerOrManager: 1,
+          },
+        },
+        { $sort: { createdAt: -1 } },
+      ];
+
+      const [countResult, data] = await Promise.all([
+        userModel.aggregate([...pipeline, { $count: "total" }]),
+        userModel.aggregate([...pipeline, { $skip: skip }, { $limit: limitNum }]),
+      ]);
+
+      const total = countResult[0]?.total || 0;
+
+      return res.json({
+        data,
+        page: pageNum,
+        limit: limitNum,
+        total,
+        pages: Math.ceil(total / limitNum),
+      });
+    }
+
+    const result = await paginate(userModel, {}, { page: req.query.page, limit: req.query.limit });
+    res.json(result);
   } catch (error) {
     next(error);
   }
@@ -333,8 +396,16 @@ export const addVehicle = async (req, res, next) => {
       err.message = "Vehicle with same plate already exists";
       return next(err);
     }
+
+    const currentUser = await userModel.findOne({ userId: req.user.userId });
+    if (currentUser && currentUser.vehicles.length >= 4) {
+      let err = new Error();
+      err.status = 400;
+      err.message = "Maximum of 4 vehicles per user";
+      return next(err);
+    }
+
     console.log("Adding vehicle", plate, model, color, connector, slug);
-    // Add the vehicle using $push
     const updatedUser = await userModel.findOneAndUpdate(
       { userId: req.user.userId },
       {
@@ -342,7 +413,7 @@ export const addVehicle = async (req, res, next) => {
           vehicles: { plate, model, color, connector, slug },
         },
       },
-      { new: true, runValidators: true },
+      { new: true },
     );
 
     res.status(201).json(updatedUser);

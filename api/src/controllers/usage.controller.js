@@ -1,6 +1,7 @@
 import usageModel from "../models/usage.model.js";
 import stationModel from "../models/station.model.js";
 import generateUniqueId from "../utils/utils.js";
+import { paginate, paginateAggregate } from "../utils/paginate.js";
 
 // POST /usages/start
 export const startUsage = async (req, res, next) => {
@@ -94,8 +95,13 @@ export const getUsages = async (req, res, next) => {
     const { userId, active } = req.query;
 
     if (userId && userId === req.user?.userId) {
-      const usages = await getUserUsages(userId, active);
-      return res.status(200).json(usages);
+      const matchQuery = active ? { userId, endTime: null } : { userId };
+      const pipeline = buildUsagePipeline(matchQuery);
+      const result = await paginateAggregate(usageModel, pipeline, {
+        page: req.query.page,
+        limit: req.query.limit,
+      });
+      return res.json(result);
     }
 
     const err = new Error("Invalid user");
@@ -106,27 +112,29 @@ export const getUsages = async (req, res, next) => {
   }
 };
 
-// GET /usages/user/me/active
+// GET /users/me/usages
 export const getActiveUserUsages = async (req, res, next) => {
   try {
-    const usages = await usageModel
-      .find({ userId: req.user.userId, endTime: null })
-      .sort({ createdAt: -1 })
-      .lean();
-    res.status(200).json(usages);
+    const result = await paginate(
+      usageModel,
+      { userId: req.user.userId, endTime: null },
+      { page: req.query.page, limit: req.query.limit, sort: { createdAt: -1 } },
+    );
+    res.json(result);
   } catch (error) {
     next(error);
   }
 };
 
-// GET /usages/station/:stationId
+// GET /stations/:stationId/usages
 export const getStationUsages = async (req, res, next) => {
   try {
-    const usages = await usageModel
-      .find({ stationId: req.params.stationId })
-      .sort({ createdAt: -1 })
-      .lean();
-    res.status(200).json(usages);
+    const result = await paginate(
+      usageModel,
+      { stationId: req.params.stationId },
+      { page: req.query.page, limit: req.query.limit, sort: { createdAt: -1 } },
+    );
+    res.json(result);
   } catch (error) {
     next(error);
   }
@@ -135,102 +143,88 @@ export const getStationUsages = async (req, res, next) => {
 // GET /usages/active (admin)
 export const getActiveUsages = async (req, res, next) => {
   try {
-    const usages = await usageModel
-      .find({ state: "active" })
-      .sort({ createdAt: -1 })
-      .lean();
-    res.status(200).json(usages);
+    const result = await paginate(
+      usageModel,
+      { state: "active" },
+      { page: req.query.page, limit: req.query.limit, sort: { createdAt: -1 } },
+    );
+    res.json(result);
   } catch (error) {
     next(error);
   }
 };
 
-// GET /usages (admin)
-export const getAllUsages = async (req, res, next) => {
-  try {
-    const usages = await usageModel.find().sort({ createdAt: -1 }).lean();
-    res.status(200).json(usages);
-  } catch (error) {
-    next(error);
-  }
-};
-
-// Helper Aggregation Pipeline
-const getUserUsages = async (userId, active) => {
-  // Dynamically set up matching step to prevent massive code duplication
-  const matchQuery = active ? { userId, endTime: null } : { userId };
-
-  return await usageModel.aggregate([
-    { $match: matchQuery },
-    {
-      $lookup: {
-        from: "stations",
-        localField: "stationId",
-        foreignField: "stationId",
-        as: "stationDetails",
-      },
+// Usage aggregation pipeline builder
+const buildUsagePipeline = (matchQuery) => [
+  { $match: matchQuery },
+  {
+    $lookup: {
+      from: "stations",
+      localField: "stationId",
+      foreignField: "stationId",
+      as: "stationDetails",
     },
-    {
-      $addFields: {
-        stationObj: { $arrayElemAt: ["$stationDetails", 0] },
-        duration: {
-          $cond: {
-            if: { $eq: ["$state", "completed"] },
-            then: {
-              $let: {
-                vars: {
-                  totalMinutes: {
-                    $floor: {
-                      $divide: [
-                        { $subtract: ["$endTime", "$createdAt"] },
-                        60000,
-                      ],
-                    },
+  },
+  {
+    $addFields: {
+      stationObj: { $arrayElemAt: ["$stationDetails", 0] },
+      duration: {
+        $cond: {
+          if: { $eq: ["$state", "completed"] },
+          then: {
+            $let: {
+              vars: {
+                totalMinutes: {
+                  $floor: {
+                    $divide: [
+                      { $subtract: ["$endTime", "$createdAt"] },
+                      60000,
+                    ],
                   },
                 },
-                in: {
-                  $let: {
-                    vars: {
-                      hours: { $floor: { $divide: ["$$totalMinutes", 60] } },
-                      minutes: { $mod: ["$$totalMinutes", 60] },
-                    },
-                    in: {
-                      $cond: {
-                        if: { $eq: ["$$hours", 0] },
-                        then: { $concat: [{ $toString: "$$minutes" }, "m"] },
-                        else: {
-                          $concat: [
-                            { $toString: "$$hours" },
-                            "h ",
-                            { $toString: "$$minutes" },
-                            "m",
-                          ],
-                        },
+              },
+              in: {
+                $let: {
+                  vars: {
+                    hours: { $floor: { $divide: ["$$totalMinutes", 60] } },
+                    minutes: { $mod: ["$$totalMinutes", 60] },
+                  },
+                  in: {
+                    $cond: {
+                      if: { $eq: ["$$hours", 0] },
+                      then: { $concat: [{ $toString: "$$minutes" }, "m"] },
+                      else: {
+                        $concat: [
+                          { $toString: "$$hours" },
+                          "h ",
+                          { $toString: "$$minutes" },
+                          "m",
+                        ],
                       },
                     },
                   },
                 },
               },
             },
-            else: "$state",
           },
+          else: "$state",
         },
       },
     },
-    {
-      $project: {
-        usageId: 1,
-        userId: 1,
-        plate: 1,
-        createdAt: 1,
-        duration: 1,
-        state: 1,
-        endTime: 1,
-        stationId: 1,
-        _id: 0,
-        stationName: { $ifNull: ["$stationObj.title", "Unknown"] },
-      },
+  },
+  {
+    $project: {
+      usageId: 1,
+      userId: 1,
+      plate: 1,
+      createdAt: 1,
+      duration: 1,
+      state: 1,
+      endTime: 1,
+      stationId: 1,
+      _id: 0,
+      stationName: { $ifNull: ["$stationObj.title", "Unknown"] },
     },
-    { $sort: { createdAt: -1 } },
-  ]);
-};
+  },
+  { $sort: { createdAt: -1 } },
+];

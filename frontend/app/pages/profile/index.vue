@@ -3,12 +3,12 @@
 import { useUserStore } from "~/stores/user";
 import { storeToRefs } from "pinia";
 import VehicleCard from "~/components/cards/VehicleCard.vue";
-import TicketCard from "~/components/cards/TicketCard.vue";
 import {
     Skeleton,
     SkeletonTable,
     SkeletonVehicleCard,
 } from "~/components/ui/Skeleton";
+import { toast } from "vue-sonner";
 
 useHead({
     title: "Voltaic - Profile",
@@ -24,8 +24,7 @@ const { t } = useI18n();
 
 const userStore = useUserStore(); // Pinia must be called before any awaits
 const { currentUser } = storeToRefs(userStore);
-const { confirmLogout, deleteVehicle, fetchUserProfile, fetchChargingHistory } =
-    userStore;
+const { confirmLogout, deleteVehicle, fetchUserProfile } = userStore;
 
 const isPending = ref(true);
 
@@ -35,6 +34,14 @@ fetchUserProfile().finally(() => {
 
 const isEditModalOpen = ref(false);
 const isAddVehicleModal = ref(false);
+
+const handleVehicleClick = () => {
+    if (currentUser.value.vehicles.length >= 4) {
+        toast.error("Maximum of 4 vehicles per user");
+    } else {
+        isAddVehicleModal.value = true;
+    }
+};
 </script>
 
 <template>
@@ -121,7 +128,7 @@ const isAddVehicleModal = ref(false);
                     :title="t('yourFleet')"
                     :has-btn="true"
                     :button-text="t('addNewVehicle')"
-                    @btn-click="isAddVehicleModal = true"
+                    @btn-click="handleVehicleClick"
                 >
                     <CardScroll v-if="currentUser.vehicles.length > 0">
                         <VehicleCard

@@ -39,12 +39,8 @@ const handleImageError = (event: Event) => {
 
 <template>
     <div
-        class="relative min-6rem] hover:bg-green-600/20 dark:hover:border-white/20 h-30 transition-all duration-300 w-60 bg-neutral-200 dark:bg-[#1A1A1A] dark:border dark:border-[#232323] rounded-xl p-5 gap-2 flex flex-col justify-between group"
+        class="relative min-6rem] hover:bg-green-600/20 dark:hover:border-white/20 h-30 transition-all duration-300 w-60 min-w-60 bg-neutral-200 dark:bg-[#1A1A1A] dark:border dark:border-[#232323] rounded-xl p-5 gap-2 flex flex-col justify-between group"
     >
-        <!-- <Pencil
-      @click="emit('edit')"
-      class="absolute top-2 right-8 w-4 hover:text-blue-600 cursor-pointer transition-all duration-300"
-    ></Pencil> -->
         <Trash2
             class="absolute top-2 right-2 w-4 hover:text-red-500 cursor-pointer transition-all duration-300"
             @click="emit('delete')"

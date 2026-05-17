@@ -63,7 +63,6 @@ const userSchema = new mongoose.Schema(
       {
         plate: { type: String, required: true },
         model: { type: String, required: true },
-        color: { type: String, required: true },
         slug: { type: String, required: true },
         connector: {
           type: String,
@@ -103,10 +102,17 @@ userSchema.pre("save", async function () {
   // 1. Only run if vehicles are modified
   if (!this.isModified("vehicles")) return;
 
-  // 2. Get and clean the plates
+  // 2. Check max 4 vehicles
+  if (this.vehicles.length > 4) {
+    const err = new Error("Maximum of 4 vehicles per user");
+    err.status = 400;
+    throw err;
+  }
+
+  // 3. Get and clean the plates
   const plates = this.vehicles.map((v) => v.plate.toLowerCase().trim());
 
-  // 3. Check for duplicates
+  // 4. Check for duplicates
   const hasDuplicates = plates.some((plate, index) => {
     return plates.indexOf(plate) !== index;
   });
@@ -114,7 +120,6 @@ userSchema.pre("save", async function () {
   if (hasDuplicates) {
     const err = new Error("Duplicate plate detected in your vehicle list.");
     err.status = 400;
-    // Just throw the error; Mongoose catches it and sends it to your controller's catch block
     throw err;
   }
 });

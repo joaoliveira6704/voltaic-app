@@ -1,6 +1,7 @@
 <script setup>
 import { AdminUserColumns } from "@/utils/constants";
 import { Skeleton, SkeletonTable } from "~/components/ui/Skeleton";
+import Pagination from "~/components/ui/Pagination.vue";
 
 const { t } = useI18n();
 
@@ -13,21 +14,15 @@ const isEditUserModalOpen = ref(false);
 const isPending = ref(true);
 
 const searchTerm = ref("");
+const page = ref(1);
 
 const userStore = useUserStore();
-const { users } = storeToRefs(userStore);
+const { users, currentPage, totalPages } = storeToRefs(userStore);
 
-const companyStore = useCompanyStore();
-
-const filtered = computed(() =>
-    users.value.filter((u) =>
-        u.username.toLowerCase().includes(searchTerm.value.toLowerCase()),
-    ),
-);
-
-const getCompanyName = (companyId) => {
-    return companyStore.getCompanyName(companyId);
-};
+function onPageChange(p) {
+    page.value = p;
+    userStore.fetchUsers(p, 25, { view: "admin" });
+}
 
 const deleteUser = async (user) => {
     try {
@@ -48,18 +43,16 @@ const openEditUserModal = (user) => {
 const onUserUpdated = () => {
     isEditUserModalOpen.value = false;
     editingUser.value = null;
+    userStore.fetchUsers(page.value, 25, { view: "admin" });
 };
 
 const handleRoleChange = async (userId, role) => {
     userStore.editUserRole(userId, role);
 };
 
-userStore
-    .fetchUsers(100)
-    .then(() => companyStore.fetchCompanies(100))
-    .finally(() => {
-        isPending.value = false;
-    });
+userStore.fetchUsers(1, 25, { view: "admin" }).finally(() => {
+    isPending.value = false;
+});
 </script>
 
 <template>
@@ -73,13 +66,16 @@ userStore
         @updated="onUserUpdated"
     />
     <template v-if="isPending">
-        <div class="flex-1 py-2 pr-4 min-w-0 overflow-y-auto space-y-4">
-            <Skeleton class="h-8 w-[200px]" />
-            <Skeleton class="h-4 w-[250px] mb-4" />
-            <div class="rounded-xl border border-gray-100 dark:border-[#232323] overflow-hidden dark:bg-[#171717]">
-                <SkeletonTable :columns="7" :rows="5" />
-            </div>
-        </div>
+        <DashboardCard class="mt-4 mx-2"
+            ><div class="flex-1 py-2 pr-4 min-w-0 overflow-y-auto space-y-4">
+                <Skeleton class="h-8 w-[200px]" />
+                <Skeleton class="h-4 w-[250px] mb-4" />
+                <div
+                    class="rounded-xl border border-gray-100 dark:border-[#232323] overflow-hidden dark:bg-[#171717]"
+                >
+                    <SkeletonTable :columns="7" :rows="5" />
+                </div></div
+        ></DashboardCard>
     </template>
     <AdminPage
         v-else
@@ -121,13 +117,19 @@ userStore
                             ({ userId, role }) => handleRoleChange(userId, role)
                         "
                 /></TableCell>
-                <TableCell class="text-xs"
-                    >{{ getCompanyName(row.companyId) }}
-                </TableCell>
                 <TableCell class="text-xs">{{
-                    row.vehicles?.length ?? 0
+                    row.isWorkerOrManager ? row.companyName : "-"
+                }}</TableCell>
+                <TableCell class="text-xs">{{
+                    row.vehicleQuantity ?? 0
                 }}</TableCell>
             </template>
         </AdminTable>
+        <Pagination
+            class="pt-4"
+            :current-page="currentPage"
+            :total-pages="totalPages"
+            @update:page="onPageChange"
+        />
     </AdminPage>
 </template>

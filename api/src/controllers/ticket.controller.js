@@ -65,9 +65,9 @@ const paginate = async (
 
   const [result] = await Model.aggregate(pipeline);
   const total = result?.metadata?.[0]?.total || 0;
-  const tickets = result?.data || [];
+  const data = result?.data || [];
 
-  return { tickets, page, limit, total, pages: Math.ceil(total / limit) };
+  return { data, page, limit, total, pages: Math.ceil(total / limit) };
 };
 
 export const createTicket = async (req, res, next) => {
@@ -118,8 +118,65 @@ export const createTicket = async (req, res, next) => {
 
 export const getTickets = async (req, res, next) => {
   try {
-    const { page, limit } = req.query;
-    const result = await paginate(ticketModel, {}, page, limit);
+    const { page, limit, stationless, view } = req.query;
+
+    if (view === "dashboard") {
+      const [counts, recent] = await Promise.all([
+        ticketModel.aggregate([
+          { $group: { _id: "$status", count: { $sum: 1 } } },
+        ]),
+        ticketModel.aggregate([
+          { $sort: { createdAt: -1 } },
+          { $limit: 5 },
+          {
+            $lookup: {
+              from: "users",
+              let: { createdBy: "$createdBy" },
+              pipeline: [
+                { $match: { $expr: { $eq: ["$userId", "$$createdBy"] } } },
+                { $project: { _id: 0, firstName: 1, lastName: 1 } },
+              ],
+              as: "createdByUser",
+            },
+          },
+          {
+            $lookup: {
+              from: "stations",
+              let: { stationId: "$stationId" },
+              pipeline: [
+                { $match: { $expr: { $eq: ["$stationId", "$$stationId"] } } },
+                { $project: { _id: 0, title: 1 } },
+              ],
+              as: "station",
+            },
+          },
+          {
+            $addFields: {
+              createdByUser: { $arrayElemAt: ["$createdByUser", 0] },
+              station: { $arrayElemAt: ["$station", 0] },
+            },
+          },
+          { $project: { __v: 0 } },
+        ]),
+      ]);
+
+      const stats = {
+        total: 0,
+        open: 0,
+        closed: 0,
+        resolved: 0,
+        unresolved: 0,
+      };
+      for (const c of counts) {
+        stats.total += c.count;
+        stats[c._id] = c.count;
+      }
+
+      return res.json({ ...stats, recent });
+    }
+
+    const filter = stationless === "true" ? { stationId: null } : {};
+    const result = await paginate(ticketModel, filter, page, limit);
     res.json(result);
   } catch (error) {
     next(error);
@@ -147,21 +204,6 @@ export const getCompanyTickets = async (req, res, next) => {
     const result = await paginate(
       ticketModel,
       { companyId: req.user.companyId },
-      page,
-      limit,
-    );
-    res.json(result);
-  } catch (error) {
-    next(error);
-  }
-};
-
-export const getAdminTickets = async (req, res, next) => {
-  try {
-    const { page, limit } = req.query;
-    const result = await paginate(
-      ticketModel,
-      { stationId: null },
       page,
       limit,
     );

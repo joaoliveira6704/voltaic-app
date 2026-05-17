@@ -2,38 +2,61 @@
 import { defineStore } from "pinia";
 import Swal from "sweetalert2";
 
+interface PaginatedResponse<T> {
+  data: T[];
+  page: number;
+  limit: number;
+  total: number;
+  pages: number;
+}
+
 interface Company {
   companyId: string;
   name: string;
+  memberCount?: number;
 }
 
 export const useCompanyStore = defineStore("company", () => {
   const companies = ref<Company[]>([]);
   const currentCompany = ref<Company | undefined>(undefined);
   const isLoaded = ref(false);
-
-  // ── Getters ──────────────────────────────────────────────────────────────
+  const currentPage = ref(1);
+  const totalPages = ref(1);
+  const dashboardStats = ref(null);
 
   function getCompanyName(companyId: string) {
     return companies.value.find((c) => c.companyId === companyId)?.name ?? "UNKNOWN";
   }
 
-  // ── Helpers ───────────────────────────────────────────────────────────────
-
-  // Call composables lazily inside actions, not at store setup time
   const token = () => useCookie("token").value;
   const apiBase = () => useRuntimeConfig().public.apiBaseUrl;
 
-  // ── Actions ───────────────────────────────────────────────────────────────
-
-  async function fetchCompanies(limit?: number, offset?: number) {
+  async function fetchDashboardStats() {
     try {
-      let url = `${apiBase()}/api/companies`;
-      if (limit !== undefined) url += `?limit=${limit}&offset=${offset ?? 0}`;
-      const data = await $fetch<Company[]>(url, {
-        headers: { Authorization: `Bearer ${token()}` },
-      });
-      companies.value = data;
+      const data = await $fetch<any>(
+        `${apiBase()}/api/companies?view=dashboard`,
+        {
+          headers: { Authorization: `Bearer ${token()}` },
+        },
+      );
+      dashboardStats.value = data;
+    } catch (e) {
+      console.error("Failed to fetch company dashboard stats:", e);
+    }
+  }
+
+  async function fetchCompanies(page = 1, limit = 20, params: Record<string, string> = {}) {
+    try {
+      const query = new URLSearchParams({ page: String(page), limit: String(limit), ...params });
+      const data = await $fetch<PaginatedResponse<Company>>(
+        `${apiBase()}/api/companies?${query}`,
+        {
+          headers: { Authorization: `Bearer ${token()}` },
+        },
+      );
+      companies.value = data.data;
+      currentPage.value = data.page;
+      totalPages.value = data.pages;
     } catch (e) {
       console.error("Failed to fetch companies:", e);
     }
@@ -109,7 +132,11 @@ export const useCompanyStore = defineStore("company", () => {
   return {
     companies,
     isLoaded,
+    currentPage,
+    totalPages,
+    dashboardStats,
     fetchCompanies,
+    fetchDashboardStats,
     getCompanyName,
     deleteCompany,
     createCompany,

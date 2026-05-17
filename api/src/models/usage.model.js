@@ -16,7 +16,6 @@ usageSchema.index({ stationId: 1, state: 1 });
 usageSchema.index({ userId: 1, createdAt: -1 });
 
 // Usages Collection
-usageSchema.index({ usageId: 1 });
 usageSchema.index({ userId: 1, endTime: 1 });
 usageSchema.index({ stationId: 1, createdAt: -1 });
 usageSchema.index({ state: 1 });

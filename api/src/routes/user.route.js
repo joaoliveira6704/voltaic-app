@@ -18,6 +18,17 @@ import {
   updateRole,
   getCurrentCompany,
 } from "../controllers/user.controller.js";
+import { register } from "../controllers/auth.controller.js";
+import {
+  getActiveUserUsages,
+} from "../controllers/usage.controller.js";
+import {
+  getMyTickets,
+  getCompanyTickets,
+} from "../controllers/ticket.controller.js";
+import {
+  getCompanyStations,
+} from "../controllers/station.controller.js";
 import {
   checkOwnership,
   protect,
@@ -26,9 +37,9 @@ import {
 import userModel from "../models/user.model.js";
 
 const router = Router();
-/*
-router.post("/"); */
-router.get("/", getUsers);
+
+router.get("/", protect, requireRole("admin"), getUsers);
+router.post("/", register);
 
 router.get("/me", protect, getCurrentUser);
 router.patch("/me", protect, updateOwnUser);
@@ -45,11 +56,26 @@ router.get(
   requireRole("company-manager", "worker"),
   getCurrentCompany,
 );
+router.get(
+  "/me/company/stations",
+  protect,
+  requireRole("company-manager", "worker"),
+  getCompanyStations,
+);
+router.get(
+  "/me/company/tickets",
+  protect,
+  requireRole("company-manager", "worker"),
+  getCompanyTickets,
+);
 
 router.get("/me/vehicles", protect, getVehicles);
 router.post("/me/vehicles", protect, addVehicle);
 router.patch("/me/vehicles/:plate", protect, editVehicle);
 router.delete("/me/vehicles/:plate", protect, removeVehicle);
+
+router.get("/me/usages", protect, getActiveUserUsages);
+router.get("/me/tickets", protect, getMyTickets);
 
 router.get("/:id", protect, getUserById);
 router.patch("/:id", protect, requireRole("admin"), updateUser);

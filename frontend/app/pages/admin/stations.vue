@@ -3,6 +3,7 @@ import { AdminStationColumns } from "@/utils/constants";
 import { Circle } from "lucide-vue-next";
 import { Skeleton, SkeletonTable } from "~/components/ui/Skeleton";
 import { CONNECTOR_LABELS } from "@/constants/connectors";
+import Pagination from "~/components/ui/Pagination.vue";
 
 const { t } = useI18n();
 
@@ -13,21 +14,15 @@ useHead({
 const isAddStationModalOpen = ref(false);
 const isPending = ref(true);
 const searchTerm = ref("");
+const page = ref(1);
 
 const stationStore = useStationStore();
-const { stations } = storeToRefs(stationStore);
+const { stations, currentPage, totalPages } = storeToRefs(stationStore);
 
-const companyStore = useCompanyStore();
-
-const filtered = computed(() =>
-    stations.value.filter((s) =>
-        s.name.toLowerCase().includes(searchTerm.value.toLowerCase()),
-    ),
-);
-
-const getCompanyName = (companyId) => {
-    return companyStore.getCompanyName(companyId);
-};
+function onPageChange(p) {
+    page.value = p;
+    stationStore.fetchStations(p, 20);
+}
 
 const deleteStation = async (station) => {
     try {
@@ -49,23 +44,24 @@ const getStateClass = (state) => {
     }
 };
 
-stationStore
-    .fetchStations(100)
-    .then(() => companyStore.fetchCompanies(100))
-    .finally(() => {
-        isPending.value = false;
-    });
+stationStore.fetchStations(1, 20).finally(() => {
+    isPending.value = false;
+});
 </script>
 
 <template>
     <template v-if="isPending">
-        <div class="flex-1 py-2 pr-4 min-w-0 overflow-y-auto space-y-4">
-            <Skeleton class="h-8 w-[200px]" />
-            <Skeleton class="h-4 w-[250px] mb-4" />
-            <div class="rounded-xl border border-gray-100 dark:border-[#232323] overflow-hidden dark:bg-[#171717]">
-                <SkeletonTable :columns="7" :rows="5" />
+        <DashboardCard class="mt-4 mx-2">
+            <div class="flex-1 py-2 pr-4 min-w-0 overflow-y-auto space-y-4">
+                <Skeleton class="h-8 w-[200px]" />
+                <Skeleton class="h-4 w-[250px] mb-4" />
+                <div
+                    class="rounded-xl border border-gray-100 dark:border-[#232323] overflow-hidden dark:bg-[#171717]"
+                >
+                    <SkeletonTable :columns="7" :rows="5" />
+                </div>
             </div>
-        </div>
+        </DashboardCard>
     </template>
     <AdminPage
         v-else
@@ -97,7 +93,9 @@ stationStore
                     row.location.coordinates.join(", ")
                 }}</TableCell>
                 <TableCell class="text-xs">{{
-                    row.connector.socketTypes.map(t => CONNECTOR_LABELS[t] ?? t).join(", ")
+                    row.connector.socketTypes
+                        .map((t) => CONNECTOR_LABELS[t] ?? t)
+                        .join(", ")
                 }}</TableCell>
                 <TableCell class="text-xs"
                     >{{ row.connector.maxPower }} kW/h</TableCell
@@ -107,5 +105,11 @@ stationStore
                 /></TableCell>
             </template>
         </AdminTable>
+        <Pagination
+            class="pt-4"
+            :current-page="currentPage"
+            :total-pages="totalPages"
+            @update:page="onPageChange"
+        />
     </AdminPage>
 </template>

@@ -71,7 +71,5 @@ const stationSchema = new mongoose.Schema(
 );
 
 stationSchema.index({ location: "2dsphere" });
-// Stations Collection
-stationSchema.index({ stationId: 1 });
 
 export default mongoose.model("stations", stationSchema);

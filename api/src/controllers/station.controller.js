@@ -2,12 +2,60 @@ import stationModel from "../models/station.model.js";
 import companyModel from "../models/company.model.js";
 import logModel from "../models/log.model.js";
 import generateUniqueId from "../utils/utils.js";
+import { paginate } from "../utils/paginate.js";
 
 export const getStations = async (req, res, next) => {
   try {
-    const stations = await stationModel.find();
-    console.log(`Found ${stations.length} stations in the database.`);
-    res.json(stations);
+    const { near, maxDistance, view } = req.query;
+
+    if (view === "dashboard") {
+      const stats = await stationModel.aggregate([
+        {
+          $group: {
+            _id: null,
+            total: { $sum: 1 },
+            available: {
+              $sum: { $cond: [{ $eq: ["$state", "available"] }, 1, 0] },
+            },
+            unavailable: {
+              $sum: { $cond: [{ $eq: ["$state", "unavailable"] }, 1, 0] },
+            },
+            maintenance: {
+              $sum: { $cond: [{ $eq: ["$state", "maintenance"] }, 1, 0] },
+            },
+            alive: { $sum: { $cond: ["$alive", 1, 0] } },
+          },
+        },
+      ]);
+      return res.json(
+        stats[0] || {
+          total: 0,
+          available: 0,
+          unavailable: 0,
+          maintenance: 0,
+          alive: 0,
+        },
+      );
+    }
+
+    if (near) {
+      const [lat, lng] = near.split(",").map(parseFloat);
+      const distance = parseFloat(maxDistance || "10");
+      const radius = distance / 6378;
+
+      const result = await paginate(stationModel, {
+        location: {
+          $geoWithin: {
+            $centerSphere: [[lng, lat], radius],
+          },
+        },
+      }, { page: req.query.page, limit: req.query.limit });
+
+      return res.json(result);
+    }
+
+    const result = await paginate(stationModel, {}, { page: req.query.page, limit: req.query.limit });
+    res.json(result);
   } catch (error) {
     next(error);
   }
@@ -109,33 +157,6 @@ export const getStationById = async (req, res, next) => {
     res.json(station);
   } catch (error) {
     next(error);
-  }
-};
-
-// controllers/station.controller.js
-
-export const getStationsByRadius = async (req, res) => {
-  const { lat, lng, distance } = req.params;
-
-  // Radius of the Earth in miles is ~3963, in kilometers is ~6378
-  const radius = distance / 6378;
-
-  try {
-    const stations = await stationModel.find({
-      location: {
-        $geoWithin: {
-          $centerSphere: [[parseFloat(lng), parseFloat(lat)], radius],
-        },
-      },
-    });
-
-    res.status(200).json({
-      success: true,
-      count: stations.length,
-      data: stations,
-    });
-  } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
   }
 };
 

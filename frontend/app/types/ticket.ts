@@ -21,7 +21,7 @@ export interface Ticket {
 }
 
 export interface PaginatedResponse<T> {
-  tickets: T[];
+  data: T[];
   page: number;
   limit: number;
   total: number;

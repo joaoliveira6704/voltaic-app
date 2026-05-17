@@ -2,62 +2,54 @@
 import { defineStore } from "pinia";
 import Swal from "sweetalert2";
 
-interface Usage {
-  usageId: string;
-  name: string;
+interface PaginatedResponse<T> {
+  data: T[];
+  page: number;
+  limit: number;
+  total: number;
+  pages: number;
 }
 
 export const useUsageStore = defineStore("usage", () => {
   const usages = ref<any[]>([]);
   const isLoaded = ref(false);
 
-  // ── Getters ──────────────────────────────────────────────────────────────
-
-  // ── Helpers ───────────────────────────────────────────────────────────────
-
-  // Call composables lazily inside actions, not at store setup time
   const token = () => useCookie("token").value;
   const apiBase = () => useRuntimeConfig().public.apiBaseUrl;
 
-  // ── Actions ───────────────────────────────────────────────────────────────
-
-  async function fetchUserActiveUsages(userId: string) {
+  async function fetchUserActiveUsages(userId: string, page = 1, limit = 20) {
     try {
       const tokenValue = token();
       if (!tokenValue) return;
 
-      const res = await $fetch(
-        `${apiBase()}/api/usages?userId=${userId}&active=true`,
+      const res = await $fetch<PaginatedResponse<any>>(
+        `${apiBase()}/api/usages?userId=${userId}&active=true&page=${page}&limit=${limit}`,
         {
-          headers: {
-            Authorization: `Bearer ${tokenValue}`,
-          },
+          headers: { Authorization: `Bearer ${tokenValue}` },
         },
       );
-      console.log(res);
-      usages.value = res;
+      usages.value = res.data;
       isLoaded.value = true;
     } catch (e) {
       console.error("Failed to fetch user active usages:", e);
     }
   }
 
-  async function fetchUserUsages(userId: string) {
+  async function fetchUserUsages(userId: string, page = 1, limit = 20) {
     try {
       const tokenValue = token();
       if (!tokenValue) return;
 
-      const res = await $fetch(`${apiBase()}/api/usages`, {
-        query: { userId },
-        headers: {
-          Authorization: `Bearer ${tokenValue}`,
+      const res = await $fetch<PaginatedResponse<any>>(
+        `${apiBase()}/api/usages?userId=${userId}&page=${page}&limit=${limit}`,
+        {
+          headers: { Authorization: `Bearer ${tokenValue}` },
         },
-      });
-      console.log(res);
-      usages.value = res;
+      );
+      usages.value = res.data;
       isLoaded.value = true;
     } catch (e) {
-      console.error("Failed to fetch user active usages:", e);
+      console.error("Failed to fetch user usages:", e);
     }
   }
 

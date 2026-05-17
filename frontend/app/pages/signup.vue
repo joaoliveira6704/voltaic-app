@@ -34,7 +34,7 @@ const handleRegister = async () => {
     isSubmitting.value = true;
     try {
         const response = await $fetch(
-            "http://localhost:3000/api/auth/register",
+            "/api/users",
             {
                 method: "POST",
                 body: {

@@ -24,9 +24,24 @@ export const useTicketStore = defineStore("ticket", () => {
   const currentPage = ref(1);
   const totalPages = ref(1);
   const total = ref(0);
+  const dashboardStats = ref(null);
 
   const token = () => useCookie("token").value;
   const apiBase = () => useRuntimeConfig().public.apiBaseUrl;
+
+  async function fetchDashboardStats() {
+    try {
+      const data = await $fetch<any>(
+        `${apiBase()}/api/tickets?view=dashboard`,
+        {
+          headers: { Authorization: `Bearer ${token()}` },
+        },
+      );
+      dashboardStats.value = data;
+    } catch (e) {
+      console.error("Failed to fetch ticket dashboard stats:", e);
+    }
+  }
 
   async function fetchTickets(page = 1, limit = 20) {
     try {
@@ -36,7 +51,7 @@ export const useTicketStore = defineStore("ticket", () => {
           headers: { Authorization: `Bearer ${token()}` },
         },
       );
-      tickets.value = data.tickets;
+      tickets.value = data.data;
       currentPage.value = data.page;
       totalPages.value = data.pages;
       total.value = data.total;
@@ -48,12 +63,12 @@ export const useTicketStore = defineStore("ticket", () => {
   async function fetchMyTickets(page = 1, limit = 5) {
     try {
       const data = await $fetch<PaginatedResponse<Ticket>>(
-        `${apiBase()}/api/tickets/my?page=${page}&limit=${limit}`,
+        `${apiBase()}/api/users/me/tickets?page=${page}&limit=${limit}`,
         {
           headers: { Authorization: `Bearer ${token()}` },
         },
       );
-      tickets.value = data.tickets;
+      tickets.value = data.data;
       currentPage.value = data.page;
       totalPages.value = data.pages;
       total.value = data.total;
@@ -65,12 +80,12 @@ export const useTicketStore = defineStore("ticket", () => {
   async function fetchCompanyTickets(page = 1, limit = 5) {
     try {
       const data = await $fetch<PaginatedResponse<Ticket>>(
-        `${apiBase()}/api/tickets/company?page=${page}&limit=${limit}`,
+        `${apiBase()}/api/users/me/company/tickets?page=${page}&limit=${limit}`,
         {
           headers: { Authorization: `Bearer ${token()}` },
         },
       );
-      tickets.value = data.tickets;
+      tickets.value = data.data;
       currentPage.value = data.page;
       totalPages.value = data.pages;
       total.value = data.total;
@@ -82,12 +97,12 @@ export const useTicketStore = defineStore("ticket", () => {
   async function fetchStationTickets(stationId: string, page = 1, limit = 2) {
     try {
       const data = await $fetch<PaginatedResponse<Ticket>>(
-        `${apiBase()}/api/tickets/station/${stationId}?page=${page}&limit=${limit}`,
+        `${apiBase()}/api/stations/${stationId}/tickets?page=${page}&limit=${limit}`,
         {
           headers: { Authorization: `Bearer ${token()}` },
         },
       );
-      tickets.value = data.tickets;
+      tickets.value = data.data;
       currentPage.value = data.page;
       totalPages.value = data.pages;
       total.value = data.total;
@@ -183,7 +198,9 @@ export const useTicketStore = defineStore("ticket", () => {
     currentPage,
     totalPages,
     total,
+    dashboardStats,
     fetchTickets,
+    fetchDashboardStats,
     fetchMyTickets,
     fetchCompanyTickets,
     fetchStationTickets,

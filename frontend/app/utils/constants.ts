@@ -48,7 +48,7 @@ export const TicketStatus = [
 export const AdminCompanyColumns = [
   { key: "companyId", label: "ID" },
   { key: "name", label: "Name" },
-  { key: "workingArea.coordinates", label: "Coordinates" },
+  { key: "members", label: "Members" },
 ];
 
 export const UserRoles = [
