@@ -57,6 +57,7 @@ const navigationLinks = computed(() => {
 </script>
 <template>
     <nav class="flex flex-col gap-2 py-1">
+        <NuxtImg src="voltaic-logo.png" class="w-12 h-12 mb-4" />
         <NuxtLink
             v-for="link in navigationLinks"
             :key="link.label"

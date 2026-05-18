@@ -19,7 +19,9 @@ defineEmits(["edit", "delete", "click"]);
                 >
                     {{ col.label }}
                 </TableHead>
-                <TableHead class="text-xs uppercase">{{ t("admin.table.actions") }}</TableHead>
+                <TableHead class="text-xs uppercase">{{
+                    t("admin.table.actions")
+                }}</TableHead>
             </TableRow>
         </TableHeader>
         <!-- AdminTable.vue -->

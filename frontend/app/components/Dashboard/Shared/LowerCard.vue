@@ -51,11 +51,8 @@ const handleLogout = () => {
                     v-if="avatarUrl"
                     :src="avatarUrl"
                     class="h-6 w-6 shrink-0"
-                >
-                <Skeleton
-                    v-else
-                    class="h-6 w-6 shrink-0 rounded-full"
                 />
+                <Skeleton v-else class="h-6 w-6 shrink-0 rounded-full" />
 
                 <span class="text-xs font-bold uppercase">
                     {{ currentUser?.firstName }}
@@ -65,11 +62,13 @@ const handleLogout = () => {
         </Button>
 
         <Button
-            class="w-full flex justify-start gap-3 h-11 px-4 transition-all group dark:bg-[#171717] dark:text-white cursor-pointer bg-white text-black hover:bg-gray-100 dark:hover:bg-[#272727] filter grayscale hover:grayscale-0"
+            class="w-full flex justify-start gap-3 h-11 transition-all group dark:bg-[#171717] dark:text-white cursor-pointer bg-white text-black hover:bg-gray-100 dark:hover:bg-[#272727] filter grayscale hover:grayscale-0"
             @click="handleLogout"
         >
             <LogOut class="ml-2.5 h-6 w-6 shrink-0 transition-colors" />
-            <span class="text-xs font-bold uppercase"> {{ t("lowerCard.logout") }} </span>
+            <span class="text-xs font-bold uppercase">
+                {{ t("lowerCard.logout") }}
+            </span>
         </Button>
     </nav>
 </template>
