@@ -146,44 +146,47 @@ export const validateResetToken = async (req, res, next) => {
 
 export const resetPassword = async (req, res, next) => {
   try {
-    const newPassword = req.body.newPassword;
-    const token = req.body.token;
-    console.log(token, newPassword);
+    const { token, newPassword } = req.body;
 
-    if (!newPassword || newPassword === "") {
-      const err = new Error();
+    if (!token || !newPassword) {
+      const err = new Error("Token and new password are required");
       err.status = 400;
-      err.message = "Password can´t be empty";
       return next(err);
     }
 
-    console.log("resetToken findOne");
-    const resetToken = await resetTokenModel.findOne({ token }); //TOKEN reseting before calling
-    console.log(resetToken.token);
+    const resetToken = await resetTokenModel.findOne({ token });
+    if (!resetToken) {
+      const err = new Error("Invalid or expired token");
+      err.status = 400;
+      return next(err);
+    }
 
-    const user = await userModel.findOne({ userId: resetToken.userId });
+    const user = await userModel
+      .findOne({ userId: resetToken.userId })
+      .select("+password");
+    if (!user) {
+      const err = new Error("User not found");
+      err.status = 404;
+      return next(err);
+    }
 
     const isSamePassword = await user.correctPassword(
       newPassword,
       user.password,
     );
-    console.log(isSamePassword);
-
     if (isSamePassword) {
-      const err = new Error();
+      const err = new Error("New password must differ from current password");
       err.status = 400;
-      err.message = "New password must differ from current password";
       return next(err);
     }
 
     user.password = await bcrypt.hash(newPassword, 10);
+    console.log("saving user");
     await user.save();
+    console.log("deleting token");
+    await resetTokenModel.deleteOne({ token });
 
-    return res.status(200).json({
-      message:
-        "If an account with that email exists, you'll receive a reset link shortly.",
-    });
-    console.log("reached");
+    return res.status(200).json({ message: "Password updated successfully." });
   } catch (err) {
     next(err);
   }

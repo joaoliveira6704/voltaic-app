@@ -35,12 +35,14 @@ export const useAuthStore = defineStore("auth", () => {
     }
   }
 
-  async function validateToken(token: string) {
+  async function validateResetToken(token: string) {
     isLoading.value = true;
+    console.log("authStore: ", token);
     try {
-      await $fetch(`${apiBase()}/api/auth/reset-password/${token}`, {
-        method: "GET",
+      await $fetch(`${apiBase()}/api/auth/forgot-password/${token}`, {
+        method: "POST",
       });
+      console.log("authStore: after fetch");
       resetToken.value = token;
       resetStep.value = "password";
     } catch (e) {
@@ -85,7 +87,7 @@ export const useAuthStore = defineStore("auth", () => {
     resetToken,
     isLoading,
     sendRecoveryEmail,
-    validateToken,
+    validateResetToken,
     resetPassword,
     $reset,
   };

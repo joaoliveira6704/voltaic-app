@@ -121,7 +121,6 @@ userSchema.pre("save", async function () {
   if (hasDuplicates) {
     const err = new Error("Duplicate plate detected in your vehicle list.");
     err.status = 400;
-    // Just throw the error; Mongoose catches it and sends it to your controller's catch block
     throw err;
   }
 });
