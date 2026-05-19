@@ -39,6 +39,9 @@ const handleTokenInput = async () => {
       class="w-full max-w-[400px] rounded-xl border border-gray-100 bg-white dark:bg-[#0a0a0a] dark:border-[#232323] dark:text-white/50 p-6 shadow-sm md:p-10 space-y-6"
     >
       <div v-if="resetStep === `email`" class="space-y-6">
+        <div class="w-fit m-auto select-none">
+          <NuxtImg src="/voltaic-logo.png" width="75" />
+        </div>
         <div class="space-y-1 text-center mb-4">
           <h1 class="text-lg font-bold uppercase text-gray-400">
             Recover Password
@@ -75,16 +78,22 @@ const handleTokenInput = async () => {
         </form>
       </div>
       <div v-if="resetStep === `token`" class="space-y-6">
+        <div class="w-fit m-auto select-none">
+          <NuxtImg src="/voltaic-logo.png" width="75" />
+        </div>
         <div class="space-y-1 text-center mb-4">
           <h1 class="text-lg font-bold uppercase text-gray-400">Input Token</h1>
           <p class="text-[10px] text-gray-400 uppercase">Enter your Token</p>
         </div>
 
-        <form class="space-y-6">
+        <form class="space-y-6" @submit.prevent>
           <PinInput v-model="token" :length="6" @complete="handleTokenInput" />
         </form>
       </div>
       <div v-if="resetStep === `password`" class="space-y-6">
+        <div class="w-fit m-auto select-none">
+          <NuxtImg src="/voltaic-logo.png" width="75" />
+        </div>
         <div class="space-y-1 text-center mb-4">
           <h1 class="text-lg font-bold uppercase text-gray-400">
             Input new Password
@@ -97,6 +106,9 @@ const handleTokenInput = async () => {
         </form>
       </div>
       <div v-if="resetStep === 'success'" class="space-y-6">
+        <div class="w-fit m-auto select-none">
+          <NuxtImg src="/voltaic-logo.png" width="75" />
+        </div>
         <div class="space-y-4 text-center">
           <div
             class="inline-flex h-12 w-12 items-center justify-center rounded-full bg-[#00c885]/10 text-[#00c885]"

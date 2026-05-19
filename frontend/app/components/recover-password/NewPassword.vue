@@ -21,7 +21,22 @@ async function handleSubmit() {
     error.value = "Password must be at least 8 characters.";
     return;
   }
-
+  if (!/[A-Z]/.test(newPassword.value)) {
+    error.value = "Password must contain at least one uppercase letter.";
+    return;
+  }
+  if (!/[a-z]/.test(newPassword.value)) {
+    error.value = "Password must contain at least one lowercase letter.";
+    return;
+  }
+  if (!/[0-9]/.test(newPassword.value)) {
+    error.value = "Password must contain at least one number.";
+    return;
+  }
+  if (!/[^A-Za-z0-9]/.test(newPassword.value)) {
+    error.value = "Password must contain at least one special character.";
+    return;
+  }
   if (newPassword.value !== confirmPassword.value) {
     error.value = "Passwords do not match.";
     return;

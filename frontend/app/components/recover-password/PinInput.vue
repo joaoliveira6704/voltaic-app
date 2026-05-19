@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { Button } from "@/components/ui/button";
+
 const props = defineProps<{
   length?: number;
   modelValue?: string;
@@ -13,18 +15,15 @@ const length = props.length ?? 6;
 const digits = ref<string[]>(Array(length).fill(""));
 const inputs = ref<HTMLInputElement[]>([]);
 
+const isFilled = computed(() => digits.value.every((d) => d !== ""));
+
 function onInput(index: number, e: Event) {
   const input = e.target as HTMLInputElement;
-  const val = input.value.replace(/\D/g, "").slice(-1); // digits only, last char
+  const val = input.value.replace(/\D/g, "").slice(-1);
   digits.value[index] = val;
   emit("update:modelValue", digits.value.join(""));
-
   if (val && index < length - 1) {
     inputs.value[index + 1]?.focus();
-  }
-
-  if (digits.value.every((d) => d !== "")) {
-    emit("complete", digits.value.join(""));
   }
 }
 
@@ -53,9 +52,6 @@ function onPaste(e: ClipboardEvent) {
   const nextEmpty = digits.value.findIndex((d) => !d);
   const focusIndex = nextEmpty === -1 ? length - 1 : nextEmpty;
   inputs.value[focusIndex]?.focus();
-  if (digits.value.every((d) => d !== "")) {
-    emit("complete", digits.value.join(""));
-  }
 }
 
 function onFocus(e: FocusEvent) {
@@ -64,24 +60,33 @@ function onFocus(e: FocusEvent) {
 </script>
 
 <template>
-  <div class="flex gap-2 justify-center">
-    <input
-      v-for="(_, index) in length"
-      :key="index"
-      :ref="
-        (el) => {
-          if (el) inputs[index] = el as HTMLInputElement;
-        }
-      "
-      :value="digits[index]"
-      type="text"
-      inputmode="numeric"
-      maxlength="1"
-      class="w-11 h-12 text-center text-base font-mono font-bold border border-gray-200 rounded-lg bg-white text-gray-900 outline-none focus:border-[#00c885] focus:ring-2 focus:ring-[#00c885]/20 transition-all duration-150 select-all"
-      @input="onInput(index, $event)"
-      @keydown="onKeydown(index, $event)"
-      @paste="onPaste"
-      @focus="onFocus"
-    />
+  <div class="space-y-6">
+    <div class="flex gap-2 justify-center">
+      <input
+        v-for="(_, index) in length"
+        :key="index"
+        :ref="
+          (el) => {
+            if (el) inputs[index] = el as HTMLInputElement;
+          }
+        "
+        :value="digits[index]"
+        type="text"
+        inputmode="numeric"
+        maxlength="1"
+        class="w-11 h-12 text-center text-base font-mono font-bold border border-gray-200 rounded-lg bg-white text-gray-900 outline-none focus:border-[#00c885] focus:ring-2 focus:ring-[#00c885]/20 transition-all duration-150 select-all"
+        @input="onInput(index, $event)"
+        @keydown="onKeydown(index, $event)"
+        @paste="onPaste"
+        @focus="onFocus"
+      />
+    </div>
+    <Button
+      class="w-full h-12 bg-[#007bff] hover:bg-[#0069d9] uppercase text-sm transition-all"
+      :disabled="!isFilled"
+      @click="emit('complete', digits.join(''))"
+    >
+      Verify Code
+    </Button>
   </div>
 </template>

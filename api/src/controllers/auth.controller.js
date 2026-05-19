@@ -103,7 +103,7 @@ export const createResetToken = async (req, res, next) => {
       await newToken.save();
       console.log("generated token: ", newToken.token);
 
-      //await sendResetEmail(email, newToken.token);
+      await sendResetEmail(email, newToken.token);
     }
 
     return res.status(200).json({
