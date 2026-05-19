@@ -1,13 +1,15 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
+import { useI18n } from "vue-i18n";
 import { X, Zap, Star } from "lucide-vue-next";
 import { useUserStore } from "@/stores/user.ts";
-import { useStationStore } from "@/stores/station.ts";
 import { useUsageStore } from "@/stores/usage.ts";
+import { CONNECTOR_LABELS } from "@/constants/connectors";
 
 import type { Station } from "@/types/station";
-import Swal from "sweetalert2";
 import { toast } from "vue-sonner";
+
+const { t } = useI18n();
 
 const props = defineProps<{
     station: Station | null;
@@ -16,13 +18,13 @@ const props = defineProps<{
 
 const emit = defineEmits<{
     close: [];
+    stop: [usageId: string, stationId: string];
+    start: [];
 }>();
 
 const userStore = useUserStore();
 const favLoading = ref(false);
 const isAvailable = computed(() => props.station?.state === "available");
-
-const stationStore = useStationStore();
 
 const usageStore = useUsageStore();
 
@@ -30,90 +32,25 @@ const isUsage = computed(() =>
     usageStore.usages.some((u) => u.stationId === props.station?.stationId),
 );
 
-const useStation = async () => {
+const useStation = () => {
     if (!props.station) return;
 
-    // ── STOP FLOW ─────────────────────────────────────────────────────────
     if (isUsage.value) {
-        const activeUsage = usageStore.usages.find(
+        const usage = usageStore.usages.find(
             (u) => u.stationId === props.station?.stationId,
         );
-
-        if (activeUsage) {
-            const result = await Swal.fire({
-                title: "Stop Charging?",
-                text: "Do you want to end your charging session?",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonText: "Stop",
-                confirmButtonColor: "#ef4444",
-            });
-
-            if (result.isConfirmed) {
-                try {
-                    await stationStore.stopCharge(
-                        activeUsage.usageId,
-                        activeUsage.stationId,
-                    );
-
-                    // Update UI: Remove from store and reset local station state
-                    usageStore.usages = usageStore.usages.filter(
-                        (u) => u.usageId !== activeUsage.usageId,
-                    );
-
-                    // This triggers isAvailable and stateBadgeClass automatically
-                    props.station.state = "available";
-                } catch (error) {
-                    console.error("Stop charge failed", error);
-                }
-            }
+        if (usage) {
+            emit("stop", usage.usageId, usage.stationId);
         }
         return;
     }
 
-    // ── START FLOW ────────────────────────────────────────────────────────
     if (isAvailable.value) {
-        if (userStore.currentUser.vehicles?.length === 0) {
-            toast.error("No vehicles available ");
+        if (!userStore.currentUser?.vehicles?.length) {
+            toast.error(t("map.noVehiclesAvailable"));
             return;
         }
-        const vehicleOptions: Record<string, string> = {};
-        userStore.currentUser.vehicles.forEach((vehicle) => {
-            vehicleOptions[vehicle.plate] =
-                `${vehicle.plate} (${vehicle.model})`;
-        });
-
-        const result = await Swal.fire({
-            title: "Charge Station",
-            text: "Select the vehicle to start charging:",
-            icon: "question",
-            input: "select",
-            inputOptions: vehicleOptions,
-            inputPlaceholder: "Select a vehicle",
-            showCancelButton: true,
-            confirmButtonText: "Start Charge",
-            inputValidator: (value) => {
-                if (!value) return "You need to select a vehicle!";
-            },
-        });
-
-        if (result.isConfirmed) {
-            try {
-                const usage = await stationStore.startCharge(
-                    props.station,
-                    result.value,
-                );
-
-                // 1. Add to usage store (triggers isUsage computed)
-                usageStore.usages = [...usageStore.usages, usage];
-
-                // 2. Update local station state (triggers isAvailable computed)
-                // Assuming 'unavailable' or 'in_use' based on your API logic
-                props.station.state = "unavailable";
-            } catch (error) {
-                console.error("Start charge failed", error);
-            }
-        }
+        emit("start");
     }
 };
 
@@ -179,6 +116,14 @@ const isCompatible = computed(
         ) ?? false,
 );
 
+const compatibleVehicles = computed(() =>
+    (userStore.currentUser?.vehicles ?? []).filter((v) =>
+        props.station?.connector.socketTypes.some(
+            (t) => v.connector.toLowerCase() === t.toLowerCase(),
+        ),
+    ),
+);
+
 // ── Favorites ─────────────────────────────────────────────────────────────────
 
 const isFavorite = computed(
@@ -221,7 +166,7 @@ onMounted(async () => {
         <div
             v-if="station"
             :class="[
-                'absolute z-[999] bg-white shadow-2xl pointer-events-auto',
+                'absolute z-[10] bg-white shadow-2xl pointer-events-auto',
                 isMobile
                     ? 'bottom-0 left-0 right-0 rounded-t-2xl px-5 pt-4 pb-8'
                     : 'left-4 top-1/2 -translate-y-1/2 w-80 rounded-2xl px-5 py-5',
@@ -271,7 +216,7 @@ onMounted(async () => {
                 <span
                     class="text-xs font-semibold text-gray-500 uppercase tracking-wide block mb-2"
                 >
-                    Connectors
+                    {{ t("map.connectors") }}
                 </span>
                 <div class="flex flex-wrap gap-2">
                     <span
@@ -284,7 +229,7 @@ onMounted(async () => {
                                 : 'bg-gray-50 border-gray-200 text-gray-600',
                         ]"
                     >
-                        {{ type }}
+                        {{ CONNECTOR_LABELS[type] ?? type }}
                     </span>
                     <span
                         v-if="station.connector.socketTypes.length > 3"
@@ -300,7 +245,7 @@ onMounted(async () => {
                 <span
                     class="text-xs font-semibold text-gray-500 uppercase tracking-wide block mb-1"
                 >
-                    Max Power
+                    {{ t("map.maxPower") }}
                 </span>
                 <span class="text-sm font-semibold text-gray-800">
                     {{ station.connector.maxPower }} kW
@@ -325,7 +270,11 @@ onMounted(async () => {
                             isCompatible ? 'text-[#22c55e]' : 'text-gray-400',
                         ]"
                     >
-                        {{ isCompatible ? "Compatible" : "Not compatible" }}
+                        {{
+                            isCompatible
+                                ? t("map.compatible")
+                                : t("map.notCompatible")
+                        }}
                     </span>
                 </div>
 
@@ -347,7 +296,7 @@ onMounted(async () => {
                             isFavorite ? 'fill-yellow-400 text-yellow-400' : '',
                         ]"
                     />
-                    {{ isFavorite ? "Saved" : "Save" }}
+                    {{ isFavorite ? t("map.saved") : t("map.save") }}
                 </button>
             </div>
             <button
@@ -378,12 +327,12 @@ onMounted(async () => {
                 />
                 {{
                     !isCompatible
-                        ? "No Compatible Vehicles"
+                        ? t("map.noCompatibleVehicles")
                         : isAvailable
-                          ? "Use"
+                          ? t("map.use")
                           : isUsage
-                            ? "Stop Charging"
-                            : "In Use"
+                            ? t("map.stopCharging")
+                            : t("map.inUse")
                 }}
             </button>
         </div>
@@ -398,7 +347,7 @@ onMounted(async () => {
     >
         <div
             v-if="station && isMobile"
-            class="absolute inset-0 z-[998] bg-black/30 backdrop-blur-sm"
+            class="absolute inset-0 z-[9] bg-black/30 backdrop-blur-sm"
             @click="emit('close')"
         />
     </Transition>

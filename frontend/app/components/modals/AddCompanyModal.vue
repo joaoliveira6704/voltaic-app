@@ -2,6 +2,8 @@
 import { ref, watch } from "vue";
 import { Loader, X, Building2, Fingerprint } from "lucide-vue-next";
 import { useCompanyStore } from "~/stores/company";
+
+const { t } = useI18n();
 import {
     Dialog,
     DialogContent,
@@ -50,10 +52,10 @@ watch(
 
 const validate = () => {
     const errs = [];
-    if (!form.value.name.trim()) errs.push("Company name is required");
+    if (!form.value.name.trim()) errs.push(t("modal.addCompany.errors.nameRequired"));
     // Ensure the generated ID didn't somehow get cleared
     if (!form.value.companyId.trim())
-        errs.push("Internal Error: Missing Company ID");
+        errs.push(t("modal.addCompany.errors.missingId"));
     return errs;
 };
 
@@ -71,7 +73,7 @@ const handleCreate = async () => {
         emit("created", newCompany);
         emit("close");
     } catch (e) {
-        errors.value = [e?.data?.message || "Failed to create company"];
+        errors.value = [e?.data?.message || t("modal.addCompany.errors.createFailed")];
     } finally {
         isSubmitting.value = false;
     }
@@ -91,7 +93,7 @@ const handleClose = () => emit("close");
                 <DialogTitle
                     class="text-xs font-semibold text-neutral-800 dark:text-white/80 uppercase"
                 >
-                    Register Company
+                    {{ t("modal.addCompany.title") }}
                 </DialogTitle>
             </DialogHeader>
 
@@ -104,7 +106,7 @@ const handleClose = () => emit("close");
                     <Label
                         class="text-[10px] text-neutral-400 dark:text-white/40 uppercase"
                     >
-                        System Generated ID
+                        {{ t("modal.addCompany.systemGeneratedId") }}
                     </Label>
                     <div class="relative">
                         <Fingerprint
@@ -124,7 +126,7 @@ const handleClose = () => emit("close");
                     <Label
                         class="text-[10px] text-neutral-400 dark:text-white/40 uppercase"
                     >
-                        Company Name
+                        {{ t("modal.addCompany.companyName") }}
                     </Label>
                     <div class="relative">
                         <Building2
@@ -133,7 +135,7 @@ const handleClose = () => emit("close");
                         <Input
                             v-model="form.name"
                             type="text"
-                            placeholder="e.g. Acme Corporation"
+                            :placeholder="t('modal.addCompany.companyNamePlaceholder')"
                             class="h-8 pl-8 rounded-none text-xs bg-neutral-50 dark:bg-[#171717] dark:border-[#232323]"
                         />
                     </div>
@@ -169,7 +171,7 @@ const handleClose = () => emit("close");
                             class="h-7 text-[11px] uppercase rounded-none dark:border-white/10 dark:text-white/40"
                             @click="handleClose"
                         >
-                            Cancel
+                            {{ t("modal.addCompany.cancel") }}
                         </Button>
                         <Button
                             type="submit"
@@ -181,7 +183,7 @@ const handleClose = () => emit("close");
                                 v-if="isSubmitting"
                                 class="w-3 h-3 animate-spin mr-2"
                             />
-                            Create
+                            {{ t("modal.addCompany.create") }}
                         </Button>
                     </div>
                 </div>

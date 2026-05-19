@@ -1,6 +1,8 @@
 <!-- components/Admin/UserChart.vue -->
 <script setup>
 import { onMounted, onUnmounted, ref } from "vue";
+
+const { t } = useI18n();
 import {
     Chart,
     LineElement, // Changed from BarElement
@@ -24,7 +26,7 @@ Chart.register(
 );
 
 const mockData = [34, 51, 42, 67, 58, 29, 38];
-const labels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+const labels = [t("chart.userChart.dayMon"), t("chart.userChart.dayTue"), t("chart.userChart.dayWed"), t("chart.userChart.dayThu"), t("chart.userChart.dayFri"), t("chart.userChart.daySat"), t("chart.userChart.daySun")];
 
 const canvas = ref(null);
 let chart = null;
@@ -39,7 +41,7 @@ onMounted(() => {
             labels,
             datasets: [
                 {
-                    label: "New users",
+                    label: t("chart.userChart.label"),
                     data: mockData,
                     borderColor: accentColor,
                     backgroundColor: isDark
@@ -90,7 +92,7 @@ onUnmounted(() => chart?.destroy());
         <canvas
             ref="canvas"
             role="img"
-            aria-label="Line chart of new users per day over the last 7 days"
+            :aria-label="t('chart.userChart.ariaLabel')"
         />
     </div>
 </template>

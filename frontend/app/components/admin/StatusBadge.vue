@@ -14,7 +14,11 @@ const props = defineProps({
     value: String,
     userId: {
         type: String,
-        required: true,
+        default: null,
+    },
+    ticketId: {
+        type: String,
+        default: null,
     },
     type: {
         type: String,
@@ -60,7 +64,11 @@ function getItemClass(option) {
 }
 
 function handleChange(val) {
-    emit("update:value", { userId: props.userId, role: val });
+    if (props.type === "users") {
+        emit("update:value", { userId: props.userId, role: val });
+    } else if (props.type === "tickets") {
+        emit("update:value", { ticketId: props.ticketId, status: val });
+    }
 }
 </script>
 

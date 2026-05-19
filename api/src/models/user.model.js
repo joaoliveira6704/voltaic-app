@@ -63,27 +63,19 @@ const userSchema = new mongoose.Schema(
       {
         plate: { type: String, required: true },
         model: { type: String, required: true },
-        color: { type: String, required: true },
         slug: { type: String, required: true },
         connector: {
           type: String,
           required: true,
           enum: [
-            "Type2",
-            "CHAdeMO",
-            "CCS/SAE",
-            "Type3",
-            "Tesla",
-            "J-1772",
-            "Wall_Euro",
-            "Caravan_Mains_Socket",
-            "Dual_J-1772",
-            "Dual_CHAdeMO",
-            "Mennekes",
-            "Dual_Mennekes",
-            "Other",
+            "ccs1",
             "ccs2",
+            "chademo",
+            "gb_t_ac",
+            "gb_t_dc",
             "nacs",
+            "type1",
+            "type2",
           ],
         },
       },
@@ -110,10 +102,17 @@ userSchema.pre("save", async function () {
   // 1. Only run if vehicles are modified
   if (!this.isModified("vehicles")) return;
 
-  // 2. Get and clean the plates
+  // 2. Check max 4 vehicles
+  if (this.vehicles.length > 4) {
+    const err = new Error("Maximum of 4 vehicles per user");
+    err.status = 400;
+    throw err;
+  }
+
+  // 3. Get and clean the plates
   const plates = this.vehicles.map((v) => v.plate.toLowerCase().trim());
 
-  // 3. Check for duplicates
+  // 4. Check for duplicates
   const hasDuplicates = plates.some((plate, index) => {
     return plates.indexOf(plate) !== index;
   });

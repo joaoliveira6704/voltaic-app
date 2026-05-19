@@ -9,6 +9,8 @@ const config = useRuntimeConfig();
 const email = ref("");
 const password = ref("");
 const rememberMe = ref(true);
+const isSubmitting = ref(false);
+const { t } = useI18n();
 
 interface LoginResponse {
   token: string;
@@ -74,6 +76,53 @@ const handleLogin = async () => {
 
     alert("Login failed: " + errorMessage);
   }
+    title: t("login.title"),
+    meta: [
+        {
+            name: "description",
+            content: t("login.description"),
+        },
+    ],
+});
+
+const handleLogin = async () => {
+    isSubmitting.value = true;
+    console.log("Login attempt:", {
+        email: email.value,
+        password: password.value,
+    });
+
+    try {
+        const response = await $fetch<LoginResponse>(
+            `${config.public.apiBaseUrl}/api/auth/login`,
+            {
+                method: "POST",
+                body: {
+                    email: email.value,
+                    password: password.value,
+                },
+            },
+        );
+
+        console.log("Login successful:", response);
+        document.cookie = `token=${response.token}; path=/; max-age=86400; sameSite=Lax`;
+        document.cookie = `user=${JSON.stringify(response.data.user)}; path=/; max-age=86400; sameSite=Lax`;
+        window.location.href = "/profile";
+    } catch (err: unknown) {
+        console.error("Login failed:", err);
+
+        const errorData = err as {
+            message?: string;
+            data?: { message?: string };
+        };
+
+        const errorMessage =
+            errorData?.data?.message || errorData?.message || t("login.error");
+
+        alert(t("error") + ": " + errorMessage);
+    } finally {
+        isSubmitting.value = false;
+    }
 };
 </script>
 
@@ -162,4 +211,89 @@ const handleLogin = async () => {
       </div>
     </form>
   </div>
+            <div class="space-y-2">
+                <Label for="email" class="text-xs font-bold uppercase">
+                    {{ t("login.email") }}
+                </Label>
+                <Input
+                    id="email"
+                    v-model="email"
+                    type="email"
+                    :placeholder="t('login.emailPlaceholder')"
+                    class="h-11 border-gray-200 dark:border-[#232323] focus-visible:ring-[#00c885]"
+                />
+            </div>
+
+            <div class="space-y-2">
+                <div class="flex justify-between items-center">
+                    <Label for="password" class="text-xs font-bold uppercase">
+                        {{ t("login.password") }}
+                    </Label>
+                    <NuxtLink
+                        to="/recover-password"
+                        class="text-[10px] text-[#007bff] hover:underline uppercase"
+                    >
+                        {{ t("login.forgot") }}
+                    </NuxtLink>
+                </div>
+                <Input
+                    id="password"
+                    v-model="password"
+                    type="password"
+                    placeholder="••••••••"
+                    class="h-11 border-gray-200 dark:border-[#232323] focus-visible:ring-[#00c885]"
+                />
+            </div>
+
+            <div class="flex items-start gap-3 pt-2">
+                <Checkbox
+                    id="remember"
+                    v-model:checked="rememberMe"
+                    class="mt-1 border-gray-300 data-[state=checked]:bg-[#00c885] data-[state=checked]:border-[#00c885]"
+                />
+                <div class="grid gap-1 leading-none">
+                    <Label
+                        for="remember"
+                        class="text-sm font-bold text-gray-900 dark:text-white/50 cursor-pointer"
+                    >
+                        {{ t("login.rememberMe") }}
+                    </Label>
+                    <p class="text-[10px] text-gray-400">
+                        {{ t("login.keepSessionActive") }}
+                    </p>
+                </div>
+            </div>
+
+            <div class="pt-2">
+                <Button
+                    type="submit"
+                    :disabled="isSubmitting"
+                    class="w-full h-12 bg-[#007bff] hover:bg-[#0069d9] dark:text-black uppercase text-sm transition-all disabled:opacity-50"
+                >
+                    <span v-if="isSubmitting" class="flex items-center justify-center gap-2">
+                        <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                        </svg>
+                        {{ t("loading") }}
+                    </span>
+                    <span v-else>{{ t("login.submit") }}</span>
+                </Button>
+            </div>
+
+            <div
+                class="pt-4 text-center border-t border-gray-50 dark:border-[#232323] mt-4"
+            >
+                <p class="text-[10px] text-gray-400 uppercase">
+                    {{ t("login.newToVoltaic") }}
+                    <NuxtLink
+                        to="/signup"
+                        class="text-[#007bff] font-bold hover:underline"
+                    >
+                        {{ t("nav.signup") }}
+                    </NuxtLink>
+                </p>
+            </div>
+        </form>
+    </div>
 </template>

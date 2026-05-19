@@ -2,12 +2,75 @@ import userModel from "../models/user.model.js";
 import stationModel from "../models/station.model.js";
 import generateUniqueId from "../utils/utils.js";
 import companyModel from "../models/company.model.js";
+import { paginate } from "../utils/paginate.js";
 
 export const getUsers = async (req, res, next) => {
   try {
-    const users = await userModel.find();
-    console.log(`Found ${users.length} users in the database.`);
-    res.json(users);
+    const { view } = req.query;
+
+    if (view === "dashboard") {
+      const total = await userModel.countDocuments();
+      return res.json({ total });
+    }
+
+    if (view === "admin") {
+      const pageNum = Math.max(1, parseInt(req.query.page) || 1);
+      const limitNum = Math.min(100, Math.max(1, parseInt(req.query.limit) || 20));
+      const skip = (pageNum - 1) * limitNum;
+
+      const pipeline = [
+        {
+          $lookup: {
+            from: "companies",
+            localField: "companyId",
+            foreignField: "companyId",
+            as: "company",
+          },
+        },
+        {
+          $addFields: {
+            companyName: { $arrayElemAt: ["$company.name", 0] },
+            vehicleQuantity: { $size: { $ifNull: ["$vehicles", []] } },
+            isWorkerOrManager: {
+              $in: ["$role", ["worker", "company-manager"]],
+            },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            userId: 1,
+            firstName: 1,
+            lastName: 1,
+            username: 1,
+            email: 1,
+            role: 1,
+            companyName: 1,
+            vehicleQuantity: 1,
+            isWorkerOrManager: 1,
+          },
+        },
+        { $sort: { createdAt: -1 } },
+      ];
+
+      const [countResult, data] = await Promise.all([
+        userModel.aggregate([...pipeline, { $count: "total" }]),
+        userModel.aggregate([...pipeline, { $skip: skip }, { $limit: limitNum }]),
+      ]);
+
+      const total = countResult[0]?.total || 0;
+
+      return res.json({
+        data,
+        page: pageNum,
+        limit: limitNum,
+        total,
+        pages: Math.ceil(total / limitNum),
+      });
+    }
+
+    const result = await paginate(userModel, {}, { page: req.query.page, limit: req.query.limit });
+    res.json(result);
   } catch (error) {
     next(error);
   }
@@ -65,7 +128,120 @@ export const updateUser = async (req, res, next) => {
 
 export const getCurrentUser = async (req, res, next) => {
   try {
-    const user = await userModel.findOne({ userId: req.user.userId });
+    const userId = req.user.userId;
+    const isProfile = req.query.profile;
+
+    const user = await userModel.findOne({ userId: userId });
+
+    if (isProfile) {
+      console.log("Getting user profile");
+      const userProfile = await userModel.aggregate([
+        { $match: { userId: userId } },
+        {
+          $lookup: {
+            from: "companies",
+            localField: "companyId",
+            foreignField: "companyId",
+            as: "companyData",
+          },
+        },
+        { $unwind: "$companyData" },
+        {
+          $set: { companyName: "$companyData.name" },
+        },
+        {
+          $lookup: {
+            from: "usages",
+            let: { userId: "$userId" },
+            pipeline: [
+              { $match: { $expr: { $eq: ["$userId", "$$userId"] } } },
+              { $sort: { createdAt: -1 } },
+              { $limit: 4 },
+              {
+                $lookup: {
+                  from: "stations",
+                  localField: "stationId",
+                  foreignField: "stationId",
+                  as: "stationData",
+                },
+              },
+              {
+                $unwind: {
+                  path: "$stationData",
+                  preserveNullAndEmptyArrays: true,
+                },
+              },
+              {
+                $addFields: {
+                  stationName: "$stationData.title",
+                  duration: {
+                    $cond: {
+                      if: { $eq: ["$state", "completed"] },
+                      then: {
+                        $let: {
+                          vars: {
+                            totalMinutes: {
+                              $floor: {
+                                $divide: [
+                                  { $subtract: ["$endTime", "$createdAt"] },
+                                  60000,
+                                ],
+                              },
+                            },
+                          },
+                          in: {
+                            $let: {
+                              vars: {
+                                hours: {
+                                  $floor: { $divide: ["$$totalMinutes", 60] },
+                                },
+                                minutes: { $mod: ["$$totalMinutes", 60] },
+                              },
+                              in: {
+                                $cond: {
+                                  if: { $eq: ["$$hours", 0] },
+                                  then: {
+                                    $concat: [{ $toString: "$$minutes" }, "m"],
+                                  },
+                                  else: {
+                                    $concat: [
+                                      { $toString: "$$hours" },
+                                      "h ",
+                                      { $toString: "$$minutes" },
+                                      "m",
+                                    ],
+                                  },
+                                },
+                              },
+                            },
+                          },
+                        },
+                      },
+                      else: "$state",
+                    },
+                  },
+                },
+              },
+              { $project: { stationData: 0 } },
+            ],
+            as: "chargingHistory",
+          },
+        },
+        {
+          $project: {
+            endTime: 0,
+            password: 0,
+            _id: 0,
+            companyId: 0,
+            companyData: 0,
+          },
+        },
+      ]);
+
+      console.log(userProfile);
+
+      return res.json(userProfile[0]);
+    }
     if (!user) {
       const err = new Error("User not found");
       err.status = 404;
@@ -220,8 +396,16 @@ export const addVehicle = async (req, res, next) => {
       err.message = "Vehicle with same plate already exists";
       return next(err);
     }
+
+    const currentUser = await userModel.findOne({ userId: req.user.userId });
+    if (currentUser && currentUser.vehicles.length >= 4) {
+      let err = new Error();
+      err.status = 400;
+      err.message = "Maximum of 4 vehicles per user";
+      return next(err);
+    }
+
     console.log("Adding vehicle", plate, model, color, connector, slug);
-    // Add the vehicle using $push
     const updatedUser = await userModel.findOneAndUpdate(
       { userId: req.user.userId },
       {
@@ -229,7 +413,7 @@ export const addVehicle = async (req, res, next) => {
           vehicles: { plate, model, color, connector, slug },
         },
       },
-      { new: true, runValidators: true },
+      { new: true },
     );
 
     res.status(201).json(updatedUser);
@@ -302,6 +486,23 @@ export const getFavorites = async (req, res, next) => {
       return next(err);
     }
     res.json(user.favorites);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getFavoriteStations = async (req, res, next) => {
+  try {
+    const user = await userModel.findOne({ userId: req.user.userId });
+    if (!user) {
+      const err = new Error("User not found");
+      err.status = 404;
+      return next(err);
+    }
+    const stations = await stationModel.find({
+      stationId: { $in: user.favorites },
+    });
+    res.json(stations);
   } catch (error) {
     next(error);
   }

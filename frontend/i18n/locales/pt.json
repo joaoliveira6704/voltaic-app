@@ -6,7 +6,7 @@
   "yourFleet": "A Sua Frota",
   "addNewVehicle": "Adicionar novo Veículo",
   "plate": "Matrícula",
-  "history": "Histórico de Carregamentos",
+  "history": "Carregamentos Recentes",
   "date": "Data",
   "vehicle": "Veículo",
   "station": "Posto",
@@ -18,6 +18,17 @@
   "saveChanges": "Guardar Alterações",
   "noVehicles": "Sem Veículos para Apresentar em",
   "realTimeNetwork": "Rede em Tempo Real",
+  "loading": "A carregar...",
+  "error": "Erro",
+  "cancel": "Cancelar",
+  "submit": "Submeter",
+  "save": "Guardar",
+  "delete": "Eliminar",
+  "search": "Pesquisar",
+  "actions": "Ações",
+  "status": "Estado",
+  "name": "Nome",
+  "description": "Descrição",
   "nav": {
     "home": "Página Inicial",
     "profile": "Perfil",
@@ -30,11 +41,280 @@
     "stations": "Postos",
     "companies": "Empresas",
     "tickets": "Tickets",
-    "personnel": "Personal",
+    "personnel": "Pessoal",
     "assignedTickets": "Tickets Atribuídos",
     "map": "Mapa",
     "favoriteStations": "Postos Favoritos",
-    "history": "Histórico"
+    "history": "Histórico",
+    "navigation": "Navegação"
+  },
+  "login": {
+    "title": "Voltaic - Login",
+    "description": "Faça login na sua conta Voltaic.",
+    "email": "Email",
+    "emailPlaceholder": "exemplo\\@voltaic.com",
+    "password": "Palavra-passe",
+    "forgot": "Esqueceu-se?",
+    "rememberMe": "Lembrar-me",
+    "keepSessionActive": "Manter a minha sessão ativa",
+    "passwordPlaceholder": "*********",
+    "submit": "Entrar",
+    "newToVoltaic": "Novo no Voltaic?",
+    "createAccount": "Criar conta",
+    "error": "Falha no login: {error}"
+  },
+  "signup": {
+    "title": "Voltaic - Registar",
+    "description": "Registe-se para uma nova conta Voltaic.",
+    "username": "Nome de utilizador",
+    "usernamePlaceholder": "johndoe123",
+    "firstName": "Primeiro Nome",
+    "firstNamePlaceholder": "João",
+    "lastName": "Último Nome",
+    "lastNamePlaceholder": "Silva",
+    "email": "Email",
+    "emailPlaceholder": "exemplo\\@voltaic.com",
+    "password": "Palavra-passe",
+    "passwordPlaceholder": "********",
+    "agreeTerms": "Concordo com os Termos e Condições",
+    "submit": "Registar",
+    "error": "Falha no registo: {error}"
+  },
+  "recoverPassword": {
+    "title": "Voltaic - Recuperar Palavra-passe",
+    "heading": "Recuperar Palavra-passe",
+    "instruction": "Introduza o seu email para receber instruções",
+    "email": "Email",
+    "emailPlaceholder": "o seu\\@email.com",
+    "sendInstructions": "Enviar Instruções",
+    "checkInbox": "Verifique o seu email",
+    "instructionsSent": "Instruções de recuperação enviadas para {email}",
+    "tryAnotherEmail": "Tentar outro email",
+    "backToLogin": "Voltar ao Login",
+    "error": "Falha ao enviar email de recuperação"
+  },
+  "map": {
+    "title": "Voltaic - Mapa",
+    "description": "Encontre e localize postos de carregamento EV perto de si com o mapa interativo da Voltaic.",
+    "filter": "Filtrar",
+    "reset": "Repor",
+    "distance": "Distância:",
+    "off": "Desligado",
+    "socketType": "Tipo de tomada:",
+    "km": "{value} km",
+    "connectors": "Conectores",
+    "maxPower": "Potência Máxima",
+    "compatible": "Compatível",
+    "notCompatible": "Não compatível",
+    "saved": "Guardado",
+    "save": "Guardar",
+    "use": "Usar",
+    "stopCharging": "Parar Carregamento",
+    "inUse": "Em Uso",
+    "noCompatibleVehicles": "Sem Veículos Compatíveis",
+    "noVehiclesAvailable": "Sem veículos disponíveis",
+    "filters": {
+      "favs": "Favoritos",
+      "compatible": "Compatível",
+      "free": "Disponível",
+      "company": "Gerido pela Empresa",
+      "toggleSidebar": "Alternar painel de filtros",
+      "clearConnectors": "Limpar conectores selecionados"
+    },
+    "locate": {
+      "ariaLabel": "Encontrar a minha localização"
+    },
+    "north": {
+      "ariaLabel": "Repor Norte",
+      "title": "Repor Norte"
+    },
+    "theme": {
+      "ariaLabel": "Alternar modo escuro",
+      "title": "Alternar modo escuro"
+    },
+    "swal": {
+      "stopChargingTitle": "Parar Carregamento?",
+      "stopChargingText": "Deseja terminar a sua sessão de carregamento?",
+      "chargeStationTitle": "Carregar Posto",
+      "chargeStationText": "Selecione o veículo para iniciar o carregamento:",
+      "selectVehicle": "Selecionar Veículo",
+      "selectVehiclePlaceholder": "Selecione um veículo...",
+      "startCharge": "Iniciar Carga",
+      "stop": "Parar",
+      "noVehiclesToast": "Sem veículos disponíveis"
+    }
+  },
+  "admin": {
+    "index": {
+      "title": "Voltaic - Painel de Administração",
+      "description": "Visão geral de utilizadores, postos, tickets e empresas.",
+      "totalUsers": "Total de utilizadores",
+      "totalUsersSubtext": "+12% este mês",
+      "stations": "Postos",
+      "stationsActiveNow": "{count} ativos agora",
+      "openTickets": "Tickets abertos",
+      "openTicketsSubtext": "+8 desde ontem",
+      "companies": "Empresas",
+      "companiesSubtext": "4 adicionadas este mês",
+      "ticketStatus": "Estado dos tickets",
+      "newUsers": "Novos utilizadores — últimos 7 dias",
+      "stationLocations": "Localizações dos postos",
+      "recentTickets": "Tickets recentes",
+      "recentTicketsColId": "ID",
+      "recentTicketsColUser": "Utilizador",
+      "recentTicketsColStation": "Posto",
+      "recentTicketsColStatus": "Estado",
+      "companiesTableTitle": "Empresas",
+      "companiesColCompany": "Empresa",
+      "companiesColUsers": "Utilizadores",
+      "companiesColStations": "Postos"
+    },
+    "users": {
+      "title": "Utilizadores",
+      "subtitle": "Ver e gerir todas as contas de utilizador",
+      "addNewUser": "Criar novo utilizador",
+      "columns": {
+        "name": "Nome",
+        "email": "Email",
+        "role": "Função",
+        "status": "Estado",
+        "actions": "Ações"
+      },
+      "noUsers": "Nenhum utilizador encontrado",
+      "searchPlaceholder": "Pesquisar...",
+      "filters": {
+        "role": "Filtrar por função",
+        "status": "Filtrar por estado"
+      }
+    },
+    "stations": {
+      "title": "Postos",
+      "createNew": "Criar novo posto"
+    },
+    "companies": {
+      "title": "Empresas",
+      "createNew": "Criar nova empresa"
+    },
+    "tickets": {
+      "title": "Tickets",
+      "noRemarks": "Sem observações"
+    },
+    "table": {
+      "actions": "Ações"
+    },
+    "search": {
+      "placeholder": "Pesquisar..."
+    },
+    "sidebar": {
+      "navigation": "Navegação"
+    }
+  },
+  "chart": {
+    "stationsMap": {
+      "initializing": "A INICIALIZAR REDE GLOBAL...",
+      "stations": "{count} Postos",
+      "primary": "Principal: {name}",
+      "online": "online",
+      "maintenance": "manutenção",
+      "offline": "offline"
+    },
+    "userChart": {
+      "label": "Novos utilizadores",
+      "ariaLabel": "Gráfico de novos utilizadores por dia nos últimos 7 dias",
+      "dayMon": "Seg",
+      "dayTue": "Ter",
+      "dayWed": "Qua",
+      "dayThu": "Qui",
+      "dayFri": "Sex",
+      "daySat": "Sáb",
+      "daySun": "Dom"
+    },
+    "ticketDonut": {
+      "open": "Aberto",
+      "closed": "Fechado",
+      "legendOpen": "Aberto: {count}",
+      "legendClosed": "Fechado: {count}",
+      "ariaLabel": "Gráfico de estado dos tickets"
+    }
+  },
+  "company": {
+    "index": {
+      "totalWorkers": "Total de Trabalhadores",
+      "totalWorkersCount": "{count} Trabalhadores",
+      "totalWorkersSubtext": "+12% este mês",
+      "stations": "Postos",
+      "stationsCount": "{count} Postos",
+      "stationsActiveNow": "{count} ativos agora",
+      "openTickets": "Tickets abertos",
+      "openTicketsCount": "{count} Tickets",
+      "openTicketsSubtext": "+8 desde ontem"
+    },
+    "manage": {
+      "title": "Gestão de Empresa"
+    },
+    "tickets": {
+      "openTickets": "Tickets Abertos"
+    },
+    "stations": {
+      "manageStation": "Gerir Posto",
+      "logConsole": "Consola de Logs",
+      "noLogs": "Ainda sem registos",
+      "interventions": "Intervenções",
+      "stationControls": "Controlos do Posto",
+      "registerIntervention": "Registar Intervenção",
+      "start": "Iniciar",
+      "shutdown": "Desligar",
+      "restart": "Reiniciar",
+      "commandPlaceholder": "reiniciar posto",
+      "stationStatus": "Estado do Posto: {status}"
+    },
+    "stationReport": {
+      "download": "Descarregar Relatório"
+    }
+  },
+  "stationHeader": {
+    "status": "Estado do Posto: {status}"
+  },
+  "error": {
+    "title": "Voltaic - Não Encontrado",
+    "notFound": "Página não encontrada",
+    "description": "A página que procura não existe ou foi movida.",
+    "goBack": "Voltar"
+  },
+  "layout": {
+    "navigation": "Navegação",
+    "map": "Mapa",
+    "footer": {
+      "copyright": "© {year} Voltaic",
+      "privacy": "Privacidade",
+      "terms": "Termos"
+    }
+  },
+  "historyTable": {
+    "date": "Data",
+    "vehicle": "Veículo",
+    "station": "Posto",
+    "duration": "Duração",
+    "inProgress": "Em Curso",
+    "timeError": "Erro de Tempo"
+  },
+  "stationsLabel": {
+    "available": "Disponível",
+    "ticketOpen": "Ticket Aberto",
+    "offline": "Offline"
+  },
+  "interventionCard": {
+    "lastName": "Último Nome",
+    "firstName": "Primeiro Nome",
+    "phoneNumber": "Número de Telemóvel",
+    "idNumber": "ID",
+    "agentNote": "Nota do Agente",
+    "remarks": "Observações:"
+  },
+  "ticketCard": {
+    "station": "Posto:",
+    "desc": "Desc:",
+    "state": "Estado:"
   },
   "modal": {
     "addUser": {
@@ -57,13 +337,22 @@
       "allFieldsRequired": "Todos os campos são obrigatórios",
       "cancel": "Cancelar",
       "create": "Criar",
+      "firstNamePlaceholder": "Nome próprio",
+      "lastNamePlaceholder": "Apelido",
+      "usernamePlaceholder": "nome de utilizador",
+      "emailPlaceholder": "email\\@exemplo.com",
+      "passwordPlaceholder": "••••••••",
+      "showPassword": "Mostrar",
+      "hidePassword": "Ocultar",
+      "dismiss": "Dispensar",
       "errors": {
         "firstNameRequired": "O nome é obrigatório.",
         "lastNameRequired": "O apelido é obrigatório.",
         "usernameRequired": "O nome de utilizador é obrigatório.",
         "invalidEmail": "Introduza um endereço de email válido.",
-        "roleRequired": "Selecione uma função.",
-        "passwordTooShort": "A palavra-passe deve ter pelo menos 8 caracteres."
+"roleRequired": "Selecione uma função.",
+        "passwordTooShort": "A palavra-passe deve ter pelo menos 8 caracteres.",
+        "unknown": "Ocorreu um erro desconhecido"
       }
     },
     "editProfile": {
@@ -78,6 +367,9 @@
       "noChanges": "Sem alterações",
       "fieldsModified": "{n} campo modificado",
       "fieldsModifiedPlural": "{n} campos modificados",
+      "showPassword": "Mostrar",
+      "hidePassword": "Ocultar",
+      "dismiss": "Dispensar",
       "cancel": "Cancelar",
       "save": "Guardar",
       "errors": {
@@ -103,12 +395,106 @@
       "noVehiclesFound": "Nenhum veículo encontrado.",
       "cancel": "Cancelar",
       "add": "Adicionar",
+      "clear": "Limpar",
+      "notApplicable": "—",
+      "dismiss": "Dispensar",
       "errors": {
         "plateRequired": "A matrícula é obrigatória.",
         "vehicleRequired": "Por favor, selecione um veículo da lista.",
         "colorRequired": "A cor é obrigatória."
       }
+    },
+    "addCompany": {
+      "title": "Registar Empresa",
+      "systemGeneratedId": "ID Gerado pelo Sistema",
+      "companyName": "Nome da Empresa",
+      "companyNamePlaceholder": "ex: Acme Corporation",
+      "cancel": "Cancelar",
+      "create": "Criar",
+      "errors": {
+        "nameRequired": "O nome da empresa é obrigatório",
+        "missingId": "Erro Interno: ID da empresa em falta",
+        "createFailed": "Falha ao criar empresa"
+      }
+    },
+    "addStation": {
+      "title": "Registar Novo Posto",
+      "displayName": "Nome do Posto",
+      "displayNamePlaceholder": "ex: Faro Charging Station 480",
+      "latitude": "Latitude",
+      "latitudePlaceholder": "36.856...",
+      "longitude": "Longitude",
+      "longitudePlaceholder": "-8.233...",
+      "maxPower": "Potência Máxima (kW)",
+      "initialState": "Estado Inicial",
+      "socketTypes": "Tipos de Tomada",
+      "available": "Disponível",
+      "unavailable": "Indisponível",
+      "maintenance": "Manutenção",
+      "cancel": "Cancelar",
+      "deploy": "Implementar",
+      "errors": {
+        "titleRequired": "O título do posto é obrigatório",
+        "coordinatesRequired": "As coordenadas são obrigatórias",
+        "socketTypeRequired": "Selecione pelo menos um tipo de tomada",
+        "maxPowerRequired": "A potência máxima deve ser definida",
+        "createFailed": "Falha ao criar posto"
+      }
+    },
+    "registerIntervention": {
+      "title": "Registar Intervenção",
+      "titleField": "Título",
+      "titlePlaceholder": "Título da intervenção",
+      "initialStatus": "Estado Inicial",
+      "description": "Descrição",
+      "descriptionPlaceholder": "Descreva a intervenção...",
+      "remarks": "Observações",
+      "remarksOptional": "Observações (opcional)",
+      "remarksPlaceholder": "Observações adicionais...",
+      "resolved": "Resolvido",
+      "unresolved": "Não resolvido",
+      "cancel": "Cancelar",
+      "submit": "Submeter",
+      "errors": {
+        "titleRequired": "O título é obrigatório",
+        "descriptionRequired": "A descrição é obrigatória",
+        "createFailed": "Falha ao criar ticket"
+      }
     }
+  },
+  "userSettings": {
+    "selectLanguage": "Selecionar Idioma"
+  },
+  "info": {
+    "unknownCompany": "Empresa Desconhecida"
+  },
+  "pagination": {
+    "previous": "Anterior",
+    "next": "Próximo",
+    "page": "Página {page}",
+    "of": "de {total}"
+  },
+  "adminPage": {
+    "search": "Pesquisar...",
+    "navigation": "Navegação"
+  },
+  "mapFilter": {
+    "filter": "Filtrar",
+    "reset": "Repor",
+    "distance": "Distância:",
+    "off": "Desligado",
+    "socketType": "Tipo de tomada:",
+    "km": "{value} km"
+  },
+  "lowerCard": {
+    "logout": "Sair"
+  },
+  "skeleton": {
+    "loading": "A carregar..."
+  },
+  "modalCommon": {
+    "title": "Título",
+    "description": "Descrição"
   },
   "landing": {
     "head": {
@@ -150,25 +536,14 @@
       "button": "Começar Agora"
     }
   },
-  "admin": {
-    "users": {
-      "title": "Gerir Utilizadores",
-      "subtitle": "Ver e gerir todas as contas de utilizador",
-      "addNewUser": "Adicionar Novo Utilizador",
-      "columns": {
-        "name": "Nome",
-        "email": "Email",
-        "role": "Função",
-        "status": "Estado",
-        "actions": "Ações"
-      },
-      "noUsers": "Nenhum utilizador encontrado",
-      "searchPlaceholder": "Pesquisar utilizadores...",
-      "filters": {
-        "role": "Filtrar por função",
-        "status": "Filtrar por estado"
-      }
-    }
+  "ticketDetail": {
+    "description": "Descrição",
+    "remarks": "Observações",
+    "createdBy": "Criado Por",
+    "station": "Estação",
+    "created": "Criado",
+    "closed": "Fechado",
+    "updated": "Atualizado"
   },
   "lang": {
     "en": "Inglês (US)",

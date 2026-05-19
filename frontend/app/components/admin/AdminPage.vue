@@ -1,4 +1,5 @@
 <script setup>
+const { t } = useI18n();
 defineProps({
     title: String,
     buttonText: String,
@@ -13,7 +14,7 @@ const searchTerm = defineModel("search");
         <slot name="modal" />
         <Grid :split-cell-d="userRole === 'admin'">
             <template #cell-a>
-                <DashboardCard title="Admin">
+                <DashboardCard :title="t('adminPage.navigation')">
                     <NavGroup role="admin" />
                 </DashboardCard>
             </template>
@@ -28,7 +29,7 @@ const searchTerm = defineModel("search");
                         v-model="searchTerm"
                         type="text"
                         class="my-4 border border-black rounded-md text-xs"
-                        placeholder="Search..."
+                        :placeholder="t('adminPage.search')"
                     />
                     <slot />
                 </DashboardCard>

@@ -1,6 +1,6 @@
 <template>
     <div
-        class="absolute top-0 left-0 right-0 z-[1000] flex items-center justify-between px-4 py-3 pointer-events-none"
+        class="absolute top-0 left-0 right-0 z-[11] flex items-center justify-between px-4 py-3 pointer-events-none"
     >
         <div class="flex items-center gap-2 pointer-events-auto">
             <button
@@ -15,7 +15,7 @@
                 @click="emit('toggle-filter', filter.key)"
             >
                 <component :is="filter.icon" class="w-3.5 h-3.5" />
-                {{ filter.label }}
+                {{ t(filter.labelKey) }}
             </button>
 
             <button
@@ -25,6 +25,7 @@
                         ? 'bg-gray-800 border-gray-700 text-white'
                         : 'bg-white/90 border-white/60 text-gray-600 hover:bg-white',
                 ]"
+                :aria-label="t('map.filters.toggleSidebar')"
                 @click="emit('toggle-sidebar')"
             >
                 <SlidersHorizontal class="w-4 h-4" />
@@ -39,6 +40,7 @@
                 <button
                     v-if="selectedConnectorsCount > 0"
                     class="flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-red-500 border border-red-400 text-white text-xs font-semibold shadow-md transition-all duration-200 hover:bg-red-600"
+                    :aria-label="t('map.filters.clearConnectors')"
                     @click="emit('clear-connectors')"
                 >
                     <X class="w-3 h-3" />
@@ -63,6 +65,8 @@ import { computed } from "vue";
 import { SlidersHorizontal, X } from "lucide-vue-next";
 import { useUserStore } from "@/stores/user";
 import type { MapFilter, MapFilterKey } from "@/types/mapFilter";
+
+const { t } = useI18n();
 
 defineProps<{
     filters: MapFilter[];

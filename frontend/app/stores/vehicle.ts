@@ -23,6 +23,14 @@ interface CatalogVehicle {
   [key: string]: any;
 }
 
+interface PaginatedResponse<T> {
+  data: T[];
+  page: number;
+  limit: number;
+  total: number;
+  pages: number;
+}
+
 export const useVehicleStore = defineStore("vehicle", () => {
   const vehicles = ref<CatalogVehicle[]>([]);
   const isLoading = ref(false);
@@ -31,17 +39,19 @@ export const useVehicleStore = defineStore("vehicle", () => {
   const apiBase = () => useRuntimeConfig().public.apiBaseUrl;
   const token = () => useCookie("token").value;
 
-  async function fetchVehicles() {
-    if (vehicles.value.length) return; // already cached
+  vehicles.value = [];
+
+  async function fetchVehicles(page = 1, limit = 50) {
     isLoading.value = true;
     error.value = null;
     try {
-      vehicles.value = await $fetch<CatalogVehicle[]>(
-        `${apiBase()}/api/vehicles`,
+      const data = await $fetch<PaginatedResponse<CatalogVehicle>>(
+        `${apiBase()}/api/vehicles?page=${page}&limit=${limit}`,
         {
           headers: { Authorization: `Bearer ${token()}` },
         },
       );
+      vehicles.value = data.data;
     } catch (e) {
       console.error("Failed to fetch vehicle catalog:", e);
       error.value = "Failed to load vehicle catalog.";

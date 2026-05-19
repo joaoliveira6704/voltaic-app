@@ -1,22 +1,22 @@
 <script setup lang="ts">
 import { computed } from "vue";
 
-// 1. Define the specific allowed types
+const { t } = useI18n();
+
 type StationStatus = "available" | "ticket" | "off";
 
 interface Props {
     status: StationStatus;
-    label?: string; // Optional: Override the text if needed
+    label?: string;
 }
 
 const props = defineProps<Props>();
 
-// 2. Map the status to the specific color ball
 const statusConfig = computed(() => {
     const map = {
-        available: { color: "bg-green-500", text: "Available" },
-        ticket: { color: "bg-yellow-400", text: "Ticket Open" },
-        off: { color: "bg-red-500", text: "Offline" },
+        available: { color: "bg-green-500", text: t("stationsLabel.available") },
+        ticket: { color: "bg-yellow-400", text: t("stationsLabel.ticketOpen") },
+        off: { color: "bg-red-500", text: t("stationsLabel.offline") },
     };
     return map[props.status];
 });

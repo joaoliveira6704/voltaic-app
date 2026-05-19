@@ -1,6 +1,6 @@
 // composables/useMapFilters.ts
 import { ref, computed } from "vue";
-import { Star, Zap, Tag, Building } from "lucide-vue-next";
+import { Star, Zap, EvCharger, Building } from "lucide-vue-next";
 import { useStationStore } from "@/stores/station";
 import { useUserStore } from "@/stores/user";
 import { useCompanyStore } from "@/stores/company";
@@ -21,15 +21,16 @@ export function useMapFilters() {
   const companyStationIds = ref<string[]>([]);
 
   const filters = ref<MapFilter[]>([
-    { key: "favs", label: "Favs", icon: Star, active: false },
-    { key: "compatible", label: "Compatible", icon: Zap, active: false },
-    { key: "free", label: "Free", icon: Tag, active: false },
+    { key: "favs", label: "Favs", labelKey: "map.filters.favs", icon: Star, active: false },
+    { key: "compatible", label: "Compatible", labelKey: "map.filters.compatible", icon: Zap, active: false },
+    { key: "free", label: "Available", labelKey: "map.filters.free", icon: EvCharger, active: false },
   ]);
 
   if (currentCompany.value) {
     filters.value.push({
       key: "company",
       label: "Company Managed",
+      labelKey: "map.filters.company",
       icon: Building,
       active: false,
     });
@@ -66,14 +67,9 @@ export function useMapFilters() {
 
     // When toggling company filter on, fetch company stations
     if (key === "company" && filter.active && currentCompany.value) {
-      const groupIds = currentCompany.value.groups;
-      const stations = await stationStore.getCompanyStations(groupIds);
-      // getCompanyStations should return the ids, or read them from the store
-      console.log(stations, groupIds);
+      await stationStore.fetchCompanyStations();
       companyStationIds.value = (
-        stations ??
-        stationStore.companyStations ??
-        []
+        stationStore.companyStations ?? []
       ).map((s: Station) => s.stationId);
     } else if (key === "company" && !filter.active) {
       companyStationIds.value = [];
@@ -123,30 +119,30 @@ export function useMapFilters() {
 
   const allStations = computed(() => stationStore.stations as Station[]);
 
-  const filteredStations = computed(() =>
-    allStations.value.filter((station) => {
-      if (
-        isFilterActive("favs") &&
-        !userFavorites.value.includes(station.stationId)
-      )
+  const filteredStations = computed(() => {
+    const favsActive = isFilterActive("favs");
+    const compatibleActive = isFilterActive("compatible");
+    const freeActive = isFilterActive("free");
+    const companyActive = isFilterActive("company");
+    const hasSelectedConnectors = selectedConnectors.value.length > 0;
+
+    return allStations.value.filter((station) => {
+      if (favsActive && !userFavorites.value.includes(station.stationId))
         return false;
 
-      if (isFilterActive("compatible")) {
+      if (compatibleActive) {
         const match = station.connector.socketTypes.some((t) =>
           userConnectors.value.includes(t),
         );
         if (!match) return false;
       }
 
-      if (isFilterActive("free") && station.state !== "available") return false;
+      if (freeActive && station.state !== "available") return false;
 
-      if (
-        isFilterActive("company") &&
-        !companyStationIds.value.includes(station.stationId)
-      )
+      if (companyActive && !companyStationIds.value.includes(station.stationId))
         return false;
 
-      if (selectedConnectors.value.length > 0) {
+      if (hasSelectedConnectors) {
         const match = station.connector.socketTypes.some((t) =>
           selectedConnectors.value.includes(t),
         );
@@ -154,8 +150,8 @@ export function useMapFilters() {
       }
 
       return true;
-    }),
-  );
+    });
+  });
 
   return {
     filters,

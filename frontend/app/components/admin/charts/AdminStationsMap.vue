@@ -2,6 +2,7 @@
 <script setup>
 import { onMounted, ref, watch } from "vue";
 
+const { t } = useI18n();
 const props = defineProps({
     stations: { type: Array, default: () => [] },
 });
@@ -50,7 +51,6 @@ onMounted(async () => {
     const land = topojson.feature(world, world.objects.land);
 
     // 3. Project Stations to Pixel Space
-    // Note: Swapping [lon, lat] if your data is [lat, lon]
     const projectedStations = props.stations.map((s) => {
         const [lon, lat] = s.location.coordinates;
         const [x, y] = projection([lon, lat]) ?? [0, 0];
@@ -74,40 +74,41 @@ onMounted(async () => {
     await new Promise((res) => (img.onload = res));
     ctx.drawImage(img, 0, 0);
 
-    // 5. Generate Integrated Grid
-    const result = [];
-    for (let x = 0; x < W; x += DOT_STEP) {
-        for (let y = 0; y < H; y += DOT_STEP) {
-            const pixelData = ctx.getImageData(x, y, 1, 1).data;
+    // 5. Generate Integrated Grid (deferred to avoid blocking paint)
+    const schedule = typeof requestIdleCallback === "function"
+        ? requestIdleCallback
+        : (cb) => setTimeout(cb, 50);
 
-            // If pixel is white (land)
-            if (pixelData[0] > 128) {
-                // Find stations that fall within this dot's territory
-                const localStations = projectedStations.filter((s) => {
-                    const dx = s.px - x;
-                    const dy = s.py - y;
-                    return Math.sqrt(dx * dx + dy * dy) < DOT_STEP * 0.7;
-                });
+    schedule(() => {
+        const result = [];
+        for (let x = 0; x < W; x += DOT_STEP) {
+            for (let y = 0; y < H; y += DOT_STEP) {
+                const pixelData = ctx.getImageData(x, y, 1, 1).data;
 
-                const count = localStations.length;
-                const status = count > 0 ? localStations[0].status : "empty";
+                if (pixelData[0] > 128) {
+                    const localStations = projectedStations.filter((s) => {
+                        const dx = s.px - x;
+                        const dy = s.py - y;
+                        return Math.sqrt(dx * dx + dy * dy) < DOT_STEP * 0.7;
+                    });
 
-                result.push({
-                    x,
-                    y,
-                    count,
-                    color: STATUS_COLOR[status],
-                    stations: localStations, // Store for tooltip details if needed
-                });
+                    const count = localStations.length;
+                    const status = count > 0 ? localStations[0].status : "empty";
+
+                    result.push({
+                        x,
+                        y,
+                        count,
+                        color: STATUS_COLOR[status],
+                        stations: localStations,
+                    });
+                }
             }
         }
-    }
 
-    console.log(result);
-    console.log(props.stations);
-
-    mapGrid.value = result;
-    ready.value = true;
+        mapGrid.value = result;
+        ready.value = true;
+    });
 });
 </script>
 
@@ -127,7 +128,7 @@ onMounted(async () => {
                     class="w-2 h-2 rounded-full"
                     :style="{ background: color }"
                 />
-                {{ key }}
+                {{ t(`chart.stationsMap.${key}`) }}
             </div>
         </div>
 
@@ -143,10 +144,10 @@ onMounted(async () => {
                 }"
             >
                 <div class="font-bold text-white">
-                    {{ hoveredDot.count }} Stations
+                    {{ t("chart.stationsMap.stations", { count: hoveredDot.count }) }}
                 </div>
                 <div class="text-white/60 text-[10px]">
-                    Primary: {{ hoveredDot.stations[0].title }}
+                    {{ t("chart.stationsMap.primary", { name: hoveredDot.stations[0].title }) }}
                 </div>
             </div>
         </Transition>
@@ -182,7 +183,7 @@ onMounted(async () => {
                     text-anchor="middle"
                     font-size="12"
                 >
-                    INITIALIZING GLOBAL NETWORK...
+                    {{ t("chart.stationsMap.initializing") }}
                 </text>
             </g>
         </svg>

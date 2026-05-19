@@ -5,28 +5,57 @@ import {
   deleteStation,
   updateStation,
   getStationById,
-  getStationsByRadius,
+  executeStationCommand,
+  checkStationOwnership,
 } from "../controllers/station.controller.js";
 import {
-  checkOwnership,
+  getStationUsages,
+} from "../controllers/usage.controller.js";
+import {
+  getStationTickets,
+} from "../controllers/ticket.controller.js";
+import {
   protect,
   requireRole,
 } from "../middleware/auth.middleware.js";
-import stationModel from "../models/station.model.js";
 
 const router = Router();
 
-router.get("/", getStations);
+router.get("/", (req, res, next) => {
+  if (req.query.view === "dashboard") {
+    return protect(req, res, (err) => {
+      if (err) return next(err);
+      requireRole("admin")(req, res, next);
+    });
+  }
+  next();
+}, getStations);
 router.post("/", protect, requireRole("admin"), createStation);
 router.delete("/:id", protect, requireRole("admin"), deleteStation);
 router.patch(
   "/:id",
   protect,
   requireRole("admin", "company-manager", "worker"),
-  checkOwnership(stationModel),
+  checkStationOwnership,
   updateStation,
 );
 router.get("/:id", protect, getStationById);
-router.get("/radius/:lat/:lng/:distance", getStationsByRadius);
+router.post(
+  "/:stationId/commands",
+  protect,
+  requireRole("admin", "worker", "company-manager"),
+  executeStationCommand,
+);
+router.get(
+  "/:stationId/usages",
+  protect,
+  getStationUsages,
+);
+router.get(
+  "/:stationId/tickets",
+  protect,
+  requireRole("company-manager", "worker"),
+  getStationTickets,
+);
 
 export default router;

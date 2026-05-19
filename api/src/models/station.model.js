@@ -4,7 +4,6 @@ const stationSchema = new mongoose.Schema(
   {
     stationId: { type: String, required: true, unique: true, trim: true },
     title: { type: String, required: true },
-    companyId: { type: String, required: true, unique: true, trim: true },
     location: {
       type: {
         type: String,
@@ -17,25 +16,20 @@ const stationSchema = new mongoose.Schema(
         index: "2dsphere",
       },
     },
-    groupId: { type: String, ref: "Group", required: false },
+    groupId: { type: String, ref: "Group", required: true },
     connector: {
       socketTypes: [
         {
           type: String,
           enum: [
-            "Type2",
-            "CHAdeMO",
-            "CCS/SAE",
-            "Type3",
-            "Tesla",
-            "J-1772",
-            "Wall_Euro",
-            "Caravan_Mains_Socket",
-            "Dual_J-1772",
-            "Dual_CHAdeMO",
-            "Mennekes",
-            "Dual_Mennekes",
-            "Other",
+            "ccs1",
+            "ccs2",
+            "chademo",
+            "gb_t_ac",
+            "gb_t_dc",
+            "nacs",
+            "type1",
+            "type2",
           ],
         },
       ],
