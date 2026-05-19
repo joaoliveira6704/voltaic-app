@@ -1,11 +1,26 @@
 <script setup>
 import { AdminCompanyColumns } from "@/utils/constants";
+import { Skeleton, SkeletonTable } from "~/components/ui/Skeleton";
+import Pagination from "~/components/ui/Pagination.vue";
+
+const { t } = useI18n();
+
+useHead({
+    title: t("admin.companies.title"),
+});
 
 const isAddCompanyModalOpen = ref(false);
+const isPending = ref(true);
 const searchTerm = ref("");
+const page = ref(1);
 
 const companyStore = useCompanyStore();
-const { companies } = storeToRefs(companyStore);
+const { companies, currentPage, totalPages } = storeToRefs(companyStore);
+
+function onPageChange(p) {
+    page.value = p;
+    companyStore.fetchCompanies(p, 100, { view: "admin" });
+}
 
 const filtered = computed(() =>
     companies.value.filter((c) =>
@@ -25,16 +40,30 @@ const getCompanyName = (companyId) => {
     return companyStore.getCompanyName(companyId);
 };
 
-onMounted(() => {
-    companyStore.fetchCompanies();
+companyStore.fetchCompanies(1, 100, { view: "admin" }).finally(() => {
+    isPending.value = false;
 });
 </script>
 
 <template>
+    <template v-if="isPending">
+        <DashboardCard class="mt-4 mx-2">
+            <div class="flex-1 py-2 pr-4 min-w-0 overflow-y-auto space-y-4">
+                <Skeleton class="h-8 w-[200px]" />
+                <Skeleton class="h-4 w-[250px] mb-4" />
+                <div
+                    class="rounded-xl border border-gray-100 dark:border-[#232323] overflow-hidden dark:bg-[#171717]"
+                >
+                    <SkeletonTable :columns="4" :rows="5" />
+                </div>
+            </div>
+        </DashboardCard>
+    </template>
     <AdminPage
+        v-else
         v-model:search="searchTerm"
-        title="Companies"
-        button-text="Create new company"
+        :title="t('admin.companies.title')"
+        :button-text="t('admin.companies.createNew')"
         @add="isAddCompanyModalOpen = true"
     >
         <template #modal>
@@ -56,10 +85,14 @@ onMounted(() => {
                     row.companyId
                 }}</TableCell>
                 <TableCell class="text-xs">{{ row.name }}</TableCell>
-                <TableCell class="text-xs text-muted-foreground">{{
-                    row.workingArea.coordinates.join(", ")
-                }}</TableCell>
+                <TableCell class="text-xs">{{ row.memberCount }}</TableCell>
             </template>
         </AdminTable>
+        <Pagination
+            class="pt-4"
+            :current-page="currentPage"
+            :total-pages="totalPages"
+            @update:page="onPageChange"
+        />
     </AdminPage>
 </template>

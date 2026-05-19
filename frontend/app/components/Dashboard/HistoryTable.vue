@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { MapPin } from "lucide-vue-next";
 
+const { t } = useI18n();
+
 interface ChargingSession {
     stationUsageId: string;
     userId: string;
@@ -8,33 +10,16 @@ interface ChargingSession {
     createdAt: string;
     endTime?: string;
     plate: string;
+    duration: string;
 }
 
 interface Props {
     sessions: ChargingSession[];
 }
 
-defineProps<Props>();
+const props = defineProps<Props>();
 
-const duration = (session: ChargingSession) => {
-    console.log(session);
-    if (!session.endTime) return "In Progress";
-
-    const start = new Date(session.createdAt).getTime();
-    const end = new Date(session.endTime).getTime();
-    const diffMs = end - start;
-
-    // Logic for negative durations (Data Error)
-    if (diffMs < 0) {
-        return "Time Error"; // Or Math.abs(diffMs) if you want to force it positive
-    }
-
-    const totalMinutes = Math.floor(diffMs / 60000);
-    const hrs = Math.floor(totalMinutes / 60);
-    const mins = totalMinutes % 60;
-
-    return hrs > 0 ? `${hrs}h ${mins}m` : `${mins}m`;
-};
+console.log(props.sessions);
 </script>
 
 <template>
@@ -48,28 +33,25 @@ const duration = (session: ChargingSession) => {
                     <TableHead
                         class="px-6 text-neutral-500 font-bold underline underline-offset-4 decoration-neutral-300 dark:text-white/80 text-left"
                     >
-                        Date
+                        {{ t("historyTable.date") }}
                     </TableHead>
 
-                    <!-- Left Aligned -->
                     <TableHead
                         class="px-6 text-neutral-500 font-bold underline underline-offset-4 decoration-neutral-300 dark:text-white/80 text-left"
                     >
-                        Vehicle
+                        {{ t("historyTable.vehicle") }}
                     </TableHead>
 
-                    <!-- Center Aligned -->
                     <TableHead
                         class="px-6 text-neutral-500 font-bold underline underline-offset-4 decoration-neutral-300 text-center dark:text-white/80"
                     >
-                        Station
+                        {{ t("historyTable.station") }}
                     </TableHead>
 
-                    <!-- Right Aligned -->
                     <TableHead
                         class="px-6 text-neutral-500 font-bold underline underline-offset-4 decoration-neutral-300 text-right dark:text-white/80"
                     >
-                        Duration
+                        {{ t("historyTable.duration") }}
                     </TableHead>
                 </TableRow>
             </TableHeader>
@@ -112,7 +94,11 @@ const duration = (session: ChargingSession) => {
                     <TableCell
                         class="px-6 py-4 text-right text-neutral-800 dark:text-white/80 text-xs tabular-nums"
                     >
-                        {{ duration(session) }}
+                        {{
+                            session.duration === "active"
+                                ? "In Progress"
+                                : session.duration
+                        }}
                     </TableCell>
                 </TableRow>
             </TableBody>

@@ -1,40 +1,50 @@
 // stores/log.ts
 import { defineStore } from "pinia";
 
+interface PaginatedResponse<T> {
+  data: T[];
+  page: number;
+  limit: number;
+  total: number;
+  pages: number;
+}
+
 export const useLogStore = defineStore("log", () => {
   const logs = ref([]);
   const isLoaded = ref(false);
+  const currentPage = ref(1);
+  const totalPages = ref(1);
 
-  // ── Getters ──────────────────────────────────────────────────────────────
-
-  // ── Helpers ───────────────────────────────────────────────────────────────
-
-  // Call composables lazily inside actions, not at store setup time
   const token = () => useCookie("token").value;
   const apiBase = () => useRuntimeConfig().public.apiBaseUrl;
 
-  // ── Actions ───────────────────────────────────────────────────────────────
-
-  async function fetchLogs() {
+  async function fetchLogs(page = 1, limit = 50) {
     try {
-      const data = await $fetch<any[]>(`${apiBase()}/api/logs`, {
-        headers: { Authorization: `Bearer ${token()}` },
-      });
-      logs.value = data;
+      const data = await $fetch<PaginatedResponse<any>>(
+        `${apiBase()}/api/logs?page=${page}&limit=${limit}`,
+        {
+          headers: { Authorization: `Bearer ${token()}` },
+        },
+      );
+      logs.value = data.data;
+      currentPage.value = data.page;
+      totalPages.value = data.pages;
     } catch (e) {
       console.error("Failed to fetch logs:", e);
     }
   }
 
-  async function fetchStationLogs(id: string) {
+  async function fetchStationLogs(id: string, page = 1, limit = 50) {
     try {
-      const data = await $fetch<any[]>(
-        `${apiBase()}/api/logs?stationId=${id}`,
+      const data = await $fetch<PaginatedResponse<any>>(
+        `${apiBase()}/api/logs?stationId=${id}&page=${page}&limit=${limit}`,
         {
           headers: { Authorization: `Bearer ${token()}` },
         },
       );
-      logs.value = data;
+      logs.value = data.data;
+      currentPage.value = data.page;
+      totalPages.value = data.pages;
     } catch (e) {
       console.error("Failed to fetch station logs:", e);
     }
@@ -43,6 +53,8 @@ export const useLogStore = defineStore("log", () => {
   return {
     logs,
     isLoaded,
+    currentPage,
+    totalPages,
     fetchLogs,
     fetchStationLogs,
   };

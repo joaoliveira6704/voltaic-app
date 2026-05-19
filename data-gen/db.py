@@ -3,16 +3,50 @@ import os
 from datetime import datetime, timezone
 
 import pymongo
+from bson.objectid import ObjectId
 
 
 def get_db():
-    """Establish a connection to the MongoDB database and return the database object."""
     mongo_uri = os.environ.get(
         "MONGO_URI",
         "mongodb+srv://joaopedrooliveira6704_db_user:gmaJ9x86WYbA99Tj@voltaiccluster.vfngrdo.mongodb.net/?appName=voltaicCluster",
     )
     client = pymongo.MongoClient(mongo_uri)
     return client["voltaic-db"]
+
+
+def _convert_id(doc):
+    if doc and "_id" in doc:
+        doc["_id"] = str(doc["_id"])
+    return doc
+
+
+def get_groups(db):
+    return list(db.groups.find({}))
+
+
+def get_companies(db):
+    return list(db.companies.find({}))
+
+
+def get_users(db, role=None):
+    q = {"role": role} if role else {}
+    return list(db.users.find(q))
+
+
+def get_stations(db, limit=0):
+    cursor = db.stations.find({})
+    if limit:
+        cursor = cursor.limit(limit)
+    return list(cursor)
+
+
+def drop_collections(db, collections=None):
+    if collections is None:
+        collections = ["groups", "companies", "users", "stations", "tickets", "usages"]
+    for name in collections:
+        db[name].drop()
+        print(f"🗑️  Dropped collection '{name}'.")
 
 
 def insert_all(groups, companies, users, stations, tickets, usage):
@@ -33,7 +67,6 @@ def insert_all(groups, companies, users, stations, tickets, usage):
             dicts = []
             for obj in data_list:
                 d = obj.__dict__.copy()
-                # Auto-add if they don't exist in the class
                 if "createdAt" not in d:
                     d["createdAt"] = now
                 if "updatedAt" not in d:
@@ -41,11 +74,10 @@ def insert_all(groups, companies, users, stations, tickets, usage):
                 dicts.append(d)
 
             db[collection_name].insert_many(dicts)
-            print(f"✅ {collection_name}: Inserted with timestamps.")
+            print(f"✅ {collection_name}: Inserted {len(dicts)} documents.")
 
 
-def insert_ev_data(filepath: str = "data/open-ev-data.json"):
-    """Insert EV data from a JSON file into the database."""
+def insert_ev_data(filepath="data/open-ev-data.json"):
     db = get_db()
 
     if not os.path.exists(filepath):
@@ -61,5 +93,10 @@ def insert_ev_data(filepath: str = "data/open-ev-data.json"):
         print("No vehicles found in file.")
         return
 
+    existing = db.vehicles.count_documents({})
+    if existing:
+        print(f"⚠️  Vehicles collection already has {existing} documents. Skipping import.")
+        return
+
     result = db.vehicles.insert_many(vehicles)
-    print(f"Inserted {len(result.inserted_ids)} vehicles")
+    print(f"✅ Imported {len(result.inserted_ids)} vehicles.")

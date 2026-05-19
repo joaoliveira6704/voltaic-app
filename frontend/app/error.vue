@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { useError } from "#app";
 
+const { t } = useI18n();
 const error = useError();
 const router = useRouter();
 useHead({
-    title: "Voltaic - Not Found",
+    title: t("error.title"),
 });
 </script>
 
@@ -19,10 +20,10 @@ useHead({
 
             <div class="flex flex-col gap-2">
                 <h1 class="text-xl font-bold uppercase text-green-900">
-                    Page not found
+                    {{ t("error.notFound") }}
                 </h1>
                 <p class="text-sm text-gray-400 max-w-xs">
-                    The page you're looking for doesn't exist or has been moved.
+                    {{ t("error.description") }}
                 </p>
             </div>
 
@@ -30,7 +31,7 @@ useHead({
                 @click="router.back()"
                 class="uppercase text-xs font-bold hover:text-green-500"
             >
-                Go Back
+                {{ t("error.goBack") }}
             </Button>
         </div>
     </div>

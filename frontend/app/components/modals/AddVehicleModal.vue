@@ -89,8 +89,6 @@ const validate = () => {
         errs.push(t("modal.addVehicle.errors.plateRequired"));
     if (!selectedCatalogVehicle.value)
         errs.push(t("modal.addVehicle.errors.vehicleRequired"));
-    if (!form.value.color.trim())
-        errs.push(t("modal.addVehicle.errors.colorRequired"));
     return errs;
 };
 
@@ -196,7 +194,7 @@ function handleSearchInput() {
                                 type="button"
                                 class="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-300 hover:text-neutral-500 transition-colors"
                                 @click="resetForm"
-                                aria-label="Clear"
+                                :aria-label="t('modal.addVehicle.clear')"
                             >
                                 <X class="w-3.5 h-3.5" />
                             </button>
@@ -278,7 +276,9 @@ function handleSearchInput() {
                                 type="text"
                                 readonly
                                 class="h-8 rounded-none text-xs bg-neutral-50 dark:bg-[#171717] text-neutral-500 dark:text-white/50 select-none cursor-default"
-                                placeholder="—"
+                                :placeholder="
+                                    t('modal.addVehicle.notApplicable')
+                                "
                             />
                         </div>
 
@@ -294,7 +294,9 @@ function handleSearchInput() {
                                 type="text"
                                 readonly
                                 class="h-8 rounded-none text-xs bg-neutral-50 dark:bg-[#171717] text-neutral-500 dark:text-white/50 select-none cursor-default"
-                                placeholder="—"
+                                :placeholder="
+                                    t('modal.addVehicle.notApplicable')
+                                "
                             />
                         </div>
                     </div>
@@ -309,7 +311,7 @@ function handleSearchInput() {
                             type="text"
                             readonly
                             class="h-8 rounded-none text-xs bg-neutral-50 dark:bg-[#171717] text-neutral-500 dark:text-white/50 select-none cursor-default"
-                            placeholder="—"
+                            :placeholder="t('modal.addVehicle.notApplicable')"
                         />
                     </div>
                 </div>
@@ -325,7 +327,7 @@ function handleSearchInput() {
                     <Separator class="flex-1" />
                 </div>
 
-                <div class="grid grid-cols-2 gap-3">
+                <div class="grid grid-cols-1 gap-3">
                     <!-- Plate -->
                     <div class="flex flex-col gap-1.5">
                         <Label class="text-[10px] text-neutral-400 uppercase">
@@ -337,22 +339,6 @@ function handleSearchInput() {
                             class="h-8 rounded-none text-xs bg-neutral-50 dark:bg-[#171717]"
                             :placeholder="
                                 t('modal.addVehicle.platePlaceholder')
-                            "
-                            autocomplete="off"
-                        />
-                    </div>
-
-                    <!-- Color -->
-                    <div class="flex flex-col gap-1.5">
-                        <Label class="text-[10px] text-neutral-400 uppercase">
-                            {{ t("modal.addVehicle.color") }}
-                        </Label>
-                        <Input
-                            v-model="form.color"
-                            type="text"
-                            class="h-8 rounded-none text-xs bg-neutral-50 dark:bg-[#171717]"
-                            :placeholder="
-                                t('modal.addVehicle.colorPlaceholder')
                             "
                             autocomplete="off"
                         />
@@ -404,7 +390,7 @@ function handleSearchInput() {
                             type="button"
                             class="shrink-0 text-red-300 hover:text-red-500 transition-colors mt-px"
                             @click="dismissError(i)"
-                            aria-label="Dismiss"
+                            :aria-label="t('modal.addVehicle.dismiss')"
                         >
                             <X class="w-3 h-3" />
                         </button>

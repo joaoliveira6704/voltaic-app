@@ -7,7 +7,7 @@ const userStore = useUserStore();
 const isDark = useDark();
 onMounted(async () => {
     // Set the theme based on user preferences from the store
-    await userStore.fetchCurrentUser();
+    await userStore.fetchUserProfile();
     if (userStore.currentUser?.preferences?.darkMode !== undefined) {
         isDark.value = userStore.currentUser.preferences.darkMode;
     }

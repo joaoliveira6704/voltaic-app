@@ -2,38 +2,77 @@
 import { defineStore } from "pinia";
 import Swal from "sweetalert2";
 import { toast } from "vue-sonner";
+import type { Station } from "~/types/station";
+
+interface PaginatedResponse<T> {
+  data: T[];
+  page: number;
+  limit: number;
+  total: number;
+  pages: number;
+}
 
 export const useStationStore = defineStore("station", () => {
-  const stations = ref([]);
+  const stations = shallowRef([]);
+  const companyStations = shallowRef([]);
   const currentStation = ref(null);
   const isLoaded = ref(false);
-
-  // ── Getters ──────────────────────────────────────────────────────────────
-
-  function getCompanyStations(groupIds: string[]) {
-    return stations.value.filter((s) => groupIds.includes(s.groupId));
-  }
+  const currentPage = ref(1);
+  const totalPages = ref(1);
+  const dashboardStats = ref(null);
 
   // ── Helpers ───────────────────────────────────────────────────────────────
 
-  // Call composables lazily inside actions, not at store setup time
-  const token = () => useCookie("token").value;
-  const apiBase = () => useRuntimeConfig().public.apiBaseUrl;
+  const token = useCookie("token");
+  const apiBaseUrl = useRuntimeConfig().public.apiBaseUrl;
 
   // ── Actions ───────────────────────────────────────────────────────────────
 
-  async function fetchStations() {
+  async function fetchStations(page = 1, limit = 20) {
     try {
-      const data = await $fetch<any[]>(`${apiBase()}/api/stations`, {
-        headers: { Authorization: `Bearer ${token()}` },
-      });
-      stations.value = data;
+      const data = await $fetch<PaginatedResponse<Station>>(
+        `${apiBaseUrl}/api/stations?page=${page}&limit=${limit}`,
+        {
+          headers: { Authorization: `Bearer ${token.value}` },
+        },
+      );
+      stations.value = data.data;
+      currentPage.value = data.page;
+      totalPages.value = data.pages;
     } catch (e) {
       console.error("Failed to fetch stations:", e);
     }
   }
 
-  async function createStation(station: any) {
+  async function fetchDashboardStats() {
+    try {
+      const data = await $fetch<any>(
+        `${apiBaseUrl}/api/stations?view=dashboard`,
+        {
+          headers: { Authorization: `Bearer ${token.value}` },
+        },
+      );
+      dashboardStats.value = data;
+    } catch (e) {
+      console.error("Failed to fetch station dashboard stats:", e);
+    }
+  }
+
+  async function fetchCompanyStations() {
+    try {
+      const data = await $fetch<Station[]>(
+        `${apiBaseUrl}/api/users/me/company/stations`,
+        {
+          headers: { Authorization: `Bearer ${token.value}` },
+        },
+      );
+      companyStations.value = data;
+    } catch (e) {
+      console.error("Failed to fetch company stations:", e);
+    }
+  }
+
+  async function createStation(station: Station) {
     const telemetry = {
       temperature: 0,
       amperage: 0,
@@ -47,14 +86,14 @@ export const useStationStore = defineStore("station", () => {
         telemetry,
       };
 
-      const response = await $fetch<any>(`${apiBase()}/api/stations`, {
+      const response = await $fetch<any>(`${apiBaseUrl}/api/stations`, {
         method: "POST",
-        headers: { Authorization: `Bearer ${token()}` },
+        headers: { Authorization: `Bearer ${token.value}` },
         body: payload,
       });
 
       // Use the response from the server which contains the real DB object
-      stations.value.push(response);
+      stations.value = [...stations.value, response];
       toast.success("Station added successfully");
       return response;
     } catch (e) {
@@ -84,9 +123,9 @@ export const useStationStore = defineStore("station", () => {
     if (!confirmed.isConfirmed) return;
 
     try {
-      await $fetch<any>(`${apiBase()}/api/stations/${stationId}`, {
+      await $fetch<any>(`${apiBaseUrl}/api/stations/${stationId}`, {
         method: "DELETE",
-        headers: { Authorization: `Bearer ${token()}` },
+        headers: { Authorization: `Bearer ${token.value}` },
       });
 
       stations.value = stations.value.filter((s) => s.stationId !== stationId);
@@ -101,17 +140,18 @@ export const useStationStore = defineStore("station", () => {
   async function fetchNearbyStations(
     lat: number,
     lng: number,
-    distanceKm: number = 10, // ── Default search radius in kilometers ──────────
+    distanceKm: number = 10,
   ) {
     try {
-      const data = await $fetch<{
-        success: boolean;
-        count: number;
-        data: any[];
-      }>(`${apiBase()}/api/stations/radius/${lat}/${lng}/${distanceKm}`, {
-        headers: { Authorization: `Bearer ${token()}` },
-      });
+      const data = await $fetch<PaginatedResponse<Station>>(
+        `${apiBaseUrl}/api/stations?near=${lat},${lng}&maxDistance=${distanceKm}`,
+        {
+          headers: { Authorization: `Bearer ${token.value}` },
+        },
+      );
       stations.value = data.data;
+      currentPage.value = data.page;
+      totalPages.value = data.pages;
     } catch (e) {
       console.error("Failed to fetch nearby stations:", e);
     }
@@ -121,9 +161,9 @@ export const useStationStore = defineStore("station", () => {
     if (station.state === "unavailable") return;
 
     try {
-      const res = await $fetch<any>(`${apiBase()}/api/usage/start`, {
+      const res = await $fetch<any>(`${apiBaseUrl}/api/usages`, {
         method: "POST",
-        headers: { Authorization: `Bearer ${token()}` },
+        headers: { Authorization: `Bearer ${token.value}` },
         body: { stationId: station.stationId, plate: plate },
       });
       console.log(res);
@@ -141,9 +181,9 @@ export const useStationStore = defineStore("station", () => {
 
   async function stopCharge(usageId: string, stationId: string) {
     try {
-      const res = await $fetch<any>(`${apiBase()}/api/usage/${usageId}/end`, {
+      const res = await $fetch<any>(`${apiBaseUrl}/api/usages/${usageId}`, {
         method: "PATCH",
-        headers: { Authorization: `Bearer ${token()}` },
+        headers: { Authorization: `Bearer ${token.value}` },
       });
       console.log(res);
 
@@ -159,8 +199,8 @@ export const useStationStore = defineStore("station", () => {
 
   async function fetchStationById(id: string) {
     try {
-      const res = await $fetch<any>(`${apiBase()}/api/stations/${id}`, {
-        headers: { Authorization: `Bearer ${token()}` },
+      const res = await $fetch<any>(`${apiBaseUrl}/api/stations/${id}`, {
+        headers: { Authorization: `Bearer ${token.value}` },
       });
       currentStation.value = res;
       isLoaded.value = true;
@@ -172,11 +212,14 @@ export const useStationStore = defineStore("station", () => {
 
   async function executeCommand(id: string, command: string) {
     try {
-      const res = await $fetch<any>(`${apiBase()}/api/stations/${id}/execute`, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token()}` },
-        body: { command },
-      });
+      const res = await $fetch<any>(
+        `${apiBaseUrl}/api/stations/${id}/commands`,
+        {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token.value}` },
+          body: { command },
+        },
+      );
       console.log(res);
       toast.success("Command executed successfully");
     } catch (e) {
@@ -187,12 +230,17 @@ export const useStationStore = defineStore("station", () => {
 
   return {
     stations,
+    companyStations,
     isLoaded,
+    currentPage,
+    totalPages,
+    dashboardStats,
     fetchStations,
+    fetchDashboardStats,
+    fetchCompanyStations,
     fetchNearbyStations,
     createStation,
     deleteStation,
-    getCompanyStations,
     startCharge,
     stopCharge,
     fetchStationById,

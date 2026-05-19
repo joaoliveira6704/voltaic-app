@@ -151,7 +151,7 @@ const handleOpenChange = (open) => {
                             v-model="form.firstName"
                             type="text"
                             class="h-8 rounded-none text-xs bg-neutral-50 dark:bg-[#171717] dark:border-[#232323] dark:text-white/80 dark:placeholder-white/30"
-                            placeholder="First name"
+                            :placeholder="t('modal.addUser.firstNamePlaceholder')"
                             autocomplete="given-name"
                         />
                     </div>
@@ -165,7 +165,7 @@ const handleOpenChange = (open) => {
                             v-model="form.lastName"
                             type="text"
                             class="h-8 rounded-none text-xs bg-neutral-50 dark:bg-[#171717] dark:border-[#232323] dark:text-white/80 dark:placeholder-white/30"
-                            placeholder="Last name"
+                            :placeholder="t('modal.addUser.lastNamePlaceholder')"
                             autocomplete="family-name"
                         />
                     </div>
@@ -187,7 +187,7 @@ const handleOpenChange = (open) => {
                             v-model="form.username"
                             type="text"
                             class="h-8 rounded-none text-xs bg-neutral-50 dark:bg-[#171717] dark:border-[#232323] dark:text-white/80 dark:placeholder-white/30 pl-6"
-                            placeholder="username"
+                            :placeholder="t('modal.addUser.usernamePlaceholder')"
                             autocomplete="username"
                         />
                     </div>
@@ -204,7 +204,7 @@ const handleOpenChange = (open) => {
                         v-model="form.email"
                         type="email"
                         class="h-8 rounded-none text-xs bg-neutral-50 dark:bg-[#171717] dark:border-[#232323] dark:text-white/80 dark:placeholder-white/30"
-                        placeholder="email@example.com"
+                        :placeholder="t('modal.addUser.emailPlaceholder')"
                         autocomplete="email"
                     />
                 </div>
@@ -288,7 +288,7 @@ const handleOpenChange = (open) => {
                             type="button"
                             class="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-700 dark:hover:text-white/80 transition-colors"
                             @click="showPassword = !showPassword"
-                            :aria-label="showPassword ? 'Hide' : 'Show'"
+                            :aria-label="showPassword ? t('modal.addUser.hidePassword') : t('modal.addUser.showPassword')"
                         >
                             <Eye v-if="!showPassword" class="w-3.5 h-3.5" />
                             <EyeOff v-else class="w-3.5 h-3.5" />
@@ -357,7 +357,7 @@ const handleOpenChange = (open) => {
                             type="button"
                             class="shrink-0 text-red-300 hover:text-red-500 transition-colors mt-px"
                             @click="dismissError(i)"
-                            aria-label="Dismiss"
+                            :aria-label="t('modal.addUser.dismiss')"
                         >
                             <X class="w-3 h-3" />
                         </button>

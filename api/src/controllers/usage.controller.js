@@ -1,104 +1,83 @@
 import usageModel from "../models/usage.model.js";
 import stationModel from "../models/station.model.js";
 import generateUniqueId from "../utils/utils.js";
-import mongoose from "mongoose";
+import { paginate, paginateAggregate } from "../utils/paginate.js";
 
 // POST /usages/start
 export const startUsage = async (req, res, next) => {
-  const session = await mongoose.startSession();
-  session.startTransaction();
   try {
     const { stationId, plate } = req.body;
-    const userId = req.user.userId;
+    const userId = req.user?.userId;
 
     if (!stationId || !plate) {
       const error = new Error("stationId and plate are required");
       error.status = 400;
-      await session.abortTransaction();
       return next(error);
     }
 
-    const station = await stationModel.findOne({ stationId }).session(session);
+    // Atomically claim the station only if it's currently available
+    const station = await stationModel.findOneAndUpdate(
+      { stationId, state: "available" },
+      { state: "unavailable" },
+      { new: true },
+    );
+
     if (!station) {
-      const error = new Error("Station not found");
-      error.status = 404;
-      await session.abortTransaction();
-      return next(error);
-    }
-    if (station.state !== "available") {
-      const error = new Error("Station is not available");
-      error.status = 400;
-      await session.abortTransaction();
+      // Pinpoint if it's missing or just busy without an extra read
+      const exists = await stationModel.exists({ stationId });
+      const error = exists
+        ? new Error("Station is not available")
+        : new Error("Station not found");
+      error.status = exists ? 400 : 404;
       return next(error);
     }
 
     const usageId = generateUniqueId();
-    const [usage] = await usageModel.create(
-      [{ usageId, userId, stationId, plate }],
-      { session },
-    );
+    const [usage] = await usageModel.create([
+      { usageId, userId, stationId, plate, state: "active" },
+    ]);
 
-    await stationModel.findOneAndUpdate(
-      { stationId },
-      { state: "unavailable" },
-      { session },
-    );
-
-    await session.commitTransaction();
     res.status(201).json(usage);
   } catch (error) {
-    await session.abortTransaction();
     next(error);
-  } finally {
-    session.endSession();
   }
 };
 
 // PATCH /usages/:id/end
 export const endUsage = async (req, res, next) => {
-  const session = await mongoose.startSession();
-  session.startTransaction();
   try {
-    const usage = await usageModel
-      .findOne({ usageId: req.params.id })
-      .session(session);
+    // Atomically complete the usage only if it's not already completed
+    const usage = await usageModel.findOneAndUpdate(
+      { usageId: req.params.id, state: { $ne: "completed" } },
+      { state: "completed", endTime: new Date() },
+      { new: true },
+    );
+
     if (!usage) {
-      const error = new Error("Usage not found");
-      error.status = 404;
-      await session.abortTransaction();
-      return next(error);
-    }
-    if (usage.state === "completed") {
-      const error = new Error("Usage already completed");
-      error.status = 400;
-      await session.abortTransaction();
+      const exists = await usageModel.exists({ usageId: req.params.id });
+      const error = exists
+        ? new Error("Usage already completed")
+        : new Error("Usage not found");
+      error.status = exists ? 400 : 404;
       return next(error);
     }
 
-    usage.endTime = new Date();
-    usage.state = "completed";
-    await usage.save({ session });
-
+    // Free up the station
     await stationModel.findOneAndUpdate(
       { stationId: usage.stationId },
       { state: "available" },
-      { session },
     );
 
-    await session.commitTransaction();
     res.status(200).json(usage);
   } catch (error) {
-    await session.abortTransaction();
     next(error);
-  } finally {
-    session.endSession();
   }
 };
 
 // GET /usages/:id
 export const getUsage = async (req, res, next) => {
   try {
-    const usage = await usageModel.findOne({ usageId: req.params.id });
+    const usage = await usageModel.findOne({ usageId: req.params.id }).lean();
     if (!usage) {
       const error = new Error("Usage not found");
       error.status = 404;
@@ -110,90 +89,142 @@ export const getUsage = async (req, res, next) => {
   }
 };
 
-// GET /usages/user/me
-export const getUserUsages = async (req, res, next) => {
+// GET /usages
+export const getUsages = async (req, res, next) => {
   try {
-    console.log("Finding Usages");
-    const usages = await usageModel.aggregate([
-      {
-        $lookup: {
-          from: "stations",
-          localField: "stationId",
-          foreignField: "stationId",
-          as: "stationDetails",
-        },
-      },
-      {
-        $addFields: {
-          // Get the first element of the lookup array, or null
-          stationObj: { $arrayElemAt: ["$stationDetails", 0] },
-        },
-      },
-      {
-        $project: {
-          endTime: 1,
-          usageId: 1,
-          userId: 1,
-          plate: 1,
-          state: 1,
-          createdAt: 1,
-          // If stationObj.name is null/missing, return "Unknown"
-          stationName: { $ifNull: ["$stationObj.title", "Unknown"] },
-        },
-      },
-      { $sort: { createdAt: -1 } },
-    ]);
+    const { userId, active } = req.query;
 
-    res.status(200).json(usages);
+    if (userId && userId === req.user?.userId) {
+      const matchQuery = active ? { userId, endTime: null } : { userId };
+      const pipeline = buildUsagePipeline(matchQuery);
+      const result = await paginateAggregate(usageModel, pipeline, {
+        page: req.query.page,
+        limit: req.query.limit,
+      });
+      return res.json(result);
+    }
+
+    const err = new Error("Invalid user");
+    err.status = 403;
+    return next(err);
   } catch (error) {
     next(error);
   }
 };
 
-// GET /usages/user/me/active
+// GET /users/me/usages
 export const getActiveUserUsages = async (req, res, next) => {
   try {
-    console.log("Finding Usages");
-    const usages = await usageModel
-      .find({ userId: req.user.userId, endTime: null })
-      .sort({ createdAt: -1 });
-    res.status(200).json(usages);
+    const result = await paginate(
+      usageModel,
+      { userId: req.user.userId, endTime: null },
+      { page: req.query.page, limit: req.query.limit, sort: { createdAt: -1 } },
+    );
+    res.json(result);
   } catch (error) {
     next(error);
   }
 };
 
-// GET /usages/station/:stationId
+// GET /stations/:stationId/usages
 export const getStationUsages = async (req, res, next) => {
   try {
-    const usages = await usageModel
-      .find({ stationId: req.params.stationId })
-      .sort({ createdAt: -1 });
-    res.status(200).json(usages);
+    const result = await paginate(
+      usageModel,
+      { stationId: req.params.stationId },
+      { page: req.query.page, limit: req.query.limit, sort: { createdAt: -1 } },
+    );
+    res.json(result);
   } catch (error) {
     next(error);
   }
 };
 
-// GET /usages/active  (admin)
+// GET /usages/active (admin)
 export const getActiveUsages = async (req, res, next) => {
   try {
-    const usages = await usageModel
-      .find({ state: "active" })
-      .sort({ createdAt: -1 });
-
-    res.status(200).json(usages);
+    const result = await paginate(
+      usageModel,
+      { state: "active" },
+      { page: req.query.page, limit: req.query.limit, sort: { createdAt: -1 } },
+    );
+    res.json(result);
   } catch (error) {
     next(error);
   }
 };
 
-// GET /usages  (admin)
-export const getAllUsages = async (req, res, next) => {
-  try {
-    const usages = await usageModel.find().sort({ createdAt: -1 });
-    res.status(200).json(usages);
-  } catch (error) {
-    next(error);
-  }
-};
+// Usage aggregation pipeline builder
+const buildUsagePipeline = (matchQuery) => [
+  { $match: matchQuery },
+  {
+    $lookup: {
+      from: "stations",
+      localField: "stationId",
+      foreignField: "stationId",
+      as: "stationDetails",
+    },
+  },
+  {
+    $addFields: {
+      stationObj: { $arrayElemAt: ["$stationDetails", 0] },
+      duration: {
+        $cond: {
+          if: { $eq: ["$state", "completed"] },
+          then: {
+            $let: {
+              vars: {
+                totalMinutes: {
+                  $floor: {
+                    $divide: [
+                      { $subtract: ["$endTime", "$createdAt"] },
+                      60000,
+                    ],
+                  },
+                },
+              },
+              in: {
+                $let: {
+                  vars: {
+                    hours: { $floor: { $divide: ["$$totalMinutes", 60] } },
+                    minutes: { $mod: ["$$totalMinutes", 60] },
+                  },
+                  in: {
+                    $cond: {
+                      if: { $eq: ["$$hours", 0] },
+                      then: { $concat: [{ $toString: "$$minutes" }, "m"] },
+                      else: {
+                        $concat: [
+                          { $toString: "$$hours" },
+                          "h ",
+                          { $toString: "$$minutes" },
+                          "m",
+                        ],
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          else: "$state",
+        },
+      },
+    },
+  },
+  {
+    $project: {
+      usageId: 1,
+      userId: 1,
+      plate: 1,
+      createdAt: 1,
+      duration: 1,
+      state: 1,
+      endTime: 1,
+      stationId: 1,
+      _id: 0,
+      stationName: { $ifNull: ["$stationObj.title", "Unknown"] },
+    },
+  },
+  { $sort: { createdAt: -1 } },
+];

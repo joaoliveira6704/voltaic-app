@@ -1,21 +1,13 @@
 import logModel from "../models/log.model.js";
 import generateUniqueId from "../utils/utils.js";
+import { paginate } from "../utils/paginate.js";
 
 export const getLogs = async (req, res, next) => {
-  const { stationId } = req.query;
-  if (stationId) {
-    try {
-      const logs = await logModel.find({ stationId });
-      console.log(`Found ${logs.length} logs for station ${stationId}.`);
-      res.json(logs);
-    } catch (error) {
-      next(error);
-    }
-  }
   try {
-    const logs = await logModel.find();
-    console.log(`Found ${logs.length} logs in the database.`);
-    res.json(logs);
+    const { stationId } = req.query;
+    const filter = stationId ? { stationId } : {};
+    const result = await paginate(logModel, filter, { page: req.query.page, limit: req.query.limit, sort: { createdAt: -1 } });
+    res.json(result);
   } catch (error) {
     next(error);
   }
@@ -40,7 +32,7 @@ export const createLog = async (req, res, next) => {
 export const deleteLog = async (req, res, next) => {
   try {
     const deletedLog = await logModel.findOneAndDelete({
-      userId: req.params.id,
+      _id: req.params.id,
     });
     if (!deletedLog) {
       const err = new Error("Log not found");

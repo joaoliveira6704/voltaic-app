@@ -1,6 +1,9 @@
 <!-- components/Admin/TicketDonut.vue -->
 <script setup>
+import { useI18n } from "vue-i18n";
 import { onMounted, onUnmounted, ref, watch } from "vue";
+
+const { t } = useI18n();
 import {
     Chart,
     ArcElement,
@@ -28,7 +31,7 @@ function buildChart() {
     chart = new Chart(canvas.value, {
         type: "doughnut",
         data: {
-            labels: ["Open", "Closed"],
+            labels: [t("chart.ticketDonut.open"), t("chart.ticketDonut.closed")],
             datasets: [
                 {
                     data: data.value,
@@ -71,7 +74,7 @@ watch(data, (val) => {
             <canvas
                 ref="canvas"
                 role="img"
-                aria-label="Ticket status donut chart"
+                :aria-label="t('chart.ticketDonut.ariaLabel')"
             />
         </div>
         <div class="flex justify-center gap-4 text-xs text-muted-foreground">
@@ -80,7 +83,7 @@ watch(data, (val) => {
                     class="w-2.5 h-2.5 rounded-sm inline-block"
                     style="background: #185fa5"
                 />
-                Open: {{ open }}
+                {{ t("chart.ticketDonut.legendOpen") }} {{ open }}
             </span>
 
             <span class="flex items-center gap-1.5">
@@ -88,7 +91,7 @@ watch(data, (val) => {
                     class="w-2.5 h-2.5 rounded-sm inline-block"
                     style="background: #3b6d11"
                 />
-                Closed: {{ closed }}
+                {{ t("chart.ticketDonut.legendClosed") }} {{ closed }}
             </span>
         </div>
     </div>

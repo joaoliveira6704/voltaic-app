@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { type NavItem } from "@/utils/navigation"; // Reusing your NavItem definition
+import { type NavItem } from "@/utils/navigation";
+
+const { t } = useI18n();
 
 interface TicketData {
     id: number;
@@ -28,7 +30,7 @@ const props = defineProps<Props>();
         <div class="flex flex-col items-start gap-2">
             <div v-if="data.station" class="flex flex-row gap-1 items-center">
                 <span class="text-xs font-bold text-neutral-600 uppercase">
-                    Station:
+                    {{ t("ticketCard.station") }}
                 </span>
                 <span class="text-sm font-bold text-neutral-800">
                     {{ data.station }}
@@ -36,7 +38,7 @@ const props = defineProps<Props>();
             </div>
             <div v-if="data.desc" class="flex flex-row gap-1 items-center">
                 <span class="text-xs font-bold text-neutral-600 uppercase">
-                    Desc:
+                    {{ t("ticketCard.desc") }}
                 </span>
                 <span class="text-sm font-bold text-neutral-800">
                     {{ data.desc }}
@@ -44,7 +46,7 @@ const props = defineProps<Props>();
             </div>
             <div class="flex flex-row gap-1 items-center">
                 <span class="text-xs font-bold text-neutral-600 uppercase">
-                    State:
+                    {{ t("ticketCard.state") }}
                 </span>
                 <span class="text-sm font-bold text-neutral-800">
                     {{ data.state }}

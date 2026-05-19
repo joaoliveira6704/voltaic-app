@@ -7,18 +7,7 @@ export const useTheme = () => {
 
     const toggle = async () => {
         const next = !isDark.value;
-        console.log(
-            "toggling to",
-            next,
-            "current colorMode:",
-            colorMode.preference,
-        );
         colorMode.preference = next ? "dark" : "light";
-        console.log(
-            "colorMode after set:",
-            colorMode.preference,
-            colorMode.value,
-        );
         if (currentUser.value) {
             await userStore.editUserProfile({
                 preferences: { darkMode: next },

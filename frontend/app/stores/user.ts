@@ -3,6 +3,15 @@ import { useColorMode } from "@vueuse/core";
 import { toast } from "vue-sonner";
 import { defineStore } from "pinia";
 import Swal from "sweetalert2";
+import type { Usage } from "~/types/usage";
+
+interface PaginatedResponse<T> {
+  data: T[];
+  page: number;
+  limit: number;
+  total: number;
+  pages: number;
+}
 
 interface User {
   userId: string;
@@ -13,10 +22,10 @@ interface User {
   password?: string;
   currentPassword?: string;
   newPassword?: string;
+  companyName?: string;
   role: "client" | "worker" | "company-manager" | "admin";
   vehicles?: Vehicle[];
-  assignedTickets?: any[];
-  tickets?: any[];
+  chargingHistory?: Usage[];
   preferences?: Preferences;
 }
 
@@ -38,7 +47,11 @@ export const useUserStore = defineStore("user", () => {
   const users = ref<User[]>([]);
   const currentUser = ref<User | null>(null);
   const isLoaded = ref(false);
+  const currentPage = ref(1);
+  const totalPages = ref(1);
   const chargingHistory = ref<any[] | null>(null);
+  const favoriteStations = ref<any[]>([]);
+  const dashboardStats = ref(null);
   const colorMode = useColorMode();
   const { setLocale, setLocaleCookie } = useI18n();
 
@@ -69,12 +82,26 @@ export const useUserStore = defineStore("user", () => {
 
   // ── Actions ───────────────────────────────────────────────────────────────
 
-  async function fetchUsers() {
+  async function fetchUsers(
+    page = 1,
+    limit = 20,
+    params: Record<string, string> = {},
+  ) {
     try {
-      const data = await $fetch<User[]>(`${apiBase()}/api/users`, {
-        headers: { Authorization: `Bearer ${token()}` },
+      const query = new URLSearchParams({
+        page: String(page),
+        limit: String(limit),
+        ...params,
       });
-      users.value = data;
+      const data = await $fetch<PaginatedResponse<User>>(
+        `${apiBase()}/api/users?${query}`,
+        {
+          headers: { Authorization: `Bearer ${token()}` },
+        },
+      );
+      users.value = data.data;
+      currentPage.value = data.page;
+      totalPages.value = data.pages;
     } catch (e) {
       console.error("Failed to fetch users:", e);
     }
@@ -82,7 +109,7 @@ export const useUserStore = defineStore("user", () => {
 
   async function createUser(user: User) {
     try {
-      await $fetch(`${apiBase()}/api/auth/register`, {
+      await $fetch(`${apiBase()}/api/users`, {
         method: "POST",
         body: user,
       });
@@ -138,6 +165,20 @@ export const useUserStore = defineStore("user", () => {
     }
   }
 
+  async function fetchDashboardStats() {
+    try {
+      const data = await $fetch<{ total: number }>(
+        `${apiBase()}/api/users?view=dashboard`,
+        {
+          headers: { Authorization: `Bearer ${token()}` },
+        },
+      );
+      dashboardStats.value = data;
+    } catch (e) {
+      console.error("Failed to fetch user dashboard stats:", e);
+    }
+  }
+
   async function fetchCurrentUser() {
     try {
       const data = await $fetch<User>(`${apiBase()}/api/users/me`, {
@@ -176,25 +217,60 @@ export const useUserStore = defineStore("user", () => {
       }
     >,
   ) {
-    await $fetch(`${apiBase()}/api/users/me`, {
-      method: "PATCH",
-      headers: {
-        Authorization: `Bearer ${token()}`,
-        "Content-Type": "application/json",
-      },
-      body: changes,
-    });
+    try {
+      await $fetch(`${apiBase()}/api/users/me`, {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${token()}`,
+          "Content-Type": "application/json",
+        },
+        body: changes,
+      });
 
-    if (changes.preferences?.language) {
-      await setLocale(changes.preferences.language);
+      if (changes.preferences && currentUser.value) {
+        currentUser.value.preferences = changes.preferences;
+      } else {
+        fetchUserProfile();
+      }
+
+      if (changes.preferences?.language) {
+        await setLocale(changes.preferences.language);
+      }
+
+      toast.success("Changes Applied Successfully");
+    } catch (e) {
+      toast.error("Error Applying Changes: " + e);
     }
+  }
 
-    await fetchCurrentUser();
+  async function fetchUserProfile() {
+    isLoaded.value = false;
+    try {
+      const data = await $fetch<User>(
+        `${apiBase()}/api/users/me?profile=true`,
+        {
+          headers: { Authorization: `Bearer ${token()}` },
+        },
+      );
+      currentUser.value = data;
+      console.log(data);
+
+      colorMode.preference = data.preferences?.darkMode ? "dark" : "light";
+
+      if (data.preferences?.language) {
+        await setLocale(data.preferences.language);
+        await setLocaleCookie(data.preferences.language);
+      }
+    } catch (e) {
+      toast.error("Failed to fetch profile");
+    } finally {
+      isLoaded.value = true;
+    }
   }
 
   async function editUser(userId: string, payload: Partial<User>) {
     try {
-      await $fetch(`${apiBase()}/api/users/${userId}`, {
+      const res = await $fetch(`${apiBase()}/api/users/${userId}`, {
         method: "PATCH",
         headers: {
           Authorization: `Bearer ${token()}`,
@@ -205,7 +281,6 @@ export const useUserStore = defineStore("user", () => {
       toast.success("User updated", {
         description: "User updated successfully.",
       });
-      await fetchUsers();
     } catch (e) {
       toast.error("Failed to edit user", {
         description: `There was an error editing the user: ${e}`,
@@ -245,13 +320,17 @@ export const useUserStore = defineStore("user", () => {
     }
   }
 
-  async function fetchChargingHistory() {
+  async function fetchChargingHistory(page = 1, limit = 20) {
     const userId = currentUser.value?.userId;
     if (!userId) return;
     try {
-      chargingHistory.value = await $fetch(`${apiBase()}/api/usage/user/me`, {
-        headers: { Authorization: `Bearer ${token()}` },
-      });
+      const data = await $fetch<PaginatedResponse<any>>(
+        `${apiBase()}/api/usages?userId=${userId}&page=${page}&limit=${limit}`,
+        {
+          headers: { Authorization: `Bearer ${token()}` },
+        },
+      );
+      chargingHistory.value = data.data;
     } catch (e) {
       console.error("Failed to fetch charging history:", e);
       chargingHistory.value = [];
@@ -293,19 +372,19 @@ export const useUserStore = defineStore("user", () => {
       toast.success("Vehicle deleted", {
         description: `Vehicle with plate:${plate} has been deleted successfully.`,
       });
+      currentUser.value.vehicles = updatedList;
     } catch (e) {
       console.error("Failed to sync deletion:", e);
       toast.error("Failed to delete vehicle", {
         description: `Vehicle with plate:${plate} could not be deleted.`,
       });
-      await fetchCurrentUser();
     }
   }
 
   async function addVehicle(vehicle: Vehicle) {
     console.log("adding vehicle: ", vehicle);
     if (!currentUser.value) return;
-
+    let updatedList;
     try {
       await $fetch(`${apiBase()}/api/users/me/vehicles`, {
         method: "POST",
@@ -313,7 +392,7 @@ export const useUserStore = defineStore("user", () => {
         body: { ...vehicle },
       });
 
-      const updatedList = [...(currentUser.value.vehicles ?? []), vehicle];
+      updatedList = [...(currentUser.value.vehicles ?? []), vehicle];
 
       // Optimistic update
       currentUser.value = { ...currentUser.value, vehicles: updatedList };
@@ -326,7 +405,7 @@ export const useUserStore = defineStore("user", () => {
       toast.error("Failed to add vehicle", {
         description: `There was an error adding the vehicle.`,
       });
-      await fetchCurrentUser();
+      currentUser.value.vehicles = updatedList;
       throw e; // re-throw so the modal can surface the error
     }
   }
@@ -370,6 +449,18 @@ export const useUserStore = defineStore("user", () => {
     }
   }
 
+  async function fetchFavoriteStations() {
+    try {
+      const data = await $fetch<any[]>(
+        `${apiBase()}/api/users/me/favorites/stations`,
+        { headers: { Authorization: `Bearer ${token()}` } },
+      );
+      favoriteStations.value = data;
+    } catch (e) {
+      console.error("Failed to fetch favorite stations:", e);
+    }
+  }
+
   async function confirmLogout() {
     const result = await Swal.fire({
       title: "Confirm Logout",
@@ -402,10 +493,14 @@ export const useUserStore = defineStore("user", () => {
   return {
     currentUser,
     isLoaded,
+    dashboardStats,
     chargingHistory,
     userRole,
+    currentPage,
+    totalPages,
     displayItems,
     fetchCurrentUser,
+    fetchDashboardStats,
     fetchChargingHistory,
     deleteVehicle,
     confirmLogout,
@@ -420,5 +515,8 @@ export const useUserStore = defineStore("user", () => {
     editUserRole,
     addFavorite,
     removeFavorite,
+    favoriteStations,
+    fetchUserProfile,
+    fetchFavoriteStations,
   };
 });

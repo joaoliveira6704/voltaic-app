@@ -4,6 +4,7 @@ const ticketSchema = new mongoose.Schema(
   {
     ticketId: { type: String, required: true, unique: true, trim: true },
     stationId: { type: String, ref: "Station" },
+    companyId: { type: String, ref: "Company" },
     createdBy: { type: String, ref: "User" },
     title: {
       type: String,
@@ -15,7 +16,6 @@ const ticketSchema = new mongoose.Schema(
     },
     remarks: {
       type: String,
-      required: false,
     },
     status: {
       type: String,
@@ -25,7 +25,6 @@ const ticketSchema = new mongoose.Schema(
     },
     closedAt: {
       type: Date,
-      required: false,
     },
   },
   {

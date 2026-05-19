@@ -1,6 +1,5 @@
-<script setup>
-import { ref, watch } from "vue";
-import { Loader, X, Wrench, User, FileText } from "lucide-vue-next";
+<script setup lang="ts">
+import { Loader, X, Wrench } from "lucide-vue-next";
 import {
     Dialog,
     DialogContent,
@@ -19,18 +18,21 @@ import {
     SelectValue,
 } from "~/components/ui/select";
 
-const props = defineProps({
-    isOpen: { type: Boolean, default: false },
-    stationId: { type: String, required: true },
-});
+const props = defineProps<{
+    isOpen: boolean;
+    stationId?: string;
+}>();
 
-const emit = defineEmits(["close", "created"]);
+const emit = defineEmits<{
+    (e: "close" | "created"): void;
+}>();
 
 const ticketStore = useTicketStore();
-const userStore = useUserStore();
+
+const { t } = useI18n();
 
 const isSubmitting = ref(false);
-const errors = ref([]);
+const errors = ref<string[]>([]);
 
 const form = ref({
     title: "",
@@ -44,7 +46,7 @@ const resetForm = () => {
         title: "",
         description: "",
         remarks: "",
-        status: "resolved",
+        status: "open",
     };
     errors.value = [];
 };
@@ -57,9 +59,9 @@ watch(
 );
 
 const validate = () => {
-    const errs = [];
-    if (!form.value.title.trim()) errs.push("Title is required");
-    if (!form.value.description.trim()) errs.push("Description is required");
+    const errs: string[] = [];
+    if (!form.value.title.trim()) errs.push(t("modal.registerIntervention.errors.titleRequired"));
+    if (!form.value.description.trim()) errs.push(t("modal.registerIntervention.errors.descriptionRequired"));
     return errs;
 };
 
@@ -73,21 +75,19 @@ const handleCreate = async () => {
 
     isSubmitting.value = true;
     try {
-        const payload = {
-            ticketId: crypto.randomUUID(),
-            stationId: props.stationId,
-            createdBy: userStore.currentUser?.id,
+        const payload: Record<string, string> = {
             title: form.value.title,
             description: form.value.description,
-            remarks: form.value.remarks || undefined,
             status: form.value.status,
         };
+        if (form.value.remarks) payload.remarks = form.value.remarks;
+        if (props.stationId) payload.stationId = props.stationId;
 
-        const newTicket = await ticketStore.createTicket(payload);
-        emit("created", newTicket);
+        await ticketStore.createTicket(payload);
+        emit("created");
         emit("close");
     } catch (e) {
-        errors.value = [e?.data?.message || "Failed to create ticket"];
+        errors.value = [e?.data?.message || t("modal.registerIntervention.errors.createFailed")];
     } finally {
         isSubmitting.value = false;
     }
@@ -97,11 +97,10 @@ const handleClose = () => emit("close");
 </script>
 
 <template>
-    <Dialog :open="isOpen" @update:open="(val) => !val && handleClose()">
+    <Dialog :open="isOpen" @update:open="(val: boolean) => !val && handleClose()">
         <DialogContent
             class="max-w-md p-0 gap-0 rounded-none dark:bg-[#171717] dark:border-[#232323] dark:text-white/80"
         >
-            <!-- Header -->
             <DialogHeader
                 class="flex flex-row items-center justify-between px-5 py-4 border-b border-neutral-200 dark:border-[#232323] space-y-0"
             >
@@ -110,10 +109,11 @@ const handleClose = () => emit("close");
                     <DialogTitle
                         class="text-xs font-semibold text-neutral-800 dark:text-white/80 uppercase"
                     >
-                        Register Intervention
+                        {{ t("modal.registerIntervention.title") }}
                     </DialogTitle>
                 </div>
                 <span
+                    v-if="stationId"
                     class="font-mono text-[10px] text-neutral-400 dark:text-white/30"
                 >
                     {{ stationId }}
@@ -124,27 +124,25 @@ const handleClose = () => emit("close");
                 class="px-5 py-5 flex flex-col gap-4"
                 @submit.prevent="handleCreate"
             >
-                <!-- Title -->
                 <div class="flex flex-col gap-1.5">
                     <Label
                         class="text-[10px] text-neutral-400 dark:text-white/40 uppercase"
                     >
-                        Title
+                        {{ t("modal.registerIntervention.titleField") }}
                     </Label>
                     <Input
                         v-model="form.title"
                         type="text"
-                        placeholder="e.g. Connector not responding"
+                        :placeholder="t('modal.registerIntervention.titlePlaceholder')"
                         class="h-8 rounded-none text-xs bg-neutral-50 dark:bg-[#171717] dark:border-[#232323]"
                     />
                 </div>
 
-                <!-- Status -->
                 <div class="flex flex-col gap-1.5">
                     <Label
                         class="text-[10px] text-neutral-400 dark:text-white/40 uppercase"
                     >
-                        Initial Status
+                        {{ t("modal.registerIntervention.initialStatus") }}
                     </Label>
                     <Select
                         :model-value="form.status"
@@ -158,50 +156,45 @@ const handleClose = () => emit("close");
                         <SelectContent
                             class="rounded-none dark:bg-[#171717] dark:border-[#232323]"
                         >
+                            <SelectItem value="open" class="text-xs">Open</SelectItem>
                             <SelectItem value="resolved" class="text-xs"
-                                >Resolved</SelectItem
+                                >{{ t("modal.registerIntervention.resolved") }}</SelectItem
                             >
                             <SelectItem value="unresolved" class="text-xs"
-                                >Unresolved</SelectItem
+                                >{{ t("modal.registerIntervention.unresolved") }}</SelectItem
                             >
                         </SelectContent>
                     </Select>
                 </div>
 
-                <!-- Description -->
                 <div class="flex flex-col gap-1.5">
                     <Label
                         class="text-[10px] text-neutral-400 dark:text-white/40 uppercase"
                     >
-                        Description
+                        {{ t("modal.registerIntervention.description") }}
                     </Label>
                     <Textarea
                         v-model="form.description"
-                        placeholder="Describe the issue in detail..."
+                        :placeholder="t('modal.registerIntervention.descriptionPlaceholder')"
                         rows="3"
                         class="rounded-none text-xs resize-none bg-neutral-50 dark:bg-[#171717] dark:border-[#232323]"
                     />
                 </div>
 
-                <!-- Remarks -->
                 <div class="flex flex-col gap-1.5">
                     <Label
                         class="text-[10px] text-neutral-400 dark:text-white/40 uppercase"
                     >
-                        Remarks
-                        <span class="text-white/20 normal-case"
-                            >(optional)</span
-                        >
+                        {{ t("modal.registerIntervention.remarksOptional") }}
                     </Label>
                     <Textarea
                         v-model="form.remarks"
-                        placeholder="Any additional notes..."
+                        :placeholder="t('modal.registerIntervention.remarksPlaceholder')"
                         rows="2"
                         class="rounded-none text-xs resize-none bg-neutral-50 dark:bg-[#171717] dark:border-[#232323]"
                     />
                 </div>
 
-                <!-- Errors -->
                 <div v-if="errors.length" class="flex flex-col gap-2">
                     <div
                         v-for="(error, i) in errors"
@@ -219,7 +212,6 @@ const handleClose = () => emit("close");
                     </div>
                 </div>
 
-                <!-- Footer -->
                 <div
                     class="flex items-center justify-end pt-3 mt-2 border-t border-neutral-100 dark:border-[#232323]"
                 >
@@ -231,7 +223,7 @@ const handleClose = () => emit("close");
                             class="h-7 text-[11px] uppercase rounded-none dark:border-white/10 dark:text-white/40"
                             @click="handleClose"
                         >
-                            Cancel
+                            {{ t("modal.registerIntervention.cancel") }}
                         </Button>
                         <Button
                             type="submit"
@@ -243,7 +235,7 @@ const handleClose = () => emit("close");
                                 v-if="isSubmitting"
                                 class="w-3 h-3 animate-spin mr-2"
                             />
-                            Submit
+                            {{ t("modal.registerIntervention.submit") }}
                         </Button>
                     </div>
                 </div>

@@ -8,7 +8,7 @@ class Company:
     def __init__(self, companyId, name, groups):
         self.companyId = companyId
         self.name = name
-        self.groups = groups  # Array of Group IDs (strings)
+        self.groups = groups
 
 
 class User:
@@ -42,21 +42,19 @@ class Station:
         self,
         stationId,
         title,
-        companyId,
+        groupId,
         location,
         connector,
         telemetry,
-        groupId=None,
         state="available",
         alive=True,
     ):
         self.stationId = stationId
         self.title = title
-        self.companyId = companyId
+        self.groupId = groupId
         self.location = location
         self.connector = connector
         self.telemetry = telemetry
-        self.groupId = groupId
         self.state = state
         self.alive = alive
 
@@ -72,6 +70,7 @@ class Ticket:
         status="open",
         remarks=None,
         closedAt=None,
+        companyId=None,
     ):
         self.ticketId = ticketId
         self.stationId = stationId
@@ -81,6 +80,7 @@ class Ticket:
         self.status = status
         self.remarks = remarks
         self.closedAt = closedAt
+        self.companyId = companyId
 
 
 class StationUsage:

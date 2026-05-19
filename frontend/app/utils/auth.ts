@@ -1,35 +1,24 @@
-export const checkValidToken = async (token: string): Promise<boolean> => {
+const fetchAuth = async <T>(token: string): Promise<T | null> => {
   const config = useRuntimeConfig();
   try {
-    const data = await $fetch<{ valid: boolean }>(
-      `${config.public.apiBaseUrl}/api/auth/validate-token`,
+    return await $fetch<T>(
+      `${config.public.apiBaseUrl}/api/auth/me`,
       {
-        method: "POST",
         headers: { Authorization: `Bearer ${token}` },
       },
     );
-    console.log("Token validation response:", data);
-    return data?.valid || false;
   } catch (error) {
-    console.error("Token validation error:", error);
-    return false;
+    console.error("Auth check error:", error);
+    return null;
   }
 };
 
+export const checkValidToken = async (token: string): Promise<boolean> => {
+  const data = await fetchAuth<{ valid: boolean }>(token);
+  return data?.valid || false;
+};
+
 export const checkIsAdmin = async (token: string): Promise<boolean> => {
-  const config = useRuntimeConfig();
-  try {
-    const data = await $fetch<{ isAdmin: boolean }>(
-      `${config.public.apiBaseUrl}/api/auth/validate-token`,
-      {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
-      },
-    );
-    console.log("Is admin response:", data);
-    return data?.isAdmin || false;
-  } catch (error) {
-    console.error("Is admin error:", error);
-    return false;
-  }
+  const data = await fetchAuth<{ isAdmin: boolean }>(token);
+  return data?.isAdmin || false;
 };

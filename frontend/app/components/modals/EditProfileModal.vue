@@ -160,7 +160,7 @@ const handleOpenChange = (open) => {
                             v-model="form.firstName"
                             type="text"
                             class="h-8 rounded-none text-xs bg-neutral-50 dark:bg-[#171717]"
-                            :placeholder="user?.firstName || 'First name'"
+                            :placeholder="user?.firstName || t('modal.editProfile.firstNamePlaceholder')"
                             autocomplete="given-name"
                         />
                     </div>
@@ -172,7 +172,7 @@ const handleOpenChange = (open) => {
                             v-model="form.lastName"
                             type="text"
                             class="h-8 rounded-none text-xs bg-neutral-50 dark:bg-[#171717]"
-                            :placeholder="user?.lastName || 'Last name'"
+                            :placeholder="user?.lastName || t('modal.editProfile.lastNamePlaceholder')"
                             autocomplete="family-name"
                         />
                     </div>
@@ -192,7 +192,7 @@ const handleOpenChange = (open) => {
                             v-model="form.username"
                             type="text"
                             class="h-8 rounded-none text-xs bg-neutral-50 dark:bg-[#171717] pl-6"
-                            :placeholder="user?.username || 'username'"
+                            :placeholder="user?.username || t('modal.editProfile.usernamePlaceholder')"
                             autocomplete="username"
                         />
                     </div>
@@ -207,7 +207,7 @@ const handleOpenChange = (open) => {
                         v-model="form.email"
                         type="email"
                         class="h-8 rounded-none text-xs bg-neutral-50 dark:bg-[#171717]"
-                        :placeholder="user?.email || 'email@example.com'"
+                        :placeholder="user?.email || t('modal.editProfile.emailPlaceholder')"
                         autocomplete="email"
                     />
                 </div>
@@ -240,7 +240,7 @@ const handleOpenChange = (open) => {
                             type="button"
                             class="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-700 transition-colors"
                             @click="showCurrentPassword = !showCurrentPassword"
-                            :aria-label="showCurrentPassword ? 'Hide' : 'Show'"
+                            :aria-label="showCurrentPassword ? t('modal.editProfile.hidePassword') : t('modal.editProfile.showPassword')"
                         >
                             <Eye class="w-4 h-4" v-if="!showCurrentPassword" />
                             <EyeClosed class="w-4 h-4" v-else />
@@ -265,7 +265,7 @@ const handleOpenChange = (open) => {
                             type="button"
                             class="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-700 transition-colors"
                             @click="showNewPassword = !showNewPassword"
-                            :aria-label="showNewPassword ? 'Hide' : 'Show'"
+                            :aria-label="showNewPassword ? t('modal.editProfile.hidePassword') : t('modal.editProfile.showPassword')"
                         >
                             <Eye class="w-4 h-4" v-if="!showNewPassword" />
                             <EyeClosed class="w-4 h-4" v-else />
@@ -318,7 +318,7 @@ const handleOpenChange = (open) => {
                             type="button"
                             class="shrink-0 text-red-300 hover:text-red-500 transition-colors mt-px"
                             @click="dismissError(i)"
-                            aria-label="Dismiss"
+                            :aria-label="t('modal.editProfile.dismiss')"
                         >
                             <svg
                                 width="9"
@@ -349,7 +349,9 @@ const handleOpenChange = (open) => {
                     >
                         {{
                             hasChanges
-                                ? `${Object.keys(changedFields).length} field${Object.keys(changedFields).length > 1 ? "s" : ""} modified`
+                                ? Object.keys(changedFields).length === 1
+                                    ? t("modal.editProfile.fieldsModified", { n: Object.keys(changedFields).length })
+                                    : t("modal.editProfile.fieldsModifiedPlural", { n: Object.keys(changedFields).length })
                                 : t("modal.editProfile.noChanges")
                         }}
                     </span>

@@ -70,7 +70,6 @@ export function useMapInstance(
 
     map.on("zoom", () => {
       currentZoom.value = map.getZoom();
-      console.log("Map zoom level:", currentZoom.value);
     });
 
     mapInstance.value = map;
@@ -79,6 +78,14 @@ export function useMapInstance(
         type: "globe", // Set projection to globe
       });
     });
+    map.addControl(
+      new maplibre.GeolocateControl({
+        positionOptions: {
+          enableHighAccuracy: true,
+        },
+        trackUserLocation: true,
+      }),
+    );
   });
 
   onUnmounted(() => {

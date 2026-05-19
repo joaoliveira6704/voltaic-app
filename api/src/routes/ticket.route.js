@@ -2,15 +2,21 @@ import { Router } from "express";
 import {
   getTickets,
   createTicket,
-  deleteTicket,
   updateTicket,
+  deleteTicket,
 } from "../controllers/ticket.controller.js";
+import { protect, requireRole } from "../middleware/auth.middleware.js";
 
 const router = Router();
 
-router.get("/", getTickets);
-router.post("/", createTicket);
-router.delete("/:id", deleteTicket);
-router.patch("/:id", updateTicket);
+router.post("/", protect, createTicket);
+router.get("/", protect, requireRole("admin"), getTickets);
+router.patch(
+  "/:id",
+  protect,
+  requireRole("admin", "company-manager"),
+  updateTicket,
+);
+router.delete("/:id", protect, requireRole("admin"), deleteTicket);
 
 export default router;

@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import type { StationState } from "~/composables/useStation"; // was StationStatus
+import type { StationState } from "~/composables/useStation";
 
+const { t } = useI18n();
 const props = defineProps<{
     state: StationState;
     alive: boolean;
@@ -33,7 +34,7 @@ const statusClass = computed(() => ({
             class="px-3 py-1 rounded-full text-sm font-semibold transition-colors duration-300"
             :class="statusClass"
         >
-            Station Status: {{ statusLabel }}
+            {{ t("stationHeader.status", { status: statusLabel }) }}
         </span>
     </div>
 </template>

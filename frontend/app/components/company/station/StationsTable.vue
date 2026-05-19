@@ -3,6 +3,7 @@ defineProps({
     columns: Array,
     rows: Array,
     type: "users" | "tickets" | "stations" | "companies",
+    rowKey: { type: String, default: "id" },
 });
 defineEmits(["click"]);
 
@@ -30,7 +31,7 @@ const handleNavigation = (type, id) => {
         <TableBody>
             <TableRow
                 v-for="row in rows"
-                :key="row.id"
+                :key="row[rowKey]"
                 class="cursor-pointer hover:bg-muted/50"
                 @click="handleNavigation(type, row.stationId)"
             >

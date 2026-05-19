@@ -1,23 +1,28 @@
 <script setup lang="ts">
+import { ref } from "vue";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 
 const email = ref("");
 const isSubmitted = ref(false);
+const isSubmitting = ref(false);
+const { t } = useI18n();
 
 definePageMeta({
     layout: false,
 });
 
 useHead({
-    title: "Voltaic - Recover Password",
+    title: t("recoverPassword.title"),
 });
 
-const handleRecovery = () => {
+const handleRecovery = async () => {
     if (email.value) {
+        isSubmitting.value = true;
         console.log("Recovery email sent to:", email.value);
         isSubmitted.value = true;
+        isSubmitting.value = false;
     }
 };
 </script>
@@ -32,10 +37,10 @@ const handleRecovery = () => {
             <div v-if="!isSubmitted" class="space-y-6">
                 <div class="space-y-1 text-center mb-4">
                     <h1 class="text-lg font-bold uppercase text-gray-900">
-                        Recover Password
+                        {{ t("recoverPassword.heading") }}
                     </h1>
                     <p class="text-[10px] text-gray-400 uppercase">
-                        Enter your email to receive instructions
+                        {{ t("recoverPassword.instruction") }}
                     </p>
                 </div>
 
@@ -45,13 +50,13 @@ const handleRecovery = () => {
                             for="email"
                             class="text-xs font-bold uppercase text-gray-500"
                         >
-                            Email
+                            {{ t("recoverPassword.email") }}
                         </Label>
                         <Input
                             id="email"
                             v-model="email"
                             type="email"
-                            placeholder="Value"
+                            :placeholder="t('recoverPassword.emailPlaceholder')"
                             required
                             class="h-11 border-gray-200 focus-visible:ring-[#00c885]"
                         />
@@ -59,9 +64,17 @@ const handleRecovery = () => {
 
                     <Button
                         type="submit"
-                        class="w-full h-12 bg-[#007bff] hover:bg-[#0069d9] uppercase text-sm transition-all"
+                        :disabled="isSubmitting"
+                        class="w-full h-12 bg-[#007bff] hover:bg-[#0069d9] uppercase text-sm transition-all disabled:opacity-50"
                     >
-                        Send Instructions
+                        <span v-if="isSubmitting" class="flex items-center justify-center gap-2">
+                            <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                            </svg>
+                            {{ t("loading") }}
+                        </span>
+                        <span v-else>{{ t("recoverPassword.sendInstructions") }}</span>
                     </Button>
                 </form>
             </div>
@@ -86,10 +99,10 @@ const handleRecovery = () => {
                         </svg>
                     </div>
                     <p class="text-sm font-bold text-gray-900 uppercase">
-                        Check your inbox
+                        {{ t("recoverPassword.checkInbox") }}
                     </p>
                     <p class="text-[10px] text-gray-500">
-                        Recovery instructions sent to <br />
+                        {{ t("recoverPassword.instructionsSent") }} <br />
                         <span class="text-[#007bff] font-bold underline">{{
                             email
                         }}</span>
@@ -101,7 +114,7 @@ const handleRecovery = () => {
                     @click="isSubmitted = false"
                     class="w-full text-[10px] uppercase h-10 border-gray-100"
                 >
-                    Try another email
+                    {{ t("recoverPassword.tryAnotherEmail") }}
                 </Button>
             </div>
 
@@ -110,7 +123,7 @@ const handleRecovery = () => {
                     to="/login"
                     class="text-[10px] text-[#007bff] font-bold hover:underline uppercase"
                 >
-                    Back to Login
+                    {{ t("nav.login") }}
                 </NuxtLink>
             </div>
         </div>

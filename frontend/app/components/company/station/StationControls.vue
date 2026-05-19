@@ -7,6 +7,8 @@ import {
     PenIcon,
 } from "lucide-vue-next";
 
+const { t } = useI18n();
+
 defineProps<{
     isBusy: boolean;
     isRestarting: boolean;
@@ -15,9 +17,7 @@ defineProps<{
 }>();
 
 const emit = defineEmits<{
-    (e: "shutdown"): void;
-    (e: "restart"): void;
-    (e: "start"): void;
+    (e: "shutdown" | "restart" | "start" | "register"): void;
 }>();
 </script>
 
@@ -26,7 +26,7 @@ const emit = defineEmits<{
         <span
             class="text-sm font-semibold text-gray-600 dark:text-gray-300 tracking-wide"
         >
-            Station Controls
+            {{ t("company.stations.stationControls") }}
         </span>
 
         <div class="flex gap-2">
@@ -36,7 +36,7 @@ const emit = defineEmits<{
                 @click="emit('register')"
             >
                 <PenIcon class="w-4 h-4" />
-                Registar Intervenção
+                {{ t("company.stations.registerIntervention") }}
             </button>
             <!-- Offline: show Start only -->
             <template v-if="!alive">
@@ -46,7 +46,7 @@ const emit = defineEmits<{
                     @click="emit('start')"
                 >
                     <PowerIcon class="w-4 h-4" />
-                    Start
+                    {{ t("company.stations.start") }}
                 </button>
             </template>
 
@@ -58,7 +58,7 @@ const emit = defineEmits<{
                     @click="emit('shutdown')"
                 >
                     <PowerOffIcon class="w-4 h-4" />
-                    Shutdown
+                    {{ t("company.stations.shutdown") }}
                 </button>
 
                 <button
@@ -70,7 +70,7 @@ const emit = defineEmits<{
                         :class="{ 'animate-spin': isRestarting }"
                         class="w-4 h-4"
                     />
-                    Restart
+                    {{ t("company.stations.restart") }}
                 </button>
             </template>
         </div>

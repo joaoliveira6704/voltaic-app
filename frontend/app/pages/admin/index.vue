@@ -1,96 +1,133 @@
-<!-- pages/admin/index.vue -->
 <script setup>
 import { useUserStore } from "~/stores/user";
 import { useTicketStore } from "~/stores/ticket";
 import { useStationStore } from "~/stores/station";
 import { useCompanyStore } from "~/stores/company";
-import { storeToRefs } from "pinia";
+import { Skeleton, SkeletonMetricCard } from "~/components/ui/Skeleton";
+import { Building2, EvCharger, TicketSlash, Users } from "lucide-vue-next";
+
+const { t } = useI18n();
 
 useHead({
-    title: "Voltaic - Admin Dashboard",
+    title: t("admin.index.title"),
     meta: [
         {
             name: "description",
-            content:
-                "Admin overview of users, stations, tickets, and companies.",
+            content: t("admin.index.description"),
         },
     ],
 });
 
-const { t } = useI18n();
 const userStore = useUserStore();
 const ticketStore = useTicketStore();
 const stationStore = useStationStore();
 const companyStore = useCompanyStore();
 
-const { users, currentUser, userRole } = storeToRefs(userStore);
-const { tickets } = storeToRefs(ticketStore);
-const { stations } = storeToRefs(stationStore);
-const { companies } = storeToRefs(companyStore);
+const { pending: currentUserPending } = useAsyncData("currentUser", () =>
+    userStore.fetchCurrentUser(),
+);
+const { pending: dashboardPending } = useAsyncData("dashboard", async () => {
+    await Promise.all([
+        userStore.fetchDashboardStats(),
+        stationStore.fetchDashboardStats(),
+        ticketStore.fetchDashboardStats(),
+        companyStore.fetchDashboardStats(),
+    ]);
+});
+const { pending: stationsPending } = useAsyncData("stations", () =>
+    stationStore.fetchStations(),
+);
 
-await Promise.all([
-    useAsyncData("currentUser", () => userStore.fetchCurrentUser()),
-    useAsyncData("users", () => userStore.fetchUsers()),
-    useAsyncData("tickets", () => ticketStore.fetchTickets()),
-    useAsyncData("stations", () => stationStore.fetchStations()),
-    useAsyncData("companies", () => companyStore.fetchCompanies()),
-]);
+const isPending = computed(
+    () =>
+        currentUserPending.value ||
+        dashboardPending.value ||
+        stationsPending.value,
+);
 
-const openTickets = computed(
-    () => tickets.value.filter((t) => t.status === "open").length,
-);
-const pendingTickets = computed(
-    () => tickets.value.filter((t) => t.status === "pending").length,
-);
-const closedTickets = computed(
-    () => tickets.value.filter((t) => t.status === "closed").length,
-);
-const onlineStations = computed(
-    () => stations.value.filter((s) => s.status === "online").length,
-);
-const recentTickets = computed(() =>
-    [...tickets.value]
-        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-        .slice(0, 5),
-);
+const stationDash = computed(() => stationStore.dashboardStats);
+const ticketDash = computed(() => ticketStore.dashboardStats);
+const companyDash = computed(() => companyStore.dashboardStats);
+const userDash = computed(() => userStore.dashboardStats);
 </script>
 
 <template>
-    <div class="flex-1 py-4 px-2 min-w-0 overflow-y-auto space-y-6">
+    <div
+        v-if="isPending"
+        class="flex-1 py-4 px-2 min-w-0 overflow-y-auto space-y-6"
+    >
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <SkeletonMetricCard v-for="n in 4" :key="n" />
+        </div>
+    </div>
+    <div v-else class="flex-1 py-4 px-2 min-w-0 overflow-y-auto space-y-6">
         <!-- Metric cards -->
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <DashboardCard title="Total users" :has-line="false">
+            <DashboardCard
+                :title="t('admin.index.totalUsers')"
+                :has-line="false"
+            >
                 <CardContent>
-                    <p class="text-3xl font-semibold">{{ users.length }}</p>
+                    <div class="flex items-center gap-2">
+                        <Users />
+                        <p class="text-3xl font-semibold">
+                            {{ userDash?.total ?? 0 }}
+                        </p>
+                    </div>
                     <p class="text-xs text-muted-foreground mt-1">
-                        +12% this month
+                        {{ t("admin.index.totalUsersSubtext") }}
                     </p>
                 </CardContent>
             </DashboardCard>
 
-            <DashboardCard title="Stations" :has-line="false">
+            <DashboardCard :title="t('admin.index.stations')" :has-line="false">
                 <CardContent>
-                    <p class="text-3xl font-semibold">{{ stations.length }}</p>
+                    <div class="flex items-center gap-2">
+                        <EvCharger />
+                        <p class="text-3xl font-semibold">
+                            {{ stationDash?.total ?? 0 }}
+                        </p>
+                    </div>
                     <p class="text-xs text-muted-foreground mt-1">
-                        {{ onlineStations }} active now
+                        {{
+                            t("admin.index.stationsActiveNow", {
+                                count: stationDash?.available ?? 0,
+                            })
+                        }}
                     </p>
                 </CardContent>
             </DashboardCard>
 
-            <DashboardCard title="Open tickets" :has-line="false">
+            <DashboardCard
+                :title="t('admin.index.openTickets')"
+                :has-line="false"
+            >
                 <CardContent>
-                    <p class="text-3xl font-semibold">{{ openTickets }}</p>
+                    <div class="flex items-center gap-2">
+                        <TicketSlash />
+                        <p class="text-3xl font-semibold">
+                            {{ ticketDash?.total ?? 0 }}
+                        </p>
+                    </div>
                     <p class="text-xs text-muted-foreground mt-1">
-                        +8 since yesterday
+                        {{ t("admin.index.openTicketsSubtext") }}
                     </p>
                 </CardContent>
             </DashboardCard>
 
-            <DashboardCard title="Companies" :has-line="false">
+            <DashboardCard
+                :title="t('admin.index.companies')"
+                :has-line="false"
+            >
                 <CardContent>
-                    <p class="text-3xl font-semibold">{{ companies.length }}</p>
+                    <div class="flex items-center gap-2">
+                        <Building2 />
+                        <p class="text-3xl font-semibold">
+                            {{ companyDash?.total ?? 0 }}
+                        </p>
+                    </div>
                     <p class="text-xs text-muted-foreground mt-1">
-                        4 added this month
+                        {{ t("admin.index.companiesSubtext") }}
                     </p>
                 </CardContent>
             </DashboardCard>
@@ -98,19 +135,22 @@ const recentTickets = computed(() =>
 
         <!-- Charts row -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <DashboardCard title="Ticket status" :has-line="false">
+            <DashboardCard
+                :title="t('admin.index.ticketStatus')"
+                :has-line="false"
+            >
                 <CardContent>
                     <AdminTicketDonut
-                        :open="openTickets"
-                        :pending="pendingTickets"
-                        :closed="closedTickets"
+                        :open="ticketDash?.open ?? 0"
+                        :pending="0"
+                        :closed="ticketDash?.closed ?? 0"
                     />
                 </CardContent>
             </DashboardCard>
 
             <DashboardCard
                 class="h-full"
-                title="New users — last 7 days"
+                :title="t('admin.index.newUsers')"
                 :has-line="false"
             >
                 <CardContent>
@@ -120,87 +160,13 @@ const recentTickets = computed(() =>
         </div>
 
         <!-- Stations map -->
-        <DashboardCard title="Station locations" :has-line="false">
+        <DashboardCard
+            :title="t('admin.index.stationLocations')"
+            :has-line="false"
+        >
             <CardContent>
-                <AdminStationsMap :stations="stations" />
+                <AdminStationsMap :stations="stationStore.stations" />
             </CardContent>
         </DashboardCard>
-
-        <!-- Bottom row: tickets + companies -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <DashboardCard title="Recent tickets" :has-line="false">
-                <CardContent class="p-0">
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead class="w-[80px]">ID</TableHead>
-                                <TableHead>User</TableHead>
-                                <TableHead>Station</TableHead>
-                                <TableHead class="text-right">Status</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            <TableRow
-                                v-for="ticket in recentTickets"
-                                :key="ticket.id"
-                            >
-                                <TableCell class="text-xs"
-                                    >#{{
-                                        ticket.ticketId.slice(-4)
-                                    }}...</TableCell
-                                >
-                                <TableCell>{{ ticket.title ?? "—" }}</TableCell>
-                                <TableCell
-                                    class="text-muted-foreground text-xs"
-                                    >{{
-                                        ticket.station?.name ?? "—"
-                                    }}</TableCell
-                                >
-                                <TableCell class="text-right">
-                                    <StatusBadge
-                                        type="tickets"
-                                        :value="ticket.status"
-                                    />
-                                </TableCell>
-                            </TableRow>
-                        </TableBody>
-                    </Table>
-                </CardContent>
-            </DashboardCard>
-
-            <DashboardCard title="Companies" :has-line="false">
-                <CardContent class="p-0">
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Company</TableHead>
-                                <TableHead class="text-right">Users</TableHead>
-                                <TableHead class="text-right"
-                                    >Stations</TableHead
-                                >
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            <TableRow
-                                v-for="company in companies.slice(-6)"
-                                :key="company.id"
-                            >
-                                <TableCell class="font-medium">{{
-                                    company.name
-                                }}</TableCell>
-                                <TableCell
-                                    class="text-right text-muted-foreground"
-                                    >{{ company.userCount ?? 0 }}</TableCell
-                                >
-                                <TableCell
-                                    class="text-right text-muted-foreground"
-                                    >{{ company.stationCount ?? 0 }}</TableCell
-                                >
-                            </TableRow>
-                        </TableBody>
-                    </Table>
-                </CardContent>
-            </DashboardCard>
-        </div>
     </div>
 </template>

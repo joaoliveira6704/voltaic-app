@@ -8,6 +8,7 @@ const emit = defineEmits<{
     (e: "execute", command: string): void;
 }>();
 
+const { t } = useI18n();
 const commandInput = ref("");
 
 function handleEnter() {
@@ -21,7 +22,7 @@ function handleEnter() {
     <input
         v-model="commandInput"
         type="text"
-        :placeholder="`${username}@${stationId}: restart station`"
+        :placeholder="`${username}@${stationId}: ${t('company.stations.commandPlaceholder')}`"
         class="w-full bg-gray-900 border border-gray-600 rounded px-3 py-2 font-mono text-xs text-gray-100 placeholder-gray-500 focus:outline-none focus:border-blue-400 transition-colors"
         @keydown.enter="handleEnter"
     />
