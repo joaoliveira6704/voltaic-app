@@ -22,12 +22,12 @@ const emailTemplate = (token) => `
     <tr>
       <td align="center">
         <table width="480" cellpadding="0" cellspacing="0" style="background-color:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
-          
+
           <!-- Top green bar -->
           <tr>
             <td style="background-color:#00d084;height:6px;font-size:0;">&nbsp;</td>
           </tr>
- 
+
           <!-- Logo -->
           <tr>
             <td align="center" style="padding:32px 40px 16px;">
@@ -36,21 +36,21 @@ const emailTemplate = (token) => `
               </svg>
             </td>
           </tr>
- 
+
           <!-- Title -->
           <tr>
             <td align="center" style="padding:0 40px 8px;">
               <p style="margin:0;font-size:20px;font-weight:700;color:#111111;letter-spacing:1px;text-transform:uppercase;">Password Reset</p>
             </td>
           </tr>
- 
+
           <!-- Subtitle -->
           <tr>
             <td align="center" style="padding:0 40px 32px;">
               <p style="margin:0;font-size:13px;color:#888888;">Use the code below to reset your password. It expires in <strong>5 minutes</strong>.</p>
             </td>
           </tr>
- 
+
           <!-- Token box -->
           <tr>
             <td align="center" style="padding:0 40px 32px;">
@@ -59,19 +59,19 @@ const emailTemplate = (token) => `
               </div>
             </td>
           </tr>
- 
+
           <!-- Warning -->
           <tr>
             <td align="center" style="padding:0 40px 32px;">
               <p style="margin:0;font-size:11px;color:#aaaaaa;">If you didn't request this, you can safely ignore this email.</p>
             </td>
           </tr>
- 
+
           <!-- Bottom green bar -->
           <tr>
             <td style="background-color:#00d084;height:6px;font-size:0;">&nbsp;</td>
           </tr>
- 
+
         </table>
       </td>
     </tr>

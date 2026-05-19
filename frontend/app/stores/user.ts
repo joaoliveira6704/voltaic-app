@@ -245,6 +245,7 @@ export const useUserStore = defineStore("user", () => {
 
   async function fetchUserProfile() {
     isLoaded.value = false;
+    console.log("fetching profile");
     try {
       const data = await $fetch<User>(
         `${apiBase()}/api/users/me?profile=true`,
@@ -486,7 +487,7 @@ export const useUserStore = defineStore("user", () => {
       // Clear state
       currentUser.value = null;
 
-      await navigateTo("/login");
+      navigateTo("/login");
     }
   }
 

@@ -15,7 +15,10 @@ export const getUsers = async (req, res, next) => {
 
     if (view === "admin") {
       const pageNum = Math.max(1, parseInt(req.query.page) || 1);
-      const limitNum = Math.min(100, Math.max(1, parseInt(req.query.limit) || 20));
+      const limitNum = Math.min(
+        100,
+        Math.max(1, parseInt(req.query.limit) || 20),
+      );
       const skip = (pageNum - 1) * limitNum;
 
       const pipeline = [
@@ -55,7 +58,11 @@ export const getUsers = async (req, res, next) => {
 
       const [countResult, data] = await Promise.all([
         userModel.aggregate([...pipeline, { $count: "total" }]),
-        userModel.aggregate([...pipeline, { $skip: skip }, { $limit: limitNum }]),
+        userModel.aggregate([
+          ...pipeline,
+          { $skip: skip },
+          { $limit: limitNum },
+        ]),
       ]);
 
       const total = countResult[0]?.total || 0;
@@ -69,7 +76,11 @@ export const getUsers = async (req, res, next) => {
       });
     }
 
-    const result = await paginate(userModel, {}, { page: req.query.page, limit: req.query.limit });
+    const result = await paginate(
+      userModel,
+      {},
+      { page: req.query.page, limit: req.query.limit },
+    );
     res.json(result);
   } catch (error) {
     next(error);
@@ -134,7 +145,7 @@ export const getCurrentUser = async (req, res, next) => {
     const user = await userModel.findOne({ userId: userId });
 
     if (isProfile) {
-      console.log("Getting user profile");
+      console.log("Getting user profile", userId);
       const userProfile = await userModel.aggregate([
         { $match: { userId: userId } },
         {
@@ -145,7 +156,12 @@ export const getCurrentUser = async (req, res, next) => {
             as: "companyData",
           },
         },
-        { $unwind: "$companyData" },
+        {
+          $unwind: {
+            path: "$companyData",
+            preserveNullAndEmptyArrays: true, // This keeps the user if companyData is empty
+          },
+        },
         {
           $set: { companyName: "$companyData.name" },
         },

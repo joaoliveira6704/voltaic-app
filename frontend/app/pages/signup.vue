@@ -30,28 +30,22 @@ useHead({
     ],
 });
 
+const authStore = useAuthStore();
+
 const handleRegister = async () => {
     isSubmitting.value = true;
     try {
-        const response = await $fetch(
-            "/api/users",
-            {
-                method: "POST",
-                body: {
-                    username: form.value.username,
-                    firstName: form.value.firstName,
-                    lastName: form.value.lastName,
-                    email: form.value.email,
-                    password: form.value.password,
-                    role: "client",
-                },
-            },
-        );
-
-        console.log("Register successful:", response);
-        alert("Register successful!");
-
-        await navigateTo("/login");
+        await authStore
+            .register(
+                form.value.username,
+                form.value.firstName,
+                form.value.lastName,
+                form.value.email,
+                form.value.password,
+            )
+            .then(() => {
+                navigateTo("/login");
+            });
     } catch (err: unknown) {
         console.error("Register failed:", err);
 
@@ -84,8 +78,8 @@ const handleRegister = async () => {
                     <div class="space-y-2">
                         <Label
                             for="username"
-                            class="text-xs font-bold uppercase text-white/50"
-                            >{{ t("signup.username") }}</Label
+                            class="text-xs font-bold uppercase text-gray-500 dark:text-zinc-400"
+                            >Username</Label
                         >
                         <Input
                             id="username"
@@ -100,7 +94,7 @@ const handleRegister = async () => {
                         <div class="space-y-2">
                             <Label
                                 for="firstName"
-                                class="text-xs font-bold uppercase text-white/50"
+                                class="text-xs font-bold uppercase text-gray-500 dark:text-zinc-400"
                                 >{{ t("signup.firstName") }}</Label
                             >
                             <Input
@@ -113,7 +107,7 @@ const handleRegister = async () => {
                         <div class="space-y-2">
                             <Label
                                 for="lastName"
-                                class="text-xs font-bold uppercase text-white/50"
+                                class="text-xs font-bold uppercase text-gray-500 dark:text-zinc-400"
                                 >{{ t("signup.lastName") }}</Label
                             >
                             <Input
@@ -128,7 +122,7 @@ const handleRegister = async () => {
                     <div class="space-y-2">
                         <Label
                             for="email"
-                            class="text-xs font-bold uppercase text-white/50"
+                            class="text-xs font-bold uppercase text-gray-500 dark:text-zinc-400"
                             >{{ t("signup.email") }}</Label
                         >
                         <Input
@@ -143,7 +137,7 @@ const handleRegister = async () => {
                     <div class="space-y-2">
                         <Label
                             for="password"
-                            class="text-xs font-bold uppercase text-white/50"
+                            class="text-xs font-bold uppercase text-gray-500 dark:text-zinc-400"
                             >{{ t("signup.password") }}</Label
                         >
                         <Input
@@ -176,10 +170,29 @@ const handleRegister = async () => {
                         :disabled="isSubmitting"
                         class="w-full h-12 bg-[#007bff] hover:bg-[#0069d9] uppercase dark:text-black text-sm disabled:opacity-50"
                     >
-                        <span v-if="isSubmitting" class="flex items-center justify-center gap-2">
-                            <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
-                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                        <span
+                            v-if="isSubmitting"
+                            class="flex items-center justify-center gap-2"
+                        >
+                            <svg
+                                class="animate-spin h-4 w-4"
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                            >
+                                <circle
+                                    class="opacity-25"
+                                    cx="12"
+                                    cy="12"
+                                    r="10"
+                                    stroke="currentColor"
+                                    stroke-width="4"
+                                />
+                                <path
+                                    class="opacity-75"
+                                    fill="currentColor"
+                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                                />
                             </svg>
                             {{ t("loading") }}
                         </span>

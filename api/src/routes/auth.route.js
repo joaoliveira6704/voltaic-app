@@ -5,12 +5,14 @@ import {
   createResetToken,
   validateResetToken,
   resetPassword,
+  register,
 } from "../controllers/auth.controller.js";
 import { protect } from "../middleware/auth.middleware.js";
 
 const router = express.Router();
 
 router.post("/login", login);
+router.post("/register", register);
 router.post("/validate-token", protect, validateToken);
 router.post("/forgot-password", createResetToken);
 router.post("/forgot-password/:token", validateResetToken);

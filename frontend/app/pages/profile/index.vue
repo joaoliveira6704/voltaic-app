@@ -36,7 +36,7 @@ const isEditModalOpen = ref(false);
 const isAddVehicleModal = ref(false);
 
 const handleVehicleClick = () => {
-    if (currentUser.value.vehicles.length >= 4) {
+    if (currentUser.value?.vehicles?.length >= 4) {
         toast.error("Maximum of 4 vehicles per user");
     } else {
         isAddVehicleModal.value = true;
@@ -123,6 +123,7 @@ const handleVehicleClick = () => {
                 </DashboardCard>
             </template>
 
+            <!-- Update your Fleet section -->
             <template #cell-c>
                 <DashboardCard
                     :title="t('yourFleet')"
@@ -130,7 +131,8 @@ const handleVehicleClick = () => {
                     :button-text="t('addNewVehicle')"
                     @btn-click="handleVehicleClick"
                 >
-                    <CardScroll v-if="currentUser.vehicles.length > 0">
+                    <!-- Added optional chaining to prevent undefined readings -->
+                    <CardScroll v-if="currentUser?.vehicles?.length > 0">
                         <VehicleCard
                             v-for="vehicle in currentUser.vehicles"
                             :key="vehicle.plate || vehicle._id"
@@ -142,14 +144,16 @@ const handleVehicleClick = () => {
                         v-else
                         class="p-10 text-center text-xs text-neutral-400"
                     >
-                        {{ t("noVehicles") }} @{{ currentUser.username }}.
+                        {{ t("noVehicles") }} @{{ currentUser?.username }}.
                     </div>
                 </DashboardCard>
             </template>
 
+            <!-- Update your Charging History section -->
             <template #cell-d-left>
-                <DashboardCard :title="t('history')">
-                    <HistoryTable :sessions="currentUser.chargingHistory" />
+                <DashboardCard :title="t('history')" class="h-full">
+                    <!-- Added optional chaining fallback to an empty array -->
+                    <HistoryTable :sessions="currentUser?.chargingHistory" />
                 </DashboardCard>
             </template>
 

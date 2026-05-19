@@ -56,7 +56,7 @@ console.log(props.sessions);
                 </TableRow>
             </TableHeader>
 
-            <TableBody>
+            <TableBody v-if="sessions?.length > 0">
                 <TableRow
                     v-for="session in sessions"
                     :key="session.stationUsageId"
@@ -99,6 +99,16 @@ console.log(props.sessions);
                                 ? "In Progress"
                                 : session.duration
                         }}
+                    </TableCell>
+                </TableRow>
+            </TableBody>
+            <TableBody v-else>
+                <TableRow>
+                    <TableCell
+                        colspan="4"
+                        class="px-6 py-4 text-center text-neutral-800 dark:text-white/80 text-xs"
+                    >
+                        No Charges Yet
                     </TableCell>
                 </TableRow>
             </TableBody>

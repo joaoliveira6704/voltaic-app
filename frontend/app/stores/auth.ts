@@ -35,6 +35,35 @@ export const useAuthStore = defineStore("auth", () => {
     }
   }
 
+  async function register(
+    username: string,
+    firstName: string,
+    lastName: string,
+    email: string,
+    password: string,
+  ) {
+    isLoading.value = true;
+    try {
+      await $fetch(`${apiBase()}/api/auth/register`, {
+        method: "POST",
+        body: {
+          username,
+          firstName,
+          lastName,
+          email,
+          password,
+          role: "client",
+        },
+      });
+      toast.success("Account created successfully.");
+    } catch (e) {
+      toast.error("Failed to create account, " + e);
+      throw e;
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
   async function validateResetToken(token: string) {
     isLoading.value = true;
     console.log("authStore: ", token);
@@ -89,6 +118,7 @@ export const useAuthStore = defineStore("auth", () => {
     sendRecoveryEmail,
     validateResetToken,
     resetPassword,
+    register,
     $reset,
   };
 });

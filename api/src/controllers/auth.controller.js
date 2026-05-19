@@ -40,6 +40,7 @@ export const login = async (req, res) => {
 };
 
 export const register = async (req, res, next) => {
+  console.log("Received Register Request", req.body);
   try {
     const { username, email, firstName, lastName, password, role } = req.body;
     let userId = generateUniqueId();
@@ -50,10 +51,13 @@ export const register = async (req, res, next) => {
       firstName,
       lastName,
       password,
-      role,
+      role: "client",
+      vehicles: [],
     });
 
     await newUser.save();
+
+    console.log("User created successfully", newUser);
 
     res.status(201).json({
       userId: newUser.userId,
@@ -80,6 +84,7 @@ export const validateToken = (req, res) => {
 
 export const createResetToken = async (req, res, next) => {
   try {
+    console.log("creating token");
     const email = req.body.email;
 
     if (!email || email === "") {
@@ -180,7 +185,7 @@ export const resetPassword = async (req, res, next) => {
       return next(err);
     }
 
-    user.password = await bcrypt.hash(newPassword, 10);
+    user.password = newPassword;
     console.log("saving user");
     await user.save();
     console.log("deleting token");

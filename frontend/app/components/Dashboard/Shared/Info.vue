@@ -65,16 +65,16 @@ const sendEmail = () => {
                     {{ props.user.firstName }} {{ props.user.lastName }}
                 </h1>
                 <h2 class="font-semibold mt-2">
-                    <template v-if="props.user.role !== 'client'">
+                    <template v-if="props.user.role">
                         <template v-if="pending">
                             <Skeleton class="h-5 w-40" />
                         </template>
                         <template v-else-if="props.user.companyName">
                             {{ props.user.companyName }} -
-                            {{ props.user.role.toLocaleUpperCase() }}
+                            {{ props.user.role?.toUpperCase() }}
                         </template>
                         <template v-else>
-                            {{ props.user.role.toLocaleUpperCase() }}
+                            {{ props.user.role?.toUpperCase() }}
                         </template>
                     </template>
                 </h2>
@@ -83,7 +83,7 @@ const sendEmail = () => {
                 @{{ props.user.username }}
             </p>
 
-            <div class="grid grid-cols-1 lg:grid-cols-2 mt-2">
+            <div class="flex flex-col gap-4 mt-4">
                 <div
                     class="flex items-center gap-3 group cursor-pointer"
                     @click="sendEmail"
