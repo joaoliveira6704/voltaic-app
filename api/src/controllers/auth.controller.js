@@ -1,6 +1,9 @@
 import userModel from "../models/user.model.js";
+import resetTokenModel from "../models/resetToken.model.js";
 import jwt from "jsonwebtoken";
-import generateUniqueId from "../utils/utils.js";
+import bcrypt from "bcrypt";
+import generateUniqueId, { generateUniqueToken } from "../utils/utils.js";
+import sendResetEmail from "../utils/mailer.js";
 import mongoose from "mongoose";
 
 const signToken = (id) => {
@@ -73,4 +76,118 @@ export const validateToken = (req, res) => {
     role: req.user.role,
     isAdmin: req.user.role === "admin",
   });
+};
+
+export const createResetToken = async (req, res, next) => {
+  try {
+    const email = req.body.email;
+
+    if (!email || email === "") {
+      const err = new Error();
+      err.status = 400;
+      err.message = "Email can´t be empty";
+      return next(err);
+    }
+
+    const user = await userModel.findOne({ email });
+    console.log("User found:", user);
+
+    if (user) {
+      await resetTokenModel.findOneAndDelete({ userId: user.userId });
+
+      const newToken = new resetTokenModel({
+        userId: user.userId,
+        token: await generateUniqueToken(),
+      });
+
+      await newToken.save();
+      console.log("generated token: ", newToken.token);
+
+      await sendResetEmail(email, newToken.token);
+    }
+
+    return res.status(200).json({
+      message:
+        "If an account with that email exists, you'll receive a reset link shortly.",
+    });
+    console.log("reached");
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const validateResetToken = async (req, res, next) => {
+  console.log("validateReseToken");
+
+  try {
+    const token = req.params.token;
+
+    if (!token) {
+      const err = new Error();
+      err.status = 400;
+      err.message = "Token is not valid or has expired";
+      return next(err);
+    }
+
+    const resetToken = await resetTokenModel.findOne({ token: token });
+
+    if (!resetToken) {
+      const err = new Error();
+      err.status = 404;
+      err.message = "Token is not valid or has expired";
+      return next(err);
+    }
+
+    return res.status(200).json({ message: "Token is valid." });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const resetPassword = async (req, res, next) => {
+  try {
+    const { token, newPassword } = req.body;
+
+    if (!token || !newPassword) {
+      const err = new Error("Token and new password are required");
+      err.status = 400;
+      return next(err);
+    }
+
+    const resetToken = await resetTokenModel.findOne({ token });
+    if (!resetToken) {
+      const err = new Error("Invalid or expired token");
+      err.status = 400;
+      return next(err);
+    }
+
+    const user = await userModel
+      .findOne({ userId: resetToken.userId })
+      .select("+password");
+    if (!user) {
+      const err = new Error("User not found");
+      err.status = 404;
+      return next(err);
+    }
+
+    const isSamePassword = await user.correctPassword(
+      newPassword,
+      user.password,
+    );
+    if (isSamePassword) {
+      const err = new Error("New password must differ from current password");
+      err.status = 400;
+      return next(err);
+    }
+
+    user.password = await bcrypt.hash(newPassword, 10);
+    console.log("saving user");
+    await user.save();
+    console.log("deleting token");
+    await resetTokenModel.deleteOne({ token });
+
+    return res.status(200).json({ message: "Password updated successfully." });
+  } catch (err) {
+    next(err);
+  }
 };
