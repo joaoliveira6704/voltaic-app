@@ -36,11 +36,11 @@ const handleTokenInput = async () => {
     class="w-full flex flex-col min-h-screen items-center justify-center py-12 md:py-24 px-4"
   >
     <div
-      class="w-full max-w-[400px] rounded-xl border border-gray-100 bg-white p-6 shadow-sm md:p-10"
+      class="w-full max-w-[400px] rounded-xl border border-gray-100 bg-white dark:bg-[#0a0a0a] dark:border-[#232323] dark:text-white/50 p-6 shadow-sm md:p-10 space-y-6"
     >
       <div v-if="resetStep === `email`" class="space-y-6">
         <div class="space-y-1 text-center mb-4">
-          <h1 class="text-lg font-bold uppercase text-gray-900">
+          <h1 class="text-lg font-bold uppercase text-gray-400">
             Recover Password
           </h1>
           <p class="text-[10px] text-gray-400 uppercase">
@@ -76,7 +76,7 @@ const handleTokenInput = async () => {
       </div>
       <div v-if="resetStep === `token`" class="space-y-6">
         <div class="space-y-1 text-center mb-4">
-          <h1 class="text-lg font-bold uppercase text-gray-900">Input Token</h1>
+          <h1 class="text-lg font-bold uppercase text-gray-400">Input Token</h1>
           <p class="text-[10px] text-gray-400 uppercase">Enter your Token</p>
         </div>
 
@@ -86,7 +86,7 @@ const handleTokenInput = async () => {
       </div>
       <div v-if="resetStep === `password`" class="space-y-6">
         <div class="space-y-1 text-center mb-4">
-          <h1 class="text-lg font-bold uppercase text-gray-900">
+          <h1 class="text-lg font-bold uppercase text-gray-400">
             Input new Password
           </h1>
           <p class="text-[10px] text-gray-400 uppercase">Enter new Password</p>
@@ -115,7 +115,7 @@ const handleTokenInput = async () => {
               <polyline points="20 6 9 17 4 12" />
             </svg>
           </div>
-          <h1 class="text-lg font-bold uppercase text-gray-900">
+          <h1 class="text-lg font-bold uppercase text-gray-400">
             Your password has been updated
           </h1>
         </div>
