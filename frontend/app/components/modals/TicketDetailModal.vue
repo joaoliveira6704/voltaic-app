@@ -37,7 +37,7 @@ function onStatusChange({
 }: {
   ticketId: string;
   status: string;
-}) {
+  }) {
   emit("update:status", ticketId, status);
 }
 

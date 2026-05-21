@@ -16,7 +16,7 @@ companyStore.fetchCurrentCompany().finally(() => {
     <div class="flex-1 py-4 px-2 min-w-0 overflow-y-auto space-y-6">
         <template v-if="isPending">
             <Skeleton class="h-8 w-[250px]" />
-            <div class="grid grid-cols-2 lg:grid-cols-3 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 lg:grid-cols-3 gap-4">
                 <SkeletonMetricCard />
                 <SkeletonMetricCard />
                 <SkeletonMetricCard />
@@ -26,7 +26,7 @@ companyStore.fetchCurrentCompany().finally(() => {
             <h1 class="text-2xl text-green-700 font-bold">
                 {{ currentCompany.name }}
             </h1>
-            <div class="grid grid-cols-2 lg:grid-cols-3 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 <DashboardCard
                     :title="t('company.index.totalWorkers')"
                     :has-line="false"

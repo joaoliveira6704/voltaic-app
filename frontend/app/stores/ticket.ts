@@ -94,7 +94,7 @@ export const useTicketStore = defineStore("ticket", () => {
     }
   }
 
-  async function fetchStationTickets(stationId: string, page = 1, limit = 2) {
+  async function fetchStationTickets(stationId: string, page = 1, limit = 1) {
     try {
       const data = await $fetch<PaginatedResponse<Ticket>>(
         `${apiBase()}/api/stations/${stationId}/tickets?page=${page}&limit=${limit}`,

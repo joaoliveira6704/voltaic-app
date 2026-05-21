@@ -38,10 +38,9 @@ const sendEmail = () => {
     window.location.href = `mailto:${props.user.email}`;
 };
 </script>
-
 <template>
     <div
-        class="flex flex-col lg:flex-row items-center md:items-start gap-8 rounded-xl"
+        class="flex flex-col lg:flex-row items-center lg:items-start gap-8 rounded-xl"
     >
         <div class="relative shrink-0">
             <div
@@ -51,27 +50,28 @@ const sendEmail = () => {
                     :src="avatarUrl"
                     :alt="props.user.firstName + ' ' + props.user.lastName"
                     class="w-full h-full object-cover"
-                />
+                >
             </div>
         </div>
 
         <div
-            class="flex-1 flex flex-col gap-4 text-neutral-800 dark:text-white"
+            class="flex-1 flex flex-col gap-4 text-neutral-800 dark:text-white items-center lg:items-start w-full"
         >
-            <div>
-                <h1
-                    class="text-3xl font-black text-center lg:text-left uppercase"
-                >
+            <div class="text-center lg:text-left">
+                <h1 class="text-3xl font-black uppercase">
                     {{ props.user.firstName }} {{ props.user.lastName }}
                 </h1>
                 <h2 class="font-semibold mt-2">
                     <template v-if="props.user.role">
                         <template v-if="pending">
-                            <Skeleton class="h-5 w-40" />
+                            <Skeleton class="h-5 w-40 mx-auto lg:mx-0" />
                         </template>
                         <template v-else-if="props.user.companyName">
-                            {{ props.user.companyName }} -
-                            {{ props.user.role?.toUpperCase() }}
+                            <div class="flex flex-col min-[500px]:flex-row min-[500px]:items-center gap-0.5 min-[500px]:gap-2">
+                                <span>{{ props.user.companyName }}</span>
+                                <span class="hidden min-[500px]:inline text-neutral-400">-</span>
+                                <span>{{ props.user.role?.toUpperCase() }}</span>
+                            </div>
                         </template>
                         <template v-else>
                             {{ props.user.role?.toUpperCase() }}
@@ -79,33 +79,29 @@ const sendEmail = () => {
                     </template>
                 </h2>
             </div>
+
             <p class="text-neutral-400 dark:text-white/80">
                 @{{ props.user.username }}
             </p>
 
-            <div class="flex flex-col gap-4 mt-4">
+            <div class="flex flex-col gap-4 mt-4 items-center lg:items-start w-full">
                 <div
                     class="flex items-center gap-3 group cursor-pointer"
                     @click="sendEmail"
                 >
                     <Mail
-                        class="w-5 h-5 text-neutral-400 group-hover:text-black dark:group-hover:text-green-500 transition-colors"
+                        class="w-5 h-5 text-neutral-400 group-hover:text-black dark:group-hover:text-green-500 transition-colors shrink-0"
                     />
-                    <span class="text-sm font-bold lowercase">
+                    <span class="text-sm font-bold lowercase break-all">
                         {{ props.user.email }}
                     </span>
                 </div>
-
                 <div class="flex items-center gap-3 group">
                     <Globe
-                        class="w-5 h-5 text-neutral-400 group-hover:text-black dark:group-hover:text-green-500s transition-colors"
+                        class="w-5 h-5 text-neutral-400 group-hover:text-black dark:group-hover:text-green-500 transition-colors shrink-0"
                     />
                     <span class="text-sm font-bold">
-                        {{
-                            t(
-                                `lang.${props.user.preferences?.language || "en"}`,
-                            )
-                        }}
+                        {{ t(`lang.${props.user.preferences?.language || "en"}`) }}
                     </span>
                 </div>
             </div>

@@ -46,7 +46,7 @@ const handleSave = async () => {
     <div
         class="flex flex-col gap-6 py-2 h-full w-full items-center justify-center text-center mx-auto"
     >
-        <div class="flex flex-row justify-around gap-10">
+        <div class="flex flex-col min-[500px]:flex-row justify-around gap-10">
             <div class="flex gap-2 items-center justify-between group">
                 <span
                     class="text-sm font-bold text-neutral-700 dark:text-white/80 uppercase"

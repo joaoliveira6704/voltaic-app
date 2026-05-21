@@ -38,8 +38,6 @@ function formatDate(date: string | Date): string {
     });
 }
 
-console.log(props.ticket);
-
 function getOpenTime(
     createdAt: string | Date,
     closedAt?: string | Date | null,
@@ -64,12 +62,14 @@ function getOpenTime(
     >
         <!-- Left sidebar -->
         <div
-            class="flex flex-col items-center justify-center gap-2 px-4 py-4 border-r dark:border-[#2a2a2a] min-w-[110px] text-center"
+            class=" flex-col hidden min-[450px]:flex items-center justify-center gap-2 px-2 sm:px-4 py-4 border-r dark:border-[#2a2a2a] min-w-[64px] sm:min-w-[90px] lg:min-w-[110px] text-center"
         >
-            <span class="text-xs text-neutral-500 font-mono"
-                >#{{ ticket.ticketId }}</span
-            >
+            <!-- ticketId: hidden below lg (unchanged) -->
+            <span class="text-xs text-neutral-500 font-mono hidden xl:block">
+                #{{ ticket.ticketId }}
+            </span>
 
+            <!-- Status: always visible -->
             <StatusBadge
                 :value="ticket.status"
                 :ticket-id="ticket.ticketId"
@@ -77,74 +77,66 @@ function getOpenTime(
                 @update:value="onStatusChange"
             />
 
+            <!-- Time: always visible -->
             <div class="mt-1">
                 <div class="text-xl font-bold leading-none">
                     {{ formatTime(ticket.createdAt) }}
                 </div>
-                <div class="text-xs text-neutral-500 mt-0.5">
+                <!-- Date: hidden on mobile -->
+                <div class="text-xs text-neutral-500 mt-0.5 hidden sm:block">
                     {{ formatDate(ticket.createdAt) }}
                 </div>
             </div>
 
+            <!-- Open For: hidden on mobile -->
             <div
-                class="flex items-center gap-1 text-xs text-neutral-500 border rounded px-2 py-0.5 mt-1 dark:border-[#3a3a3a]"
+                class="hidden sm:flex items-center gap-1 text-xs text-neutral-500 border rounded px-2 py-0.5 mt-1 dark:border-[#3a3a3a]"
             >
                 <ClockIcon class="w-3 h-3" />
-                <span
-                    >Open For
-                    {{ getOpenTime(ticket.createdAt, ticket.closedAt) }}</span
-                >
+                <span>Open For {{ getOpenTime(ticket.createdAt, ticket.closedAt) }}</span>
             </div>
         </div>
 
         <!-- Main content -->
-        <div class="flex flex-col justify-between flex-1 px-5 py-4 gap-3">
+        <div class="flex flex-col justify-between flex-1 px-3 sm:px-5 py-4 gap-3 min-w-0">
             <div class="flex items-center gap-2">
-                <h3 class="text-base font-bold leading-tight">
+                <h3 class="text-base font-bold leading-tight truncate">
                     {{ ticket.title }}
                 </h3>
             </div>
 
-            <div class="flex flex-wrap gap-6">
+            <div class="flex flex-wrap gap-x-4 gap-y-2 lg:gap-6">
                 <div class="flex flex-col gap-0.5">
-                    <span
-                        class="text-xs font-semibold text-neutral-800 dark:text-white/90"
-                    >
+                    <span class="text-xs font-semibold text-neutral-800 dark:text-white/90">
                         {{ t("interventionCard.lastName") }}
                     </span>
-                    <span class="text-sm text-neutral-500">{{
-                        ticket.createdByUser?.lastName ?? "—"
-                    }}</span>
+                    <span class="text-sm text-neutral-500">
+                        {{ ticket.createdByUser?.lastName ?? "—" }}
+                    </span>
                 </div>
                 <div class="flex flex-col gap-0.5">
-                    <span
-                        class="text-xs font-semibold text-neutral-800 dark:text-white/90"
-                    >
+                    <span class="text-xs font-semibold text-neutral-800 dark:text-white/90">
                         {{ t("interventionCard.firstName") }}
                     </span>
-                    <span class="text-sm text-neutral-500">{{
-                        ticket.createdByUser?.firstName ?? "—"
-                    }}</span>
+                    <span class="text-sm text-neutral-500">
+                        {{ ticket.createdByUser?.firstName ?? "—" }}
+                    </span>
                 </div>
                 <div class="flex flex-col gap-0.5">
-                    <span
-                        class="text-xs font-semibold text-neutral-800 dark:text-white/90"
-                    >
+                    <span class="text-xs font-semibold text-neutral-800 dark:text-white/90">
                         Email
                     </span>
-                    <span class="text-sm text-neutral-500">{{
-                        ticket.createdByUser?.email ?? "—"
-                    }}</span>
+                    <span class="text-sm text-neutral-500 truncate max-w-[180px] sm:max-w-none">
+                        {{ ticket.createdByUser?.email ?? "—" }}
+                    </span>
                 </div>
-                <div class="flex flex-col gap-0.5">
-                    <span
-                        class="text-xs font-semibold text-neutral-800 dark:text-white/90"
-                    >
+                <div class="hidden xl:flex flex-col gap-0.5">
+                    <span class="text-xs font-semibold text-neutral-800 dark:text-white/90">
                         {{ t("interventionCard.idNumber") }}
                     </span>
-                    <span class="text-sm text-neutral-500">{{
-                        ticket.ticketId ?? "—"
-                    }}</span>
+                    <span class="text-sm text-neutral-500">
+                        {{ ticket.ticketId ?? "—" }}
+                    </span>
                 </div>
             </div>
 

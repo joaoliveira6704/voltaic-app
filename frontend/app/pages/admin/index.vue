@@ -67,7 +67,7 @@ const userDash = computed(() => userStore.dashboardStats);
                 :title="t('admin.index.totalUsers')"
                 :has-line="false"
             >
-                <CardContent>
+                <CardContent class="max-[700px]:px-0">
                     <div class="flex items-center gap-2">
                         <Users />
                         <p class="text-3xl font-semibold">
@@ -81,7 +81,7 @@ const userDash = computed(() => userStore.dashboardStats);
             </DashboardCard>
 
             <DashboardCard :title="t('admin.index.stations')" :has-line="false">
-                <CardContent>
+                <CardContent class="max-[700px]:px-0">
                     <div class="flex items-center gap-2">
                         <EvCharger />
                         <p class="text-3xl font-semibold">
@@ -102,7 +102,7 @@ const userDash = computed(() => userStore.dashboardStats);
                 :title="t('admin.index.openTickets')"
                 :has-line="false"
             >
-                <CardContent>
+                <CardContent class="max-[700px]:px-0">
                     <div class="flex items-center gap-2">
                         <TicketSlash />
                         <p class="text-3xl font-semibold">
@@ -119,7 +119,7 @@ const userDash = computed(() => userStore.dashboardStats);
                 :title="t('admin.index.companies')"
                 :has-line="false"
             >
-                <CardContent>
+                <CardContent class="max-[700px]:px-0">
                     <div class="flex items-center gap-2">
                         <Building2 />
                         <p class="text-3xl font-semibold">
@@ -139,7 +139,7 @@ const userDash = computed(() => userStore.dashboardStats);
                 :title="t('admin.index.ticketStatus')"
                 :has-line="false"
             >
-                <CardContent>
+                <CardContent class="max-[700px]:px-0">
                     <AdminTicketDonut
                         :open="ticketDash?.open ?? 0"
                         :pending="0"
@@ -153,7 +153,7 @@ const userDash = computed(() => userStore.dashboardStats);
                 :title="t('admin.index.newUsers')"
                 :has-line="false"
             >
-                <CardContent>
+                <CardContent class="max-[700px]:px-0">
                     <AdminUserChart />
                 </CardContent>
             </DashboardCard>
@@ -163,6 +163,7 @@ const userDash = computed(() => userStore.dashboardStats);
         <DashboardCard
             :title="t('admin.index.stationLocations')"
             :has-line="false"
+            class="hidden lg:block"
         >
             <CardContent>
                 <AdminStationsMap :stations="stationStore.stations" />

@@ -24,32 +24,28 @@ console.log(props.sessions);
 
 <template>
     <div class="w-full overflow-x-auto">
-        <Table class="w-full min-w-full table-fixed">
+        <Table class="w-full min-w-[600px]">
             <TableHeader>
                 <TableRow
                     class="hover:bg-transparent border-b border-neutral-100 dark:border-[#272727]"
                 >
-                    <!-- Left Aligned -->
                     <TableHead
-                        class="px-6 text-neutral-500 font-bold underline underline-offset-4 decoration-neutral-300 dark:text-white/80 text-left"
+                        class="px-3 sm:px-6 text-neutral-500 font-bold underline underline-offset-4 decoration-neutral-300 dark:text-white/80 text-left"
                     >
                         {{ t("historyTable.date") }}
                     </TableHead>
-
                     <TableHead
-                        class="px-6 text-neutral-500 font-bold underline underline-offset-4 decoration-neutral-300 dark:text-white/80 text-left"
+                        class="px-3 sm:px-6 text-neutral-500 font-bold underline underline-offset-4 decoration-neutral-300 dark:text-white/80 text-left"
                     >
                         {{ t("historyTable.vehicle") }}
                     </TableHead>
-
                     <TableHead
-                        class="px-6 text-neutral-500 font-bold underline underline-offset-4 decoration-neutral-300 text-center dark:text-white/80"
+                        class="px-3 sm:px-6 text-neutral-500 font-bold underline underline-offset-4 decoration-neutral-300 text-center dark:text-white/80"
                     >
                         {{ t("historyTable.station") }}
                     </TableHead>
-
                     <TableHead
-                        class="px-6 text-neutral-500 font-bold underline underline-offset-4 decoration-neutral-300 text-right dark:text-white/80"
+                        class="px-3 sm:px-6 text-neutral-500 font-bold underline underline-offset-4 decoration-neutral-300 text-right dark:text-white/80"
                     >
                         {{ t("historyTable.duration") }}
                     </TableHead>
@@ -62,43 +58,19 @@ console.log(props.sessions);
                     :key="session.stationUsageId"
                     class="border-b border-neutral-50 dark:border-[#272727] last:border-0 hover:bg-neutral-50/50 dark:hover:bg-[#272727]/50"
                 >
-                    <!-- Date: Left -->
-                    <TableCell
-                        class="px-6 py-4 text-neutral-800 dark:text-white/80 text-xs text-left"
-                    >
+                    <TableCell class="px-3 sm:px-6 py-4 text-neutral-800 dark:text-white/80 text-xs text-left whitespace-nowrap">
                         {{ new Date(session.createdAt).getDate() }}
-                        {{
-                            new Date(session.createdAt).toLocaleString(
-                                "default",
-                                { month: "short" },
-                            )
-                        }}
+                        {{ new Date(session.createdAt).toLocaleString("default", { month: "short" }) }}
                         {{ new Date(session.createdAt).getFullYear() }}
                     </TableCell>
-
-                    <!-- Vehicle: Left -->
-                    <TableCell
-                        class="px-6 py-4 text-neutral-800 dark:text-white/80 text-xs text-left"
-                    >
+                    <TableCell class="px-3 sm:px-6 py-4 text-neutral-800 dark:text-white/80 text-xs text-left whitespace-nowrap">
                         {{ session.plate }}
                     </TableCell>
-
-                    <!-- Station: Center (Matches Header) -->
-                    <TableCell
-                        class="px-6 py-4 text-center text-neutral-800 dark:text-white/80 text-xs"
-                    >
+                    <TableCell class="px-3 sm:px-6 py-4 text-center text-neutral-800 dark:text-white/80 text-xs whitespace-nowrap">
                         {{ session.stationName }}
                     </TableCell>
-
-                    <!-- Duration: Right (Matches Header) -->
-                    <TableCell
-                        class="px-6 py-4 text-right text-neutral-800 dark:text-white/80 text-xs tabular-nums"
-                    >
-                        {{
-                            session.duration === "active"
-                                ? "In Progress"
-                                : session.duration
-                        }}
+                    <TableCell class="px-3 sm:px-6 py-4 text-right text-neutral-800 dark:text-white/80 text-xs tabular-nums whitespace-nowrap">
+                        {{ session.duration === "active" ? "In Progress" : session.duration }}
                     </TableCell>
                 </TableRow>
             </TableBody>
