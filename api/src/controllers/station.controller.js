@@ -39,18 +39,20 @@ export const getStations = async (req, res, next) => {
     }
 
     if (near) {
+      console.log("Getting stations");
       const [lat, lng] = near.split(",").map(parseFloat);
       const distance = parseFloat(maxDistance || "10");
       const radius = distance / 6378;
 
-      const result = await paginate(stationModel, {
+      const result = await stationModel.find({
         location: {
           $geoWithin: {
             $centerSphere: [[lng, lat], radius],
           },
         },
-      }, { page: req.query.page, limit: req.query.limit });
+      });
 
+      console.log("Found: ", result.length);
       return res.json(result);
     }
 

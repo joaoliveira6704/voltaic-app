@@ -22,8 +22,8 @@ async function init() {
 init();
 
 async function removeFavorite(stationId: string) {
-  await userStore.removeFavorite(stationId);
-  favoriteStations.value = favoriteStations.value.filter(
+  const res = await userStore.removeFavorite(stationId);
+  if (res) favoriteStations.value = favoriteStations.value.filter(
     (s: any) => s.stationId !== stationId,
   );
 }

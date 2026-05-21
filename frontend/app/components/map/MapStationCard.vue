@@ -310,10 +310,10 @@ onMounted(async () => {
                             ? 'bg-blue-50 border-blue-300 text-blue-600 hover:bg-blue-100' // Priority 3: Ready to use
                             : 'bg-white border-gray-200 text-gray-400 cursor-not-allowed', // Fallback: Busy
                 ]"
-                @click="useStation"
                 :disabled="
                     (!isAvailable && !isUsage) || (!isCompatible && !isUsage)
                 "
+                @click="useStation"
             >
                 <Zap
                     :class="[

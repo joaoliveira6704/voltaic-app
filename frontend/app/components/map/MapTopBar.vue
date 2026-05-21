@@ -1,13 +1,12 @@
 <template>
     <div
-        class="absolute top-0 left-0 right-0 z-[11] flex items-center justify-between px-4 py-3 pointer-events-none"
-    >
+        class="absolute top-0 left-0 right-0 z-[11] flex items-center justify-between px-4 py-3 pointer-events-none">
         <div class="flex items-center gap-2 pointer-events-auto">
             <button
                 v-for="filter in filters"
                 :key="filter.key"
                 :class="[
-                    'flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 shadow-md backdrop-blur-sm border',
+                    'flex items-center gap-1.5 px-2.5 py-2.5 min-[475px]:py-1.5 min-[475px]:px-3 rounded-full text-xs font-semibold transition-all duration-200 shadow-md backdrop-blur-sm border',
                     filter.active
                         ? 'bg-[#22c55e] border-[#16a34a] text-white shadow-[#22c55e]/30'
                         : 'bg-white/90 border-white/60 text-gray-600 hover:bg-white',
@@ -15,12 +14,12 @@
                 @click="emit('toggle-filter', filter.key)"
             >
                 <component :is="filter.icon" class="w-3.5 h-3.5" />
-                {{ t(filter.labelKey) }}
+                <span class="hidden min-[475px]:block">{{ t(filter.labelKey) }}</span>
             </button>
 
             <button
                 :class="[
-                    'flex items-center justify-center w-8 h-8 rounded-full transition-all duration-200 shadow-md backdrop-blur-sm border',
+                    'flex items-center justify-center w-9 h-9 min-[475px]:w-7 min-[475px]:h-7 rounded-full transition-all duration-200 shadow-md backdrop-blur-sm border',
                     sidebarOpen
                         ? 'bg-gray-800 border-gray-700 text-white'
                         : 'bg-white/90 border-white/60 text-gray-600 hover:bg-white',
@@ -39,7 +38,7 @@
             >
                 <button
                     v-if="selectedConnectorsCount > 0"
-                    class="flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-red-500 border border-red-400 text-white text-xs font-semibold shadow-md transition-all duration-200 hover:bg-red-600"
+                    class="flex items-center gap-1 px-2.5 py-2.5 min-[475px]:py-1.5 min-[475px]:px-3 rounded-full bg-red-500 border border-red-400 text-white text-xs font-semibold shadow-md transition-all duration-200 hover:bg-red-600"
                     :aria-label="t('map.filters.clearConnectors')"
                     @click="emit('clear-connectors')"
                 >
@@ -49,7 +48,7 @@
             </Transition>
         </div>
 
-        <div class="pointer-events-auto">
+        <div class="pointer-events-auto ">
             <NuxtLink
                 to="/profile"
                 class="flex items-center justify-center w-9 h-9 rounded-full bg-[#22c55e] text-white font-bold text-sm shadow-md hover:bg-[#16a34a] transition-colors duration-200 uppercase"

@@ -149,7 +149,7 @@ export const useStationStore = defineStore("station", () => {
           headers: { Authorization: `Bearer ${token.value}` },
         },
       );
-      stations.value = data.data;
+      stations.value = data;
       currentPage.value = data.page;
       totalPages.value = data.pages;
     } catch (e) {

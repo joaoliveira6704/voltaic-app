@@ -1,5 +1,5 @@
 <template>
-  <div class="absolute bottom-8 right-4 z-[1000]">
+  <div class="absolute bottom-8 right-4 z-7">
     <button
       class="flex items-center justify-center w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm border border-white/60 shadow-md hover:bg-white transition-all duration-200 group"
       :aria-label="t('map.north.ariaLabel')"

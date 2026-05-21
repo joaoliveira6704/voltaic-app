@@ -1,6 +1,6 @@
 <!-- components/map/MapThemeButton.vue -->
 <template>
-    <div v-if="!isPending" class="absolute bottom-32 right-4 z-[1000]">
+    <div v-if="!isPending" class="absolute bottom-32 right-4 z-7">
         <button
             class="flex items-center justify-center w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm border border-white/60 shadow-md hover:bg-white transition-all duration-200 group disabled:opacity-50 disabled:cursor-not-allowed"
             :aria-label="t('map.theme.ariaLabel')"

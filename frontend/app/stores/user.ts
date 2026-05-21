@@ -432,6 +432,24 @@ export const useUserStore = defineStore("user", () => {
   }
 
   async function removeFavorite(stationId: string) {
+    const confirmed = await Swal.fire({
+      title: "Confirm Delete",
+      text: 'Are you sure you want to remove this station from your favorites?',
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#dc2626",
+      confirmButtonText: "Yes, Delete",
+      reverseButtons: true,
+      customClass: {
+        popup:
+          " text-sm dark:bg-[#0a0a0a] dark:border dark:border-[#171717] rounded-xl dark:text-white/80",
+        cancelButton:
+          "bg-white text-black hover:bg-gray-300 dark:bg-[#1a1a1a] dark:text-white dark:hover:bg-[#2a2a2a]",
+      },
+    });
+
+    if (!confirmed.isConfirmed) return false;
+
     try {
       const data = await $fetch<string[]>(
         `${apiBase()}/api/users/me/favorites/${stationId}`,
@@ -444,6 +462,7 @@ export const useUserStore = defineStore("user", () => {
         currentUser.value = { ...currentUser.value, favorites: data };
       }
       toast.success("Removed from favorites");
+      return true;
     } catch (e) {
       toast.error("Failed to remove favorite");
       throw e;
