@@ -5,6 +5,9 @@ import {
   deleteCompany,
   updateCompany,
   getCompanyById,
+  getCompanyGroups,
+  assignGroup,
+  unassignGroup,
 } from "../controllers/company.controller.js";
 import {
   protect,
@@ -32,5 +35,14 @@ router.patch(
   updateCompany,
 );
 router.get("/:id", protect, getCompanyById);
+
+router.get("/:id/groups", protect, getCompanyGroups);
+router.patch("/:id/groups/assign", protect, requireRole("admin"), assignGroup);
+router.patch(
+  "/:id/groups/unassign",
+  protect,
+  requireRole("admin"),
+  unassignGroup,
+);
 
 export default router;
