@@ -67,9 +67,7 @@ function formatDate(date: Date | string | undefined) {
             :value="ticket.status"
             :ticket-id="ticket.ticketId"
             type="tickets"
-            @update:value="
-              (s) => onStatusChange({ ticketId: ticket.ticketId, status: s })
-            "
+            @update:value="onStatusChange"
           />
           <span class="text-xs text-gray-500 dark:text-white/40">
             <Hash class="w-3 h-3 inline mr-1" />{{
