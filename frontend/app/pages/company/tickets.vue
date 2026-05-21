@@ -37,7 +37,10 @@ function onPageChange(p: number) {
 }
 
 function handleStatusUpdate(ticketId: string, status: string) {
-    ticketStore.updateTicket(ticketId, { status });
+  ticketStore.updateTicket(ticketId, { status });
+  if (selectedTicket.value && selectedTicket.value.ticketId === ticketId) {
+          selectedTicket.value.status = status;
+      }
 }
 </script>
 
