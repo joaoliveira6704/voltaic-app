@@ -1,4 +1,4 @@
-// stores/user.ts
+// stores/company.ts
 import { defineStore } from "pinia";
 import Swal from "sweetalert2";
 
@@ -16,6 +16,11 @@ interface Company {
   memberCount?: number;
 }
 
+interface Group {
+  groupId: string;
+  name: string;
+}
+
 export const useCompanyStore = defineStore("company", () => {
   const companies = ref<Company[]>([]);
   const currentCompany = ref<Company | undefined>(undefined);
@@ -25,7 +30,9 @@ export const useCompanyStore = defineStore("company", () => {
   const dashboardStats = ref(null);
 
   function getCompanyName(companyId: string) {
-    return companies.value.find((c) => c.companyId === companyId)?.name ?? "UNKNOWN";
+    return (
+      companies.value.find((c) => c.companyId === companyId)?.name ?? "UNKNOWN"
+    );
   }
 
   const token = () => useCookie("token").value;
@@ -45,14 +52,20 @@ export const useCompanyStore = defineStore("company", () => {
     }
   }
 
-  async function fetchCompanies(page = 1, limit = 20, params: Record<string, string> = {}) {
+  async function fetchCompanies(
+    page = 1,
+    limit = 20,
+    params: Record<string, string> = {},
+  ) {
     try {
-      const query = new URLSearchParams({ page: String(page), limit: String(limit), ...params });
+      const query = new URLSearchParams({
+        page: String(page),
+        limit: String(limit),
+        ...params,
+      });
       const data = await $fetch<PaginatedResponse<Company>>(
         `${apiBase()}/api/companies?${query}`,
-        {
-          headers: { Authorization: `Bearer ${token()}` },
-        },
+        { headers: { Authorization: `Bearer ${token()}` } },
       );
       companies.value = data.data;
       currentPage.value = data.page;
@@ -86,7 +99,6 @@ export const useCompanyStore = defineStore("company", () => {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token()}` },
       });
-
       companies.value = companies.value.filter(
         (c) => c.companyId !== companyId,
       );
@@ -117,8 +129,6 @@ export const useCompanyStore = defineStore("company", () => {
         headers: { Authorization: `Bearer ${token()}` },
         body: company,
       });
-
-      // Use the response from the server which contains the real DB object
       companies.value.push(response);
       toast.success("Station added successfully");
       return response;
@@ -127,6 +137,34 @@ export const useCompanyStore = defineStore("company", () => {
       toast.error("Failed to add station");
       throw e;
     }
+  }
+
+  // ── Group Assignment ───────────────────────────────────────────────────────
+
+  async function fetchCompanyGroups(
+    companyId: string,
+  ): Promise<{ assigned: Group[]; unassigned: Group[] }> {
+    const data = await $fetch<{ assigned: Group[]; unassigned: Group[] }>(
+      `${apiBase()}/api/companies/${companyId}/groups`,
+      { headers: { Authorization: `Bearer ${token()}` } },
+    );
+    return data;
+  }
+
+  async function assignGroup(companyId: string, groupId: string) {
+    await $fetch(`${apiBase()}/api/companies/${companyId}/groups/assign`, {
+      method: "PATCH",
+      headers: { Authorization: `Bearer ${token()}` },
+      body: { groupId },
+    });
+  }
+
+  async function unassignGroup(companyId: string, groupId: string) {
+    await $fetch(`${apiBase()}/api/companies/${companyId}/groups/unassign`, {
+      method: "PATCH",
+      headers: { Authorization: `Bearer ${token()}` },
+      body: { groupId },
+    });
   }
 
   return {
@@ -142,5 +180,8 @@ export const useCompanyStore = defineStore("company", () => {
     createCompany,
     fetchCurrentCompany,
     currentCompany,
+    fetchCompanyGroups,
+    assignGroup,
+    unassignGroup,
   };
 });

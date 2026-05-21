@@ -30,15 +30,13 @@ const emit = defineEmits<{
   (e: "saved"): void;
 }>();
 
-const apiBase = () => useRuntimeConfig().public.apiBaseUrl;
-const token = () => useCookie("token").value;
+const companyStore = useCompanyStore();
 
 const assigned = ref<Group[]>([]);
 const unassigned = ref<Group[]>([]);
 const isLoading = ref(false);
 const isSaving = ref(false);
 
-// Track staged changes
 const toAssign = ref<string[]>([]);
 const toUnassign = ref<string[]>([]);
 
@@ -46,10 +44,7 @@ async function fetchGroups() {
   if (!props.company) return;
   isLoading.value = true;
   try {
-    const data = await $fetch<{ assigned: Group[]; unassigned: Group[] }>(
-      `${apiBase()}/api/companies/${props.company.companyId}/groups`,
-      { headers: { Authorization: `Bearer ${token()}` } },
-    );
+    const data = await companyStore.fetchCompanyGroups(props.company.companyId);
     assigned.value = [...data.assigned];
     unassigned.value = [...data.unassigned];
   } catch (e) {
@@ -87,24 +82,10 @@ async function saveChanges() {
   try {
     await Promise.all([
       ...toAssign.value.map((groupId) =>
-        $fetch(
-          `${apiBase()}/api/companies/${props.company!.companyId}/groups/assign`,
-          {
-            method: "PATCH",
-            headers: { Authorization: `Bearer ${token()}` },
-            body: { groupId },
-          },
-        ),
+        companyStore.assignGroup(props.company!.companyId, groupId),
       ),
       ...toUnassign.value.map((groupId) =>
-        $fetch(
-          `${apiBase()}/api/companies/${props.company!.companyId}/groups/unassign`,
-          {
-            method: "PATCH",
-            headers: { Authorization: `Bearer ${token()}` },
-            body: { groupId },
-          },
-        ),
+        companyStore.unassignGroup(props.company!.companyId, groupId),
       ),
     ]);
     emit("saved");
@@ -185,7 +166,7 @@ watch(
               <div
                 v-for="group in assigned"
                 :key="group.groupId"
-                class="flex items-center justify-between px-3 py-2 rounded-md bg-gray-50 dark:bg-[#1a1a1a] group/item"
+                class="flex items-center justify-between px-3 py-2 rounded-md bg-gray-50 dark:bg-[#1a1a1a]"
               >
                 <span
                   class="text-sm font-medium text-gray-800 dark:text-white/80"
@@ -201,7 +182,7 @@ watch(
             </div>
           </div>
 
-          <!-- Unassigned -->
+          <!-- Available -->
           <div class="space-y-2">
             <p class="text-xs font-bold uppercase text-gray-500 tracking-wide">
               Available
