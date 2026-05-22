@@ -43,10 +43,15 @@ export const useTicketStore = defineStore("ticket", () => {
     }
   }
 
-  async function fetchTickets(page = 1, limit = 20) {
+  async function fetchTickets(page = 1, limit = 20, params: Record<string, string> = {}) {
     try {
+      const query = new URLSearchParams({
+        page: String(page),
+        limit: String(limit),
+        ...params,
+      });
       const data = await $fetch<PaginatedResponse<Ticket>>(
-        `${apiBase()}/api/tickets?page=${page}&limit=${limit}`,
+        `${apiBase()}/api/tickets?${query}`,
         {
           headers: { Authorization: `Bearer ${token()}` },
         },
@@ -60,10 +65,15 @@ export const useTicketStore = defineStore("ticket", () => {
     }
   }
 
-  async function fetchMyTickets(page = 1, limit = 5) {
+  async function fetchMyTickets(page = 1, limit = 5, params: Record<string, string> = {}) {
     try {
+      const query = new URLSearchParams({
+        page: String(page),
+        limit: String(limit),
+        ...params,
+      });
       const data = await $fetch<PaginatedResponse<Ticket>>(
-        `${apiBase()}/api/users/me/tickets?page=${page}&limit=${limit}`,
+        `${apiBase()}/api/users/me/tickets?${query}`,
         {
           headers: { Authorization: `Bearer ${token()}` },
         },
@@ -77,10 +87,15 @@ export const useTicketStore = defineStore("ticket", () => {
     }
   }
 
-  async function fetchCompanyTickets(page = 1, limit = 5) {
+  async function fetchCompanyTickets(page = 1, limit = 5, params: Record<string, string> = {}) {
     try {
+      const query = new URLSearchParams({
+        page: String(page),
+        limit: String(limit),
+        ...params,
+      });
       const data = await $fetch<PaginatedResponse<Ticket>>(
-        `${apiBase()}/api/users/me/company/tickets?page=${page}&limit=${limit}`,
+        `${apiBase()}/api/users/me/company/tickets?${query}`,
         {
           headers: { Authorization: `Bearer ${token()}` },
         },

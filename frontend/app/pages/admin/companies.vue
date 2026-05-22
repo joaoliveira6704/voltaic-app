@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { AdminCompanyColumns } from "@/utils/constants";
 import { Skeleton, SkeletonTable } from "~/components/ui/Skeleton";
 import Pagination from "~/components/ui/Pagination.vue";
@@ -15,22 +15,38 @@ const isPending = ref(true);
 const searchTerm = ref("");
 const page = ref(1);
 const selectedCompany = ref(null);
+const sortColumn = ref("");
+const sortDirection = ref("");
 
 const companyStore = useCompanyStore();
 const { companies, currentPage, totalPages } = storeToRefs(companyStore);
 
-function onPageChange(p) {
-  page.value = p;
-  companyStore.fetchCompanies(p, 100, { view: "admin" });
+function buildParams() {
+  const params: Record<string, string> = { view: "admin" };
+  if (searchTerm.value) params.search = searchTerm.value;
+  if (sortColumn.value && sortDirection.value) {
+    params.sort = `${sortColumn.value}:${sortDirection.value}`;
+  }
+  return params;
 }
 
-const filtered = computed(() =>
-  companies.value.filter((c) =>
-    c.name.toLowerCase().includes(searchTerm.value.toLowerCase()),
-  ),
-);
+async function fetchData() {
+  await companyStore.fetchCompanies(page.value, 100, buildParams());
+}
 
-const deleteCompany = (company) => {
+function onPageChange(p: number) {
+  page.value = p;
+  fetchData();
+}
+
+function onSort({ column, direction }: { column: string; direction: string }) {
+  sortColumn.value = column;
+  sortDirection.value = direction;
+  page.value = 1;
+  fetchData();
+}
+
+const deleteCompany = (company: any) => {
   try {
     companyStore.deleteCompany(company.companyId, company.name);
   } catch (error) {
@@ -38,18 +54,27 @@ const deleteCompany = (company) => {
   }
 };
 
-const getCompanyName = (companyId) => {
+const getCompanyName = (companyId: string) => {
   return companyStore.getCompanyName(companyId);
 };
+
+const editCompany = (company: any) => {
+  selectedCompany.value = company;
+  isEditDialogOpen.value = true;
+};
+
+let debounceTimer: ReturnType<typeof setTimeout>;
+watch(searchTerm, () => {
+  clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(() => {
+    page.value = 1;
+    fetchData();
+  }, 300);
+});
 
 companyStore.fetchCompanies(1, 100, { view: "admin" }).finally(() => {
   isPending.value = false;
 });
-
-const editCompany = (company) => {
-  selectedCompany.value = company;
-  isEditDialogOpen.value = true;
-};
 </script>
 
 <template>
@@ -82,13 +107,16 @@ const editCompany = (company) => {
         :is-open="isEditDialogOpen"
         :company="selectedCompany"
         @close="isEditDialogOpen = false"
-        @saved="companyStore.fetchCompanies(page, 100, { view: 'admin' })"
+        @saved="fetchData"
       />
     </template>
 
     <AdminTable
       :rows="companies"
       :columns="AdminCompanyColumns"
+      :sort-column="sortColumn"
+      :sort-direction="sortDirection"
+      @sort="onSort"
       @edit="editCompany"
       @delete="deleteCompany"
       type="company"

@@ -4,9 +4,25 @@ import generateUniqueId from "../utils/utils.js";
 import companyModel from "../models/company.model.js";
 import { paginate } from "../utils/paginate.js";
 
+const userSortFieldMap = {
+  username: "username",
+  name: "firstName",
+  email: "email",
+  role: "role",
+  company: "companyName",
+  vehicles: "vehicleQuantity",
+};
+
+const parseUserSort = (sort) => {
+  if (!sort) return { createdAt: -1 };
+  const [field, direction] = sort.split(":");
+  const sortField = userSortFieldMap[field] || "createdAt";
+  return { [sortField]: direction === "asc" ? 1 : -1 };
+};
+
 export const getUsers = async (req, res, next) => {
   try {
-    const { view } = req.query;
+    const { view, search, sort, role } = req.query;
 
     if (view === "dashboard") {
       const total = await userModel.countDocuments();
@@ -22,6 +38,7 @@ export const getUsers = async (req, res, next) => {
       const skip = (pageNum - 1) * limitNum;
 
       const pipeline = [
+        ...(role ? [{ $match: { role } }] : []),
         {
           $lookup: {
             from: "companies",
@@ -39,6 +56,20 @@ export const getUsers = async (req, res, next) => {
             },
           },
         },
+        ...(search
+          ? [
+              {
+                $match: {
+                  $or: [
+                    { username: { $regex: search, $options: "i" } },
+                    { firstName: { $regex: search, $options: "i" } },
+                    { lastName: { $regex: search, $options: "i" } },
+                    { email: { $regex: search, $options: "i" } },
+                  ],
+                },
+              },
+            ]
+          : []),
         {
           $project: {
             _id: 0,
@@ -53,7 +84,7 @@ export const getUsers = async (req, res, next) => {
             isWorkerOrManager: 1,
           },
         },
-        { $sort: { createdAt: -1 } },
+        { $sort: parseUserSort(sort) },
       ];
 
       const [countResult, data] = await Promise.all([

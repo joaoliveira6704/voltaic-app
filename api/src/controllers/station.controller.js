@@ -4,9 +4,23 @@ import logModel from "../models/log.model.js";
 import generateUniqueId from "../utils/utils.js";
 import { paginate } from "../utils/paginate.js";
 
+const stationSortFieldMap = {
+  stationId: "stationId",
+  title: "title",
+  "connector.maxPower": "connector.maxPower",
+  state: "state",
+};
+
+const parseStationSort = (sort) => {
+  if (!sort) return { createdAt: -1 };
+  const [field, direction] = sort.split(":");
+  const sortField = stationSortFieldMap[field] || "createdAt";
+  return { [sortField]: direction === "asc" ? 1 : -1 };
+};
+
 export const getStations = async (req, res, next) => {
   try {
-    const { near, maxDistance, view } = req.query;
+    const { near, maxDistance, view, search, sort } = req.query;
 
     if (view === "dashboard") {
       const stats = await stationModel.aggregate([
@@ -56,7 +70,21 @@ export const getStations = async (req, res, next) => {
       return res.json(result);
     }
 
-    const result = await paginate(stationModel, {}, { page: req.query.page, limit: req.query.limit });
+    const filter = search
+      ? {
+          $or: [
+            { title: { $regex: search, $options: "i" } },
+            { stationId: { $regex: search, $options: "i" } },
+          ],
+        }
+      : {};
+
+    const sortObj = parseStationSort(sort);
+    const result = await paginate(stationModel, filter, {
+      page: req.query.page,
+      limit: req.query.limit,
+      sort: sortObj,
+    });
     res.json(result);
   } catch (error) {
     next(error);

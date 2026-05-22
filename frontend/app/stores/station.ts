@@ -28,10 +28,15 @@ export const useStationStore = defineStore("station", () => {
 
   // ── Actions ───────────────────────────────────────────────────────────────
 
-  async function fetchStations(page = 1, limit = 20) {
+  async function fetchStations(page = 1, limit = 20, params: Record<string, string> = {}) {
     try {
+      const query = new URLSearchParams({
+        page: String(page),
+        limit: String(limit),
+        ...params,
+      });
       const data = await $fetch<PaginatedResponse<Station>>(
-        `${apiBaseUrl}/api/stations?page=${page}&limit=${limit}`,
+        `${apiBaseUrl}/api/stations?${query}`,
         {
           headers: { Authorization: `Bearer ${token.value}` },
         },

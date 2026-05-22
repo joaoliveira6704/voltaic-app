@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { AdminTicketColumns } from "@/utils/constants";
+import { AdminTicketColumns, TicketStates } from "@/utils/constants";
 import { Skeleton, SkeletonTable } from "~/components/ui/Skeleton";
 import Pagination from "~/components/ui/Pagination.vue";
 import TicketDetailModal from "~/components/modals/TicketDetailModal.vue";
@@ -16,15 +16,12 @@ const searchTerm = ref("");
 const page = ref(1);
 const selectedTicket = ref<Ticket | null>(null);
 const isTicketDetailOpen = ref(false);
+const sortColumn = ref("");
+const sortDirection = ref("");
+const statusFilter = ref("");
 
 const ticketStore = useTicketStore();
-const { tickets } = storeToRefs(ticketStore);
-
-const filtered = computed(() =>
-    tickets.value.filter((t) =>
-        t.title.toLowerCase().includes(searchTerm.value.toLowerCase()),
-    ),
-);
+const { tickets, currentPage, totalPages } = storeToRefs(ticketStore);
 
 const deleteTicket = (ticket: Ticket) => {
     try {
@@ -46,10 +43,47 @@ const handleStatusUpdate = ({
 
 function onPageChange(p: number) {
     page.value = p;
-    ticketStore.fetchTickets(p);
+    fetchData();
 }
 
-ticketStore.fetchTickets(1).finally(() => {
+function onSort({ column, direction }: { column: string; direction: string }) {
+    sortColumn.value = column;
+    sortDirection.value = direction;
+    page.value = 1;
+    fetchData();
+}
+
+function onStatusFilterChange(event: Event) {
+    const target = event.target as HTMLSelectElement;
+    statusFilter.value = target.value;
+    page.value = 1;
+    fetchData();
+}
+
+function buildParams() {
+    const params: Record<string, string> = {};
+    if (searchTerm.value) params.search = searchTerm.value;
+    if (sortColumn.value && sortDirection.value) {
+        params.sort = `${sortColumn.value}:${sortDirection.value}`;
+    }
+    if (statusFilter.value) params.status = statusFilter.value;
+    return params;
+}
+
+async function fetchData() {
+    await ticketStore.fetchTickets(page.value, 20, buildParams());
+}
+
+let debounceTimer: ReturnType<typeof setTimeout>;
+watch(searchTerm, () => {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => {
+        page.value = 1;
+        fetchData();
+    }, 300);
+});
+
+ticketStore.fetchTickets(1, 20).finally(() => {
     isPending.value = false;
 });
 </script>
@@ -85,10 +119,25 @@ ticketStore.fetchTickets(1).finally(() => {
                 "
             />
         </template>
+        <div class="flex items-center gap-2 mb-2">
+            <select
+                :value="statusFilter"
+                class="text-xs border border-black rounded-md px-2 py-1.5 bg-transparent"
+                @change="onStatusFilterChange"
+            >
+                <option value="">All statuses</option>
+                <option v-for="s in TicketStates" :key="s.key" :value="s.key">
+                    {{ s.label }}
+                </option>
+            </select>
+        </div>
         <AdminTable
-            :rows="filtered"
+            :rows="tickets"
             :columns="AdminTicketColumns"
             type="tickets"
+            :sort-column="sortColumn"
+            :sort-direction="sortDirection"
+            @sort="onSort"
             @delete="deleteTicket"
             @click="
                 (row) => {
@@ -119,8 +168,8 @@ ticketStore.fetchTickets(1).finally(() => {
             </template>
         </AdminTable>
         <Pagination
-            :current-page="ticketStore.currentPage"
-            :total-pages="ticketStore.totalPages"
+            :current-page="currentPage"
+            :total-pages="totalPages"
             @update:page="onPageChange"
         />
     </AdminPage>

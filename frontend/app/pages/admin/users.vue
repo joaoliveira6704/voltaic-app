@@ -1,5 +1,5 @@
-<script setup>
-import { AdminUserColumns } from "@/utils/constants";
+<script setup lang="ts">
+import { AdminUserColumns, UserRoles } from "@/utils/constants";
 import { Skeleton, SkeletonTable } from "~/components/ui/Skeleton";
 import Pagination from "~/components/ui/Pagination.vue";
 
@@ -15,40 +15,78 @@ const isPending = ref(true);
 
 const searchTerm = ref("");
 const page = ref(1);
+const sortColumn = ref("");
+const sortDirection = ref("");
+const roleFilter = ref("");
 
 const userStore = useUserStore();
 const { users, currentPage, totalPages } = storeToRefs(userStore);
 
-function onPageChange(p) {
-    page.value = p;
-    userStore.fetchUsers(p, 25, { view: "admin" });
+function buildParams() {
+    const params = { view: "admin" } as Record<string, string>;
+    if (searchTerm.value) params.search = searchTerm.value;
+    if (sortColumn.value && sortDirection.value) {
+        params.sort = `${sortColumn.value}:${sortDirection.value}`;
+    }
+    if (roleFilter.value) params.role = roleFilter.value;
+    return params;
 }
 
-const deleteUser = async (user) => {
+async function fetchData() {
+    await userStore.fetchUsers(page.value, 25, buildParams());
+}
+
+function onPageChange(p: number) {
+    page.value = p;
+    fetchData();
+}
+
+function onSort({ column, direction }: { column: string; direction: string }) {
+    sortColumn.value = column;
+    sortDirection.value = direction;
+    page.value = 1;
+    fetchData();
+}
+
+function onRoleFilterChange(event: Event) {
+    roleFilter.value = (event.target as HTMLSelectElement).value;
+    page.value = 1;
+    fetchData();
+}
+
+async function deleteUser(user: any) {
     try {
         await userStore.deleteUser(user.userId, user.username);
     } catch (error) {
         console.log(error);
-        return;
     }
-};
+}
 
-const editingUser = ref(null);
+const editingUser = ref<any>(null);
 
-const openEditUserModal = (user) => {
+function openEditUserModal(user: any) {
     editingUser.value = user;
     isEditUserModalOpen.value = true;
-};
+}
 
-const onUserUpdated = () => {
+function onUserUpdated() {
     isEditUserModalOpen.value = false;
     editingUser.value = null;
-    userStore.fetchUsers(page.value, 25, { view: "admin" });
-};
+    fetchData();
+}
 
-const handleRoleChange = async (userId, role) => {
+function handleRoleChange(userId: string, role: string) {
     userStore.editUserRole(userId, role);
-};
+}
+
+let debounceTimer: ReturnType<typeof setTimeout>;
+watch(searchTerm, () => {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => {
+        page.value = 1;
+        fetchData();
+    }, 300);
+});
 
 userStore.fetchUsers(1, 25, { view: "admin" }).finally(() => {
     isPending.value = false;
@@ -91,9 +129,29 @@ userStore.fetchUsers(1, 25, { view: "admin" }).finally(() => {
             />
         </template>
 
+        <div class="flex items-center gap-2 mb-2">
+            <select
+                :value="roleFilter"
+                class="text-xs border border-black rounded-md px-2 py-1.5 bg-transparent"
+                @change="onRoleFilterChange"
+            >
+                <option value="">All roles</option>
+                <option
+                    v-for="r in UserRoles"
+                    :key="r.key"
+                    :value="r.key"
+                >
+                    {{ r.key }}
+                </option>
+            </select>
+        </div>
+
         <AdminTable
             :rows="users"
             :columns="AdminUserColumns"
+            :sort-column="sortColumn"
+            :sort-direction="sortDirection"
+            @sort="onSort"
             @edit="openEditUserModal"
             @delete="deleteUser"
             type="users"

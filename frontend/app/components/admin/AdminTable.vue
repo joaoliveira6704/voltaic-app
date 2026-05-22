@@ -1,11 +1,37 @@
-<script setup>
+<script setup lang="ts">
+import { ArrowUpDown, ArrowUp, ArrowDown } from "lucide-vue-next";
+
 const { t } = useI18n();
-defineProps({
-    columns: Array,
-    rows: Array,
-    type: "users" | "tickets" | "stations" | "companies",
-});
-defineEmits(["edit", "delete", "click"]);
+const props = defineProps<{
+    columns: any[];
+    rows: any[];
+    type: string;
+    sortColumn?: string;
+    sortDirection?: string;
+}>();
+const emit = defineEmits<{
+    (e: "edit", row: any): void;
+    (e: "delete", row: any): void;
+    (e: "click", row: any): void;
+    (e: "sort", payload: { column: string; direction: string }): void;
+}>();
+
+function toggleSort(columnKey: string) {
+    if (props.sortColumn === columnKey) {
+        if (props.sortDirection === "asc") {
+            emit("sort", { column: columnKey, direction: "desc" });
+        } else {
+            emit("sort", { column: "", direction: "" });
+        }
+    } else {
+        emit("sort", { column: columnKey, direction: "asc" });
+    }
+}
+
+function getSortIcon(columnKey: string) {
+    if (props.sortColumn !== columnKey) return ArrowUpDown;
+    return props.sortDirection === "asc" ? ArrowUp : ArrowDown;
+}
 </script>
 
 <template>
@@ -17,14 +43,27 @@ defineEmits(["edit", "delete", "click"]);
                     :key="col.key"
                     class="text-xs uppercase"
                 >
-                    {{ col.label }}
+                    <button
+                        class="inline-flex items-center gap-1 hover:text-foreground transition-colors"
+                        @click="toggleSort(col.key)"
+                    >
+                        {{ col.label }}
+                        <component
+                            :is="getSortIcon(col.key)"
+                            class="h-3 w-3"
+                            :class="
+                                sortColumn === col.key
+                                    ? 'text-foreground'
+                                    : 'text-muted-foreground/40'
+                            "
+                        />
+                    </button>
                 </TableHead>
                 <TableHead class="text-xs uppercase">{{
                     t("admin.table.actions")
                 }}</TableHead>
             </TableRow>
         </TableHeader>
-        <!-- AdminTable.vue -->
         <TableBody>
             <TableRow
                 v-for="row in rows"
@@ -33,9 +72,9 @@ defineEmits(["edit", "delete", "click"]);
                 @click="$emit('click', row)"
             >
                 <slot :row="row" />
-                <!-- ← this must be here, passing row back out -->
                 <TableCell>
                     <ActionButtons
+                        :type="props.type"
                         @edit="$emit('edit', row)"
                         @delete="$emit('delete', row)"
                     />

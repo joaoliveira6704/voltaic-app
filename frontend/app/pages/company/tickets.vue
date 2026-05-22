@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useCompanyStore } from "~/stores/company";
 import { useTicketStore } from "~/stores/ticket";
+import { TicketStates } from "@/utils/constants";
 import RegisterInterventionModal from "~/components/modals/RegisterInterventionModal.vue";
 import TicketDetailModal from "~/components/modals/TicketDetailModal.vue";
 import { Skeleton, SkeletonInterventionCard } from "~/components/ui/Skeleton";
@@ -13,6 +14,7 @@ const ticketStore = useTicketStore();
 const isPending = ref(true);
 const page = ref(1);
 const searchTerm = ref("");
+const statusFilter = ref("");
 
 Promise.all([
     companyStore.fetchCurrentCompany(),
@@ -22,23 +24,45 @@ Promise.all([
 });
 
 const tickets = computed(() => ticketStore.tickets);
-const filtered = computed(() =>
-    tickets.value.filter((t) =>
-        t.title.toLowerCase().includes(searchTerm.value.toLowerCase()),
-    ),
-);
 const isInterventionModalOpen = ref(false);
 const selectedTicket = ref<any>(null);
 const isTicketDetailOpen = ref(false);
 
+function buildParams() {
+    const params: Record<string, string> = {};
+    if (searchTerm.value) params.search = searchTerm.value;
+    if (statusFilter.value) params.status = statusFilter.value;
+    return params;
+}
+
+async function fetchData() {
+    await ticketStore.fetchCompanyTickets(page.value, 5, buildParams());
+}
+
 function onPageChange(p: number) {
     page.value = p;
-    ticketStore.fetchCompanyTickets(p);
+    fetchData();
+}
+
+function onStatusFilterChange(event: Event) {
+    const target = event.target as HTMLSelectElement;
+    statusFilter.value = target.value;
+    page.value = 1;
+    fetchData();
 }
 
 function handleStatusUpdate(ticketId: string, status: string) {
     ticketStore.updateTicket(ticketId, { status });
 }
+
+let debounceTimer: ReturnType<typeof setTimeout>;
+watch(searchTerm, () => {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => {
+        page.value = 1;
+        fetchData();
+    }, 300);
+});
 </script>
 
 <template>
@@ -56,11 +80,27 @@ function handleStatusUpdate(ticketId: string, status: string) {
                 <div
                     class="flex items-center justify-between gap-4 w-full mb-5"
                 >
-                    <Input
-                        v-model="searchTerm"
-                        :placeholder="t('adminPage.search')"
-                        class="max-w-xs"
-                    />
+                    <div class="flex items-center gap-2">
+                        <Input
+                            v-model="searchTerm"
+                            :placeholder="t('adminPage.search')"
+                            class="max-w-xs"
+                        />
+                        <select
+                            :value="statusFilter"
+                            class="text-xs border border-black rounded-md px-2 py-1.5 bg-transparent"
+                            @change="onStatusFilterChange"
+                        >
+                            <option value="">All statuses</option>
+                            <option
+                                v-for="s in TicketStates"
+                                :key="s.key"
+                                :value="s.key"
+                            >
+                                {{ s.label }}
+                            </option>
+                        </select>
+                    </div>
                     <Pagination
                         :current-page="ticketStore.currentPage"
                         :total-pages="ticketStore.totalPages"
@@ -70,7 +110,7 @@ function handleStatusUpdate(ticketId: string, status: string) {
                 <ClientOnly>
                     <div class="flex flex-col gap-5 w-full pb-4">
                         <InterventionCard
-                            v-for="ticket in filtered"
+                            v-for="ticket in tickets"
                             :key="ticket.ticketId"
                             class="w-full !h-auto"
                             :ticket="ticket"

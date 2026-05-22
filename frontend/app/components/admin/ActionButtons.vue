@@ -1,5 +1,11 @@
-<script setup>
+<script setup lang="ts">
 import { PencilIcon, Trash2Icon } from "lucide-vue-next";
+
+interface Props {
+    type: string;
+}
+
+const props = defineProps<Props>();
 
 defineEmits(["edit", "delete"]);
 </script>
@@ -7,10 +13,11 @@ defineEmits(["edit", "delete"]);
 <template>
     <div class="flex">
         <Button
+            v-if="props.type !== 'tickets'"
             variant="ghost"
             class="hover:text-blue-500"
             size="sm"
-            @click="$emit('edit')"
+            @click.stop="$emit('edit')"
         >
             <PencilIcon />
         </Button>
@@ -18,7 +25,7 @@ defineEmits(["edit", "delete"]);
             variant="ghost"
             class="hover:text-red-500"
             size="sm"
-            @click="$emit('delete')"
+            @click.stop="$emit('delete')"
         >
             <Trash2Icon />
         </Button>

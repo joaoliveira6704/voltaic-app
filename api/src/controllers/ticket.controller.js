@@ -4,12 +4,29 @@ import companyModel from "../models/company.model.js";
 import logModel from "../models/log.model.js";
 import generateUniqueId from "../utils/utils.js";
 
+const sortFieldMap = {
+  ticketId: "ticketId",
+  createdBy: "createdByUser.username",
+  title: "title",
+  description: "description",
+  remarks: "remarks",
+  status: "status",
+};
+
+const parseSort = (sort) => {
+  if (!sort) return { createdAt: -1 };
+  const [field, direction] = sort.split(":");
+  const sortField = sortFieldMap[field] || "createdAt";
+  return { [sortField]: direction === "asc" ? 1 : -1 };
+};
+
 const paginate = async (
   Model,
   filter,
   page = 1,
   limit = 20,
   sort = { createdAt: -1 },
+  search = "",
 ) => {
   page = Math.max(1, parseInt(page) || 1);
   limit = Math.min(100, Math.max(1, parseInt(limit) || 20));
@@ -53,6 +70,24 @@ const paginate = async (
         station: { $arrayElemAt: ["$station", 0] },
       },
     },
+    ...(search
+      ? [
+          {
+            $match: {
+              $or: [
+                { title: { $regex: search, $options: "i" } },
+                { description: { $regex: search, $options: "i" } },
+                { remarks: { $regex: search, $options: "i" } },
+                { ticketId: { $regex: search, $options: "i" } },
+                { "createdByUser.username": { $regex: search, $options: "i" } },
+                { "createdByUser.firstName": { $regex: search, $options: "i" } },
+                { "createdByUser.lastName": { $regex: search, $options: "i" } },
+                { "createdByUser.email": { $regex: search, $options: "i" } },
+              ],
+            },
+          },
+        ]
+      : []),
     { $project: { __v: 0 } },
     { $sort: sort },
     {
@@ -118,7 +153,7 @@ export const createTicket = async (req, res, next) => {
 
 export const getTickets = async (req, res, next) => {
   try {
-    const { page, limit, stationless, view } = req.query;
+    const { page, limit, stationless, view, search, sort, status } = req.query;
 
     if (view === "dashboard") {
       const [counts, recent] = await Promise.all([
@@ -175,8 +210,12 @@ export const getTickets = async (req, res, next) => {
       return res.json({ ...stats, recent });
     }
 
-    const filter = stationless === "true" ? { stationId: null } : {};
-    const result = await paginate(ticketModel, filter, page, limit);
+    const filter = {};
+    if (stationless === "true") filter.stationId = null;
+    if (status) filter.status = status;
+
+    const sortObj = parseSort(sort);
+    const result = await paginate(ticketModel, filter, page, limit, sortObj, search);
     res.json(result);
   } catch (error) {
     next(error);
@@ -185,13 +224,11 @@ export const getTickets = async (req, res, next) => {
 
 export const getMyTickets = async (req, res, next) => {
   try {
-    const { page, limit } = req.query;
-    const result = await paginate(
-      ticketModel,
-      { createdBy: req.user.userId },
-      page,
-      limit,
-    );
+    const { page, limit, search, sort, status } = req.query;
+    const filter = { createdBy: req.user.userId };
+    if (status) filter.status = status;
+    const sortObj = parseSort(sort);
+    const result = await paginate(ticketModel, filter, page, limit, sortObj, search);
     res.json(result);
   } catch (error) {
     next(error);
@@ -200,13 +237,11 @@ export const getMyTickets = async (req, res, next) => {
 
 export const getCompanyTickets = async (req, res, next) => {
   try {
-    const { page, limit } = req.query;
-    const result = await paginate(
-      ticketModel,
-      { companyId: req.user.companyId },
-      page,
-      limit,
-    );
+    const { page, limit, search, sort, status } = req.query;
+    const filter = { companyId: req.user.companyId };
+    if (status) filter.status = status;
+    const sortObj = parseSort(sort);
+    const result = await paginate(ticketModel, filter, page, limit, sortObj, search);
     res.json(result);
   } catch (error) {
     next(error);
@@ -216,7 +251,7 @@ export const getCompanyTickets = async (req, res, next) => {
 export const getStationTickets = async (req, res, next) => {
   try {
     const { stationId } = req.params;
-    const { page, limit } = req.query;
+    const { page, limit, search, sort, status } = req.query;
 
     const station = await stationModel.findOne({ stationId });
     if (!station) {
@@ -225,7 +260,10 @@ export const getStationTickets = async (req, res, next) => {
       return next(err);
     }
 
-    const result = await paginate(ticketModel, { stationId }, page, limit);
+    const filter = { stationId };
+    if (status) filter.status = status;
+    const sortObj = parseSort(sort);
+    const result = await paginate(ticketModel, filter, page, limit, sortObj, search);
     res.json(result);
   } catch (error) {
     next(error);

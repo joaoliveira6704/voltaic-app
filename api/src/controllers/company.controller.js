@@ -3,9 +3,22 @@ import groupModel from "../models/group.model.js";
 import generateUniqueId from "../utils/utils.js";
 import { paginate } from "../utils/paginate.js";
 
+const companySortFieldMap = {
+  companyId: "companyId",
+  name: "name",
+  members: "memberCount",
+};
+
+const parseCompanySort = (sort) => {
+  if (!sort) return { name: 1 };
+  const [field, direction] = sort.split(":");
+  const sortField = companySortFieldMap[field] || "name";
+  return { [sortField]: direction === "asc" ? 1 : -1 };
+};
+
 export const getCompanies = async (req, res, next) => {
   try {
-    const { companyIds, view } = req.query;
+    const { companyIds, view, search, sort } = req.query;
 
     if (companyIds) {
       const idArray = companyIds.split(",");
@@ -69,6 +82,18 @@ export const getCompanies = async (req, res, next) => {
       const skip = (pageNum - 1) * limitNum;
 
       const pipeline = [
+        ...(search
+          ? [
+              {
+                $match: {
+                  $or: [
+                    { name: { $regex: search, $options: "i" } },
+                    { companyId: { $regex: search, $options: "i" } },
+                  ],
+                },
+              },
+            ]
+          : []),
         {
           $lookup: {
             from: "users",
@@ -90,7 +115,7 @@ export const getCompanies = async (req, res, next) => {
             memberCount: 1,
           },
         },
-        { $sort: { name: 1 } },
+        { $sort: parseCompanySort(sort) },
       ];
 
       const [countResult, data] = await Promise.all([

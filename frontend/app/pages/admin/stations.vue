@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { AdminStationColumns } from "@/utils/constants";
 import { Circle } from "lucide-vue-next";
 import { Skeleton, SkeletonTable } from "~/components/ui/Skeleton";
@@ -15,25 +15,46 @@ const isAddStationModalOpen = ref(false);
 const isPending = ref(true);
 const searchTerm = ref("");
 const page = ref(1);
+const sortColumn = ref("");
+const sortDirection = ref("");
 
 const stationStore = useStationStore();
 const { stations, currentPage, totalPages } = storeToRefs(stationStore);
 
-function onPageChange(p) {
-    page.value = p;
-    stationStore.fetchStations(p, 20);
+function buildParams() {
+    const params = {} as Record<string, string>;
+    if (searchTerm.value) params.search = searchTerm.value;
+    if (sortColumn.value && sortDirection.value) {
+        params.sort = `${sortColumn.value}:${sortDirection.value}`;
+    }
+    return params;
 }
 
-const deleteStation = async (station) => {
+async function fetchData() {
+    await stationStore.fetchStations(page.value, 20, buildParams());
+}
+
+function onPageChange(p: number) {
+    page.value = p;
+    fetchData();
+}
+
+function onSort({ column, direction }: { column: string; direction: string }) {
+    sortColumn.value = column;
+    sortDirection.value = direction;
+    page.value = 1;
+    fetchData();
+}
+
+async function deleteStation(station: any) {
     try {
         await stationStore.deleteStation(station.stationId, station.title);
     } catch (error) {
         console.log(error);
-        return;
     }
-};
+}
 
-const getStateClass = (state) => {
+function getStateClass(state: string) {
     switch (state) {
         case "available":
             return "text-green-600 fill-green-300";
@@ -42,7 +63,16 @@ const getStateClass = (state) => {
         default:
             return "text-yellow-600 fill-yellow-300";
     }
-};
+}
+
+let debounceTimer: ReturnType<typeof setTimeout>;
+watch(searchTerm, () => {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => {
+        page.value = 1;
+        fetchData();
+    }, 300);
+});
 
 stationStore.fetchStations(1, 20).finally(() => {
     isPending.value = false;
@@ -80,6 +110,9 @@ stationStore.fetchStations(1, 20).finally(() => {
         <AdminTable
             :rows="stations"
             :columns="AdminStationColumns"
+            :sort-column="sortColumn"
+            :sort-direction="sortDirection"
+            @sort="onSort"
             @edit="editStation"
             @delete="deleteStation"
             type="stations"
@@ -94,7 +127,7 @@ stationStore.fetchStations(1, 20).finally(() => {
                 }}</TableCell>
                 <TableCell class="text-xs">{{
                     row.connector.socketTypes
-                        .map((t) => CONNECTOR_LABELS[t] ?? t)
+                        .map((t: string) => CONNECTOR_LABELS[t] ?? t)
                         .join(", ")
                 }}</TableCell>
                 <TableCell class="text-xs"
