@@ -38,7 +38,10 @@ const handleStatusUpdate = ({
     ticketId: string;
     status: string;
 }) => {
-    ticketStore.updateTicket(ticketId, { status });
+  ticketStore.updateTicket(ticketId, { status });
+  if (selectedTicket.value && selectedTicket.value.ticketId === ticketId) {
+          selectedTicket.value.status = status;
+      }
 };
 
 function onPageChange(p: number) {
