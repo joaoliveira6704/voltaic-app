@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
+import { toast } from "vue-sonner";
 
 const config = useRuntimeConfig();
 const email = ref("");
@@ -54,9 +55,30 @@ useHead({
     ],
 });
 
-const handleLogin = async () => {
-    if (isSubmitting.value) return; // Prevent double submissions
+const error = ref("");
+const isEmailHighlighted = ref(false);
+const isPasswordHighlighted = ref(false);
 
+const handleLogin = async () => {
+    if (isSubmitting.value) return;
+    isEmailHighlighted.value = false;
+    isPasswordHighlighted.value = false;
+    if (!email.value || !password.value) {
+        let message;
+        if (!email.value && password.value) {
+            isEmailHighlighted.value = true;
+            message = "Email Required";
+        } else if (!password.value && email.value) {
+            isPasswordHighlighted.value = true;
+            message = "Password Required";
+        } else {
+            isPasswordHighlighted.value = true;
+            isEmailHighlighted.value = true;
+            message = "Email and Password Required";
+        }
+        toast.error(message);
+        return;
+    }
     isSubmitting.value = true;
     console.log("Login attempt:", { email: email.value });
 
@@ -74,11 +96,9 @@ const handleLogin = async () => {
 
         console.log("Login successful:", response);
 
-        // Save using Nuxt's cookie utility
         tokenCookie.value = response.token;
         userCookie.value = JSON.stringify(response.data.user);
 
-        // Using navigateTo instead of window.location for cleaner Nuxt routing
         await navigateTo("/profile", { external: true });
     } catch (err: unknown) {
         console.error("Login failed:", err);
@@ -88,9 +108,15 @@ const handleLogin = async () => {
             data?: { message?: string };
         };
 
-        const errorMessage =
+        error.value =
             errorData?.data?.message || errorData?.message || "Login failed";
-        alert("Login failed: " + errorMessage);
+
+        toast.error("Login Error", {
+            description: error.value,
+        });
+
+        isPasswordHighlighted.value = true;
+        isEmailHighlighted.value = true;
     } finally {
         isSubmitting.value = false;
     }
@@ -121,6 +147,7 @@ const handleLogin = async () => {
                     :placeholder="t('login.emailPlaceholder')"
                     class="h-11 border-gray-200 dark:border-[#232323] focus-visible:ring-[#00c885]"
                     :disabled="isSubmitting"
+                    :class="isEmailHighlighted ? '!border-red-500' : ''"
                 />
             </div>
 
@@ -144,6 +171,7 @@ const handleLogin = async () => {
                     placeholder="••••••••"
                     class="h-11 border-gray-200 dark:border-[#232323] focus-visible:ring-[#00c885]"
                     :disabled="isSubmitting"
+                    :class="isPasswordHighlighted ? '!border-red-500' : ''"
                 />
             </div>
 

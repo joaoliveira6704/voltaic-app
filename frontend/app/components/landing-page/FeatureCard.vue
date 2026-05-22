@@ -32,7 +32,9 @@ const dynamicIcon = computed(() => iconMap[props.icon]);
         >
             <component :is="dynamicIcon" :size="24" v-bind="$attrs" />
         </div>
-        <h3 class="text-xl font-bold mb-3 dark:text-white">{{ title }}</h3>
+        <h3 class="text-lg min-[500px]:text-xl font-bold mb-3 dark:text-white">
+            {{ title }}
+        </h3>
         <p class="text-gray-500 dark:text-white/50 leading-relaxed">
             {{ description }}
         </p>

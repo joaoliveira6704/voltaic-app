@@ -90,29 +90,34 @@ const stats = computed<{ id: number; number: string; label: string }[]>(() => [
             class="reveal py-10 border-y border-gray-100 dark:border-[#232323]"
         >
             <div
-                class="max-w-7xl mx-auto flex flex-wrap justify-around text-center"
+                class="grid grid-cols-2 sm:grid-cols-4 gap-8 w-full text-center"
             >
                 <div v-for="stat in stats" :key="stat.id">
-                    <h4 class="text-3xl font-bold text-green-600">
+                    <h4 class="text-xl sm:text-3xl font-bold text-green-600">
                         {{ stat.number }}
                     </h4>
-                    <p class="text-gray-500 dark:text-white/80 text-sm">
+                    <p
+                        class="text-gray-500 dark:text-white/80 text-xs min-[400px]:text-sm"
+                    >
                         {{ stat.label }}
                     </p>
                 </div>
             </div>
         </section>
 
-        <section id="features" class="reveal py-24 px-10 max-w-7xl mx-auto">
-            <div class="text-center mb-16">
-                <h2 class="text-4xl font-bold">
+        <section
+            id="features"
+            class="reveal py-10 min-[500px]:py-24 px-4 min-[500px]:px-10 max-w-7xl mx-auto"
+        >
+            <div class="text-center mb-8 min-[500px]:mb-16">
+                <h2 class="text-3xl min-[500px]:text-4xl font-bold">
                     {{ t("landing.features.sectionTitle") }} <br />
                     <span class="text-green-500">{{
                         t("landing.features.sectionTitleHighlight")
                     }}</span>
                 </h2>
             </div>
-            <div class="grid md:grid-cols-3 gap-8">
+            <div class="grid lg:grid-cols-3 gap-8">
                 <FeatureCard
                     v-for="feature in features"
                     :key="feature.title"
@@ -123,11 +128,13 @@ const stats = computed<{ id: number; number: string; label: string }[]>(() => [
             </div>
         </section>
 
-        <section class="reveal px-10 mb-20">
+        <section class="reveal px-4 min-[500px]:px-10 mb-4 sm:mb-20">
             <div
-                class="max-w-7xl mx-auto bg-green-600 rounded-[3rem] p-16 text-center text-white relative overflow-hidden"
+                class="max-w-7xl mx-auto bg-green-600 rounded-[3rem] p-8 min-[500px]:p-16 text-center text-white relative overflow-hidden"
             >
-                <h2 class="text-4xl font-bold mb-6">
+                <h2
+                    class="text-3xl min-[500px]:text-4xl font-bold mb-2 min-[500px]:mb-6"
+                >
                     {{ t("landing.cta.title") }} <br />
                     <span class="text-green-200">{{
                         t("landing.cta.titleHighlight")

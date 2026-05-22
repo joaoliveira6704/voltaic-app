@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { Toaster } from "@/components/ui/sonner";
+import { Home, LogIn, Shield, User, UserPlus } from "lucide-vue-next";
 
 const userStore = useUserStore();
 console.log(userStore.currentUser);
@@ -15,23 +17,23 @@ const navLinks = computed(() => {
 
     if (!user) {
         return [
-            { path: "/", label: t("nav.home") },
-            { path: "/login", label: t("nav.login") },
-            { path: "/signup", label: t("nav.signup") },
+            { path: "/", label: t("nav.home"), icon: Home },
+            { path: "/login", label: t("nav.login"), icon: LogIn },
+            { path: "/signup", label: t("nav.signup"), icon: UserPlus },
         ];
     }
 
     if (userRole === "admin") {
         return [
-            { path: "/", label: t("nav.home") },
-            { path: "/profile", label: t("nav.profile") },
-            { path: "/admin", label: t("nav.admin") },
+            { path: "/", label: t("nav.home"), icon: Home },
+            { path: "/profile", label: t("nav.profile"), icon: User },
+            { path: "/admin", label: t("nav.admin"), icon: Shield },
         ];
     }
 
     return [
-        { path: "/", label: t("nav.home") },
-        { path: "/profile", label: t("nav.profile") },
+        { path: "/", label: t("nav.home"), icon: Home },
+        { path: "/profile", label: t("nav.profile"), icon: User },
     ];
 });
 </script>
@@ -60,11 +62,16 @@ const navLinks = computed(() => {
                         as-child
                         class="text-xs"
                     >
-                        <NuxtLink
-                            :to="link.path"
-                            active-class="text-[#007bff]"
-                            >{{ link.label }}</NuxtLink
-                        >
+                        <NuxtLink :to="link.path" active-class="text-[#007bff]">
+                            <span class="hidden md:block">{{
+                                link.label
+                            }}</span>
+                            <component
+                                v-if="link.icon"
+                                :is="link.icon"
+                                class="w-4 h-4"
+                            />
+                        </NuxtLink>
                     </Button>
                 </div>
             </div>
@@ -97,5 +104,6 @@ const navLinks = computed(() => {
                 </div>
             </div>
         </footer>
+        <Toaster position="top-right" rich-colors close-button theme="dark" />
     </div>
 </template>

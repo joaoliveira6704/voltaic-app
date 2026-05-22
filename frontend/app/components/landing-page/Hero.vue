@@ -32,12 +32,14 @@ onUnmounted(() => {
 <template>
     <section
         ref="heroRef"
-        class="pt-32 pb-20 px-10 bg-gradient-to-br from-green-50 to-white dark:from-green-950 dark:to-[#0a0a0a] overflow-hidden"
+        class="pt-10 md:pt-32 pb-10 md:pb-20 px-5 md:px-10 bg-gradient-to-br from-green-50 to-white dark:from-green-950 dark:to-[#0a0a0a] overflow-hidden"
     >
-        <div class="max-w-7xl mx-auto grid md:grid-cols-2 gap-10 items-center">
+        <div
+            class="max-w-7xl mx-auto grid md:grid-cols-2 gap-10 text-center md:text-start items-center"
+        >
             <div>
                 <h1
-                    class="hero-content text-6xl font-extrabold leading-tight text-gray-900 dark:text-white"
+                    class="hero-content text-4xl transition-all duration-300 min-[540px]:text-5xl md:text-6xl font-extrabold leading-tight text-gray-900 dark:text-white"
                 >
                     {{ t("landing.hero.chargeSmarter") }},<br />
                     <span
@@ -46,13 +48,13 @@ onUnmounted(() => {
                     >
                 </h1>
                 <p
-                    class="hero-content mt-6 text-lg text-gray-600 max-w-md dark:text-white/50"
+                    class="hero-content text-sm min-[540px]:text-base mt-6 md:text-lg text-gray-600 max-w-md dark:text-white/50 mx-auto md:mx-0"
                 >
                     {{ t("landing.hero.subtitle") }}
                 </p>
-                <div class="hero-content mt-8 flex gap-4">
+                <div class="hero-content mt-8 flex gap-4 mx-auto md:mx-0 w-fit">
                     <button
-                        class="bg-black text-white px-8 py-4 rounded-xl flex items-center gap-2"
+                        class="bg-black text-white px-8 py-4 rounded-xl flex items-center gap-2 text-xs md:text-base"
                     >
                         {{ t("landing.cta.button") }}
                     </button>
@@ -71,7 +73,9 @@ onUnmounted(() => {
                     <p class="text-xs text-gray-400">
                         {{ t("landing.hero.networkCoverage") }}
                     </p>
-                    <p class="text-xl font-bold text-green-600">
+                    <p
+                        class="text-base min-[540px]:text-xl font-bold text-green-600"
+                    >
                         10,000+ Posts
                     </p>
                 </div>
