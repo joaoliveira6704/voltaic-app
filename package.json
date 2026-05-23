@@ -1,6 +1,8 @@
 {
   "dependencies": {
+    "chart.js": "^4.5.1",
     "mailtrap": "^4.5.1",
-    "validator": "^13.15.35"
+    "validator": "^13.15.35",
+    "vue-chartjs": "^5.3.3"
   }
 }
