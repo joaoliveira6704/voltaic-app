@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { useCompanyStore } from "~/stores/company";
 import { Skeleton, SkeletonMetricCard } from "~/components/ui/Skeleton";
 import StationsPieChart from "~/components/company/dashboard/StationsPieChart.vue";
 import TicketsPieChart from "~/components/company/dashboard/TicketsPieChart.vue";
@@ -53,8 +52,8 @@ Promise.all([
         <SkeletonMetricCard />
       </div>
       <div class="grid grid-cols-3 gap-4">
-        <Skeleton class="col-span-2 h-[300px]" />
-        <Skeleton class="col-span-1 h-[300px]" />
+        <Skeleton class="col-span-2 h-[340px]" />
+        <Skeleton class="col-span-1 h-[340px]" />
       </div>
       <Skeleton class="h-[200px] w-full" />
     </template>
