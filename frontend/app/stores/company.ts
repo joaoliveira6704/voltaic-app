@@ -21,6 +21,48 @@ interface Group {
   name: string;
 }
 
+interface DashboardData {
+  stations: {
+    available: number;
+    unavailable: number;
+    maintenance: number;
+    inactive: { stationId: string; name: string }[];
+  };
+  tickets: {
+    open: number;
+    closed: number;
+    resolved: number;
+    unresolved: number;
+  };
+  usage: {
+    thisWeek: number;
+    lastWeek: number;
+    percentageDelta: number;
+  };
+  weeklyTotals: {
+    weekStart: string;
+    total: number;
+  }[];
+  latestTickets: {
+    ticketId: string;
+    title: string;
+    status: string;
+    groupName: string;
+    createdAt: string;
+  }[];
+}
+
+interface WeeklyDrilldown {
+  days: {
+    date: string;
+    groups: {
+      groupId: string;
+      name: string;
+      uses: number;
+    }[];
+  }[];
+}
+
 export const useCompanyStore = defineStore("company", () => {
   const companies = ref<Company[]>([]);
   const currentCompany = ref<Company | undefined>(undefined);
@@ -137,6 +179,24 @@ export const useCompanyStore = defineStore("company", () => {
       toast.error("Failed to add station");
       throw e;
     }
+  }
+
+  async function fetchDashboard(): Promise<DashboardData> {
+    const data = await $fetch<DashboardData>(
+      `${apiBase()}/api/companies/me/dashboard`,
+      { headers: { Authorization: `Bearer ${token()}` } },
+    );
+    return data;
+  }
+
+  async function fetchWeekDrilldown(
+    weekStart: string,
+  ): Promise<WeeklyDrilldown> {
+    const data = await $fetch<WeeklyDrilldown>(
+      `${apiBase()}/api/companies/me/dashboard/week?start=${weekStart}`,
+      { headers: { Authorization: `Bearer ${token()}` } },
+    );
+    return data;
   }
 
   // ── Group Assignment ───────────────────────────────────────────────────────
