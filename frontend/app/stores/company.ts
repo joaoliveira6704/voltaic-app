@@ -182,7 +182,7 @@ export const useCompanyStore = defineStore("company", () => {
   }
 
   async function fetchDashboard(): Promise<DashboardData> {
-    return {
+    /*  return {
       stations: {
         available: 12,
         unavailable: 3,
@@ -205,7 +205,7 @@ export const useCompanyStore = defineStore("company", () => {
           createdAt: "2026-05-20T10:00:00Z",
         },
       ],
-    };
+    }; */
     const data = await $fetch<DashboardData>(
       `${apiBase()}/api/companies/me/dashboard`,
       { headers: { Authorization: `Bearer ${token()}` } },
@@ -216,14 +216,14 @@ export const useCompanyStore = defineStore("company", () => {
   async function fetchWeekDrilldown(
     weekStart: string,
   ): Promise<WeeklyDrilldown> {
-    return {
+    /*  return {
       days: [
         {
           date: weekStart,
           groups: [{ groupId: "g1", name: "Group A", uses: 12 }],
         },
       ],
-    };
+    }; */
     const data = await $fetch<WeeklyDrilldown>(
       `${apiBase()}/api/companies/me/dashboard/week?start=${weekStart}`,
       { headers: { Authorization: `Bearer ${token()}` } },
