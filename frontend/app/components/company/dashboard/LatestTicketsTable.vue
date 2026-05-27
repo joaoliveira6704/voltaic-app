@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useRouter } from "vue-router";
-import StatusBadge from "~/components/admin/StatusBadge.vue";
+import { TicketStatus } from "@/utils/constants";
 import {
   Table,
   TableBody,
@@ -21,6 +21,14 @@ interface Ticket {
 defineProps<{ tickets: Ticket[] }>();
 
 const router = useRouter();
+
+function getStatusBadge(status: string) {
+  const entry = TicketStatus.find((s) => s.key === status);
+  return {
+    color: entry?.color ?? "bg-muted text-muted-foreground",
+    label: entry?.label ?? status ?? "—",
+  };
+}
 
 function formatDate(date: string) {
   const d = new Date(date);
@@ -59,7 +67,12 @@ function formatDate(date: string) {
               ticket.title
             }}</TableCell>
             <TableCell>
-              <StatusBadge :value="ticket.status" type="tickets" />
+              <div
+                class="text-xs uppercase px-2 py-0.5 rounded w-fit border dark:border-[#232323]"
+                :class="getStatusBadge(ticket.status).color"
+              >
+                {{ getStatusBadge(ticket.status).label }}
+              </div>
             </TableCell>
             <TableCell class="text-xs text-gray-500 dark:text-white/50">{{
               ticket.groupName
