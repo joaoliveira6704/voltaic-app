@@ -44,6 +44,8 @@ export default defineNuxtConfig({
         "gsap/ScrollTrigger",
         "sweetalert2",
         "vue-sonner",
+        "vue-chartjs",
+        "chart.js",
       ],
     },
   },

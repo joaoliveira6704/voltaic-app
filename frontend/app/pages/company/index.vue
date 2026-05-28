@@ -1,11 +1,11 @@
 <script setup lang="ts">
-/* import { Skeleton, SkeletonMetricCard } from "~/components/ui/Skeleton";
+import { Skeleton, SkeletonMetricCard } from "~/components/ui/Skeleton";
 import StationsPieChart from "~/components/company/dashboard/StationsPieChart.vue";
 import TicketsPieChart from "~/components/company/dashboard/TicketsPieChart.vue";
 import InactiveStationsCard from "~/components/company/dashboard/InactiveStationsCard.vue";
 import UsageDeltaCard from "~/components/company/dashboard/UsageDeltaCard.vue";
 import WeeklyUsageChart from "~/components/company/dashboard/WeeklyUsageChart.vue";
-import LatestTicketsTable from "~/components/company/dashboard/LatestTicketsTable.vue"; */
+import LatestTicketsTable from "~/components/company/dashboard/LatestTicketsTable.vue";
 
 const { t } = useI18n();
 const companyStore = useCompanyStore();

@@ -51,10 +51,10 @@ const chartOptions = {
 
 <template>
   <DashboardCard title="Stations" :has-line="false">
-    <CardContent class="py-4 flex items-center justify-center">
+    <div class="py-4 flex items-center justify-center">
       <div class="w-full h-[100px]">
         <Doughnut :data="chartData" :options="chartOptions" />
       </div>
-    </CardContent>
+    </div>
   </DashboardCard>
 </template>

@@ -8,6 +8,8 @@ import {
   getCompanyGroups,
   assignGroup,
   unassignGroup,
+  getDashboard,
+  getDashboardWeek,
 } from "../controllers/company.controller.js";
 import {
   protect,
@@ -34,6 +36,20 @@ router.patch(
   checkOwnership(companyModel),
   updateCompany,
 );
+
+router.get(
+  "/me/dashboard",
+  protect,
+  requireRole("company-manager", "admin"),
+  getDashboard,
+);
+router.get(
+  "/me/dashboard/week",
+  protect,
+  requireRole("company-manager", "admin"),
+  getDashboardWeek,
+);
+
 router.get("/:id", protect, getCompanyById);
 
 router.get("/:id/groups", protect, getCompanyGroups);
