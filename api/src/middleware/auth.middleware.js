@@ -11,7 +11,7 @@ export const protect = async (req, res, next) => {
   }
 
   if (!token) {
-    return res.status(401).json({ message: "You are not logged in." });
+    return res.status(401).json({ status: "error", message: "You are not logged in." });
   }
   console.log("Token:", token[1]);
   try {
@@ -21,7 +21,7 @@ export const protect = async (req, res, next) => {
     // Check if user still exists
     const currentUser = await userModel.findById(decoded.id);
     if (!currentUser) {
-      return res.status(401).json({ message: "User no longer exists." });
+      return res.status(401).json({ status: "error", message: "User no longer exists." });
     }
 
     // Grant access
@@ -41,7 +41,7 @@ export const requireRole =
   (...roles) =>
   (req, res, next) => {
     if (!roles.includes(req.user.role))
-      return res.status(403).json({ message: "Forbidden" });
+      return res.status(403).json({ status: "error", message: "Forbidden" });
     next();
   };
 

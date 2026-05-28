@@ -55,6 +55,8 @@ export const useUserStore = defineStore("user", () => {
   const colorMode = useColorMode();
   const { setLocale, setLocaleCookie } = useI18n();
 
+  const { api } = useApi();
+
   // ── Getters ──────────────────────────────────────────────────────────────
 
   const userRole = computed(() => currentUser.value?.role);
@@ -74,12 +76,6 @@ export const useUserStore = defineStore("user", () => {
       users.value.find((u) => u.userId === userId)?.username || "Unknown User"
     );
   };
-  // ── Helpers ───────────────────────────────────────────────────────────────
-
-  // Call composables lazily inside actions, not at store setup time
-  const token = () => useCookie("token").value;
-  const apiBase = () => useRuntimeConfig().public.apiBaseUrl;
-
   // ── Actions ───────────────────────────────────────────────────────────────
 
   async function fetchUsers(
@@ -93,11 +89,8 @@ export const useUserStore = defineStore("user", () => {
         limit: String(limit),
         ...params,
       });
-      const data = await $fetch<PaginatedResponse<User>>(
-        `${apiBase()}/api/users?${query}`,
-        {
-          headers: { Authorization: `Bearer ${token()}` },
-        },
+      const data = await api<PaginatedResponse<User>>(
+        `/api/users?${query}`,
       );
       users.value = data.data;
       currentPage.value = data.page;
@@ -109,12 +102,13 @@ export const useUserStore = defineStore("user", () => {
 
   async function createUser(user: User) {
     try {
-      await $fetch(`${apiBase()}/api/users`, {
+      const res = await api<{ userId: string }>("/api/users", {
         method: "POST",
+        headers: { Authorization: `Bearer ${useCookie("token").value}` },
         body: user,
       });
-      users.value.push(user);
-      return user;
+      users.value.push({ ...user, userId: res.userId });
+      return res;
     } catch (e) {
       console.error("Failed to add user:", e);
       throw e.data;
@@ -148,10 +142,7 @@ export const useUserStore = defineStore("user", () => {
     if (!confirmed.isConfirmed) return;
 
     try {
-      await $fetch(`${apiBase()}/api/users/${userId}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${token()}` },
-      });
+      await api(`/api/users/${userId}`, { method: "DELETE" });
       toast.success("User deleted", {
         description: `@${username} has been deleted successfully.`,
       });
@@ -167,12 +158,7 @@ export const useUserStore = defineStore("user", () => {
 
   async function fetchDashboardStats() {
     try {
-      const data = await $fetch<{ total: number }>(
-        `${apiBase()}/api/users?view=dashboard`,
-        {
-          headers: { Authorization: `Bearer ${token()}` },
-        },
-      );
+      const data = await api<{ total: number }>("/api/users?view=dashboard");
       dashboardStats.value = data;
     } catch (e) {
       console.error("Failed to fetch user dashboard stats:", e);
@@ -181,9 +167,7 @@ export const useUserStore = defineStore("user", () => {
 
   async function fetchCurrentUser() {
     try {
-      const data = await $fetch<User>(`${apiBase()}/api/users/me`, {
-        headers: { Authorization: `Bearer ${token()}` },
-      });
+      const data = await api<User>("/api/users/me");
       currentUser.value = data;
 
       colorMode.preference = data.preferences?.darkMode ? "dark" : "light";
@@ -218,12 +202,8 @@ export const useUserStore = defineStore("user", () => {
     >,
   ) {
     try {
-      await $fetch(`${apiBase()}/api/users/me`, {
+      await api("/api/users/me", {
         method: "PATCH",
-        headers: {
-          Authorization: `Bearer ${token()}`,
-          "Content-Type": "application/json",
-        },
         body: changes,
       });
 
@@ -247,12 +227,7 @@ export const useUserStore = defineStore("user", () => {
     isLoaded.value = false;
     console.log("fetching profile");
     try {
-      const data = await $fetch<User>(
-        `${apiBase()}/api/users/me?profile=true`,
-        {
-          headers: { Authorization: `Bearer ${token()}` },
-        },
-      );
+      const data = await api<User>("/api/users/me?profile=true");
       currentUser.value = data;
       console.log(data);
 
@@ -271,12 +246,8 @@ export const useUserStore = defineStore("user", () => {
 
   async function editUser(userId: string, payload: Partial<User>) {
     try {
-      const res = await $fetch(`${apiBase()}/api/users/${userId}`, {
+      await api(`/api/users/${userId}`, {
         method: "PATCH",
-        headers: {
-          Authorization: `Bearer ${token()}`,
-          "Content-Type": "application/json",
-        },
         body: payload,
       });
       toast.success("User updated", {
@@ -300,12 +271,8 @@ export const useUserStore = defineStore("user", () => {
       return;
     }
     try {
-      await $fetch(`${apiBase()}/api/users/${userId}/role`, {
+      await api(`/api/users/${userId}/role`, {
         method: "PATCH",
-        headers: {
-          Authorization: `Bearer ${token()}`,
-          "Content-Type": "application/json",
-        },
         body: { role },
       });
       toast.success("User Role updated", {
@@ -325,11 +292,8 @@ export const useUserStore = defineStore("user", () => {
     const userId = currentUser.value?.userId;
     if (!userId) return;
     try {
-      const data = await $fetch<PaginatedResponse<any>>(
-        `${apiBase()}/api/usages?userId=${userId}&page=${page}&limit=${limit}`,
-        {
-          headers: { Authorization: `Bearer ${token()}` },
-        },
+      const data = await api<PaginatedResponse<any>>(
+        `/api/usages?userId=${userId}&page=${page}&limit=${limit}`,
       );
       chargingHistory.value = data.data;
     } catch (e) {
@@ -366,10 +330,7 @@ export const useUserStore = defineStore("user", () => {
     currentUser.value = { ...currentUser.value, vehicles: updatedList };
 
     try {
-      await $fetch(`${apiBase()}/api/users/me/vehicles/${plate}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${token()}` },
-      });
+      await api(`/api/users/me/vehicles/${plate}`, { method: "DELETE" });
       toast.success("Vehicle deleted", {
         description: `Vehicle with plate:${plate} has been deleted successfully.`,
       });
@@ -387,9 +348,8 @@ export const useUserStore = defineStore("user", () => {
     if (!currentUser.value) return;
     let updatedList;
     try {
-      await $fetch(`${apiBase()}/api/users/me/vehicles`, {
+      await api("/api/users/me/vehicles", {
         method: "POST",
-        headers: { Authorization: `Bearer ${token()}` },
         body: { ...vehicle },
       });
 
@@ -413,14 +373,10 @@ export const useUserStore = defineStore("user", () => {
 
   async function addFavorite(stationId: string) {
     try {
-      const data = await $fetch<string[]>(
-        `${apiBase()}/api/users/me/favorites`,
-        {
-          method: "POST",
-          headers: { Authorization: `Bearer ${token()}` },
-          body: { stationId },
-        },
-      );
+      const data = await api<string[]>("/api/users/me/favorites", {
+        method: "POST",
+        body: { stationId },
+      });
       if (currentUser.value) {
         currentUser.value = { ...currentUser.value, favorites: data };
       }
@@ -451,12 +407,9 @@ export const useUserStore = defineStore("user", () => {
     if (!confirmed.isConfirmed) return false;
 
     try {
-      const data = await $fetch<string[]>(
-        `${apiBase()}/api/users/me/favorites/${stationId}`,
-        {
-          method: "DELETE",
-          headers: { Authorization: `Bearer ${token()}` },
-        },
+      const data = await api<string[]>(
+        `/api/users/me/favorites/${stationId}`,
+        { method: "DELETE" },
       );
       if (currentUser.value) {
         currentUser.value = { ...currentUser.value, favorites: data };
@@ -471,10 +424,7 @@ export const useUserStore = defineStore("user", () => {
 
   async function fetchFavoriteStations() {
     try {
-      const data = await $fetch<any[]>(
-        `${apiBase()}/api/users/me/favorites/stations`,
-        { headers: { Authorization: `Bearer ${token()}` } },
-      );
+      const data = await api<any[]>("/api/users/me/favorites/stations");
       favoriteStations.value = data;
     } catch (e) {
       console.error("Failed to fetch favorite stations:", e);
@@ -490,23 +440,52 @@ export const useUserStore = defineStore("user", () => {
       confirmButtonColor: "#dc2626",
       confirmButtonText: "Yes, Logout",
       reverseButtons: true,
+      input: "checkbox",
+      inputValue: 0,
+      inputPlaceholder: "Remove all sessions",
+      inputAttributes: {
+        style: "accent-color:#00c885;background:transparent",
+      },
       customClass: {
         popup:
           " text-sm dark:bg-[#0a0a0a] dark:border dark:border-[#171717] rounded-xl dark:text-white/80",
         cancelButton:
           "bg-white text-black hover:bg-gray-300 dark:bg-[#1a1a1a] dark:text-white dark:hover:bg-[#2a2a2a]",
+        inputLabel:
+          "text-xs text-gray-500 dark:text-white/50 ml-2",
       },
     });
 
     if (result.isConfirmed) {
+      const refreshToken = useCookie("refreshToken").value;
+
+      if (refreshToken) {
+        try {
+          await api("/api/auth/logout", {
+            method: "POST",
+            body: { refreshToken },
+          });
+        } catch {
+          // Silently ignore — we clear cookies anyway
+        }
+        if (result.value) {
+          try {
+            await api("/api/auth/logout-all", { method: "POST" });
+          } catch {
+            // Silently ignore
+          }
+        }
+      }
+
       // Clear cookies
       useCookie("user").value = null;
       useCookie("token").value = null;
+      useCookie("refreshToken").value = null;
 
       // Clear state
       currentUser.value = null;
 
-      navigateTo("/login");
+      window.location.href = "/login";
     }
   }
 

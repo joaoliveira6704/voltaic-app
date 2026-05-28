@@ -64,6 +64,7 @@ interface WeeklyDrilldown {
 }
 
 export const useCompanyStore = defineStore("company", () => {
+  const { api } = useApi();
   const companies = ref<Company[]>([]);
   const currentCompany = ref<Company | undefined>(undefined);
   const isLoaded = ref(false);
@@ -77,17 +78,9 @@ export const useCompanyStore = defineStore("company", () => {
     );
   }
 
-  const token = () => useCookie("token").value;
-  const apiBase = () => useRuntimeConfig().public.apiBaseUrl;
-
   async function fetchDashboardStats() {
     try {
-      const data = await $fetch<any>(
-        `${apiBase()}/api/companies?view=dashboard`,
-        {
-          headers: { Authorization: `Bearer ${token()}` },
-        },
-      );
+      const data = await api<any>("/api/companies?view=dashboard");
       dashboardStats.value = data;
     } catch (e) {
       console.error("Failed to fetch company dashboard stats:", e);
@@ -105,9 +98,8 @@ export const useCompanyStore = defineStore("company", () => {
         limit: String(limit),
         ...params,
       });
-      const data = await $fetch<PaginatedResponse<Company>>(
-        `${apiBase()}/api/companies?${query}`,
-        { headers: { Authorization: `Bearer ${token()}` } },
+      const data = await api<PaginatedResponse<Company>>(
+        `/api/companies?${query}`,
       );
       companies.value = data.data;
       currentPage.value = data.page;
@@ -137,10 +129,7 @@ export const useCompanyStore = defineStore("company", () => {
     if (!confirmed.isConfirmed) return;
 
     try {
-      await $fetch<any>(`${apiBase()}/api/companies/${companyId}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${token()}` },
-      });
+      await api(`/api/companies/${companyId}`, { method: "DELETE" });
       companies.value = companies.value.filter(
         (c) => c.companyId !== companyId,
       );
@@ -154,9 +143,7 @@ export const useCompanyStore = defineStore("company", () => {
 
   async function fetchCurrentCompany() {
     try {
-      const response = await $fetch<any>(`${apiBase()}/api/users/me/company`, {
-        headers: { Authorization: `Bearer ${token()}` },
-      });
+      const response = await api<any>("/api/users/me/company");
       currentCompany.value = response;
       isLoaded.value = true;
     } catch (e) {
@@ -166,9 +153,8 @@ export const useCompanyStore = defineStore("company", () => {
 
   async function createCompany(company: any) {
     try {
-      const response = await $fetch<any>(`${apiBase()}/api/companies`, {
+      const response = await api<any>("/api/companies", {
         method: "POST",
-        headers: { Authorization: `Bearer ${token()}` },
         body: company,
       });
       companies.value.push(response);
@@ -206,9 +192,8 @@ export const useCompanyStore = defineStore("company", () => {
         },
       ],
     }; */
-    const data = await $fetch<DashboardData>(
-      `${apiBase()}/api/companies/me/dashboard`,
-      { headers: { Authorization: `Bearer ${token()}` } },
+    const data = await api<DashboardData>(
+      "/api/companies/me/dashboard",
     );
     return data;
   }
@@ -224,9 +209,8 @@ export const useCompanyStore = defineStore("company", () => {
         },
       ],
     }; */
-    const data = await $fetch<WeeklyDrilldown>(
-      `${apiBase()}/api/companies/me/dashboard/week?start=${weekStart}`,
-      { headers: { Authorization: `Bearer ${token()}` } },
+    const data = await api<WeeklyDrilldown>(
+      `/api/companies/me/dashboard/week?start=${weekStart}`,
     );
     return data;
   }
@@ -236,25 +220,22 @@ export const useCompanyStore = defineStore("company", () => {
   async function fetchCompanyGroups(
     companyId: string,
   ): Promise<{ assigned: Group[]; unassigned: Group[] }> {
-    const data = await $fetch<{ assigned: Group[]; unassigned: Group[] }>(
-      `${apiBase()}/api/companies/${companyId}/groups`,
-      { headers: { Authorization: `Bearer ${token()}` } },
+    const data = await api<{ assigned: Group[]; unassigned: Group[] }>(
+      `/api/companies/${companyId}/groups`,
     );
     return data;
   }
 
   async function assignGroup(companyId: string, groupId: string) {
-    await $fetch(`${apiBase()}/api/companies/${companyId}/groups/assign`, {
+    await api(`/api/companies/${companyId}/groups/assign`, {
       method: "PATCH",
-      headers: { Authorization: `Bearer ${token()}` },
       body: { groupId },
     });
   }
 
   async function unassignGroup(companyId: string, groupId: string) {
-    await $fetch(`${apiBase()}/api/companies/${companyId}/groups/unassign`, {
+    await api(`/api/companies/${companyId}/groups/unassign`, {
       method: "PATCH",
-      headers: { Authorization: `Bearer ${token()}` },
       body: { groupId },
     });
   }

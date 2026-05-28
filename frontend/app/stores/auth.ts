@@ -5,7 +5,7 @@ import { toast } from "vue-sonner";
 type ResetStep = "email" | "token" | "password" | "success";
 
 export const useAuthStore = defineStore("auth", () => {
-  const apiBase = () => useRuntimeConfig().public.apiBaseUrl;
+  const { api } = useApi();
 
   // ── State ─────────────────────────────────────────────────────────────────
 
@@ -19,7 +19,7 @@ export const useAuthStore = defineStore("auth", () => {
   async function sendRecoveryEmail(email: string) {
     isLoading.value = true;
     try {
-      await $fetch(`${apiBase()}/api/auth/forgot-password`, {
+      await api("/api/auth/forgot-password", {
         method: "POST",
         body: { email },
       });
@@ -44,7 +44,7 @@ export const useAuthStore = defineStore("auth", () => {
   ) {
     isLoading.value = true;
     try {
-      await $fetch(`${apiBase()}/api/auth/register`, {
+      await api("/api/auth/register", {
         method: "POST",
         body: {
           username,
@@ -68,7 +68,7 @@ export const useAuthStore = defineStore("auth", () => {
     isLoading.value = true;
     console.log("authStore: ", token);
     try {
-      await $fetch(`${apiBase()}/api/auth/forgot-password/${token}`, {
+      await api(`/api/auth/forgot-password/${token}`, {
         method: "POST",
       });
       console.log("authStore: after fetch");
@@ -87,7 +87,7 @@ export const useAuthStore = defineStore("auth", () => {
   async function resetPassword(newPassword: string) {
     isLoading.value = true;
     try {
-      await $fetch(`${apiBase()}/api/auth/reset-password`, {
+      await api("/api/auth/reset-password", {
         method: "POST",
         body: { token: resetToken.value, newPassword },
       });

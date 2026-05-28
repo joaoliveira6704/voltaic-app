@@ -11,22 +11,14 @@ interface PaginatedResponse<T> {
 }
 
 export const useUsageStore = defineStore("usage", () => {
+  const { api } = useApi();
   const usages = ref<any[]>([]);
   const isLoaded = ref(false);
 
-  const token = () => useCookie("token").value;
-  const apiBase = () => useRuntimeConfig().public.apiBaseUrl;
-
   async function fetchUserActiveUsages(userId: string, page = 1, limit = 20) {
     try {
-      const tokenValue = token();
-      if (!tokenValue) return;
-
-      const res = await $fetch<PaginatedResponse<any>>(
-        `${apiBase()}/api/usages?userId=${userId}&active=true&page=${page}&limit=${limit}`,
-        {
-          headers: { Authorization: `Bearer ${tokenValue}` },
-        },
+      const res = await api<PaginatedResponse<any>>(
+        `/api/usages?userId=${userId}&active=true&page=${page}&limit=${limit}`,
       );
       usages.value = res.data;
       isLoaded.value = true;
@@ -37,14 +29,8 @@ export const useUsageStore = defineStore("usage", () => {
 
   async function fetchUserUsages(userId: string, page = 1, limit = 20) {
     try {
-      const tokenValue = token();
-      if (!tokenValue) return;
-
-      const res = await $fetch<PaginatedResponse<any>>(
-        `${apiBase()}/api/usages?userId=${userId}&page=${page}&limit=${limit}`,
-        {
-          headers: { Authorization: `Bearer ${tokenValue}` },
-        },
+      const res = await api<PaginatedResponse<any>>(
+        `/api/usages?userId=${userId}&page=${page}&limit=${limit}`,
       );
       usages.value = res.data;
       isLoaded.value = true;

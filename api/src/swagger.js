@@ -28,11 +28,20 @@ const options = {
         Error: {
           type: "object",
           properties: {
-            error: { type: "string", example: "Bad Request" },
+            status: { type: "string", example: "error" },
+            message: { type: "string", example: "Bad Request" },
             details: {
               type: "object",
               description: "Erros de validação (opcional)",
             },
+          },
+        },
+        Success: {
+          type: "object",
+          properties: {
+            status: { type: "string", example: "success" },
+            data: { type: "object", description: "Payload da resposta" },
+            message: { type: "string", example: "Operação concluída" },
           },
         },
         Pagination: {
@@ -491,6 +500,44 @@ const options = {
             unavailable: { type: "integer" },
             maintenance: { type: "integer" },
             alive: { type: "integer" },
+          },
+        },
+        CatalogVehicle: {
+          type: "object",
+          properties: {
+            _id: { type: "string" },
+            make: {
+              type: "object",
+              properties: {
+                slug: { type: "string" },
+                name: { type: "string" },
+              },
+            },
+            model: {
+              type: "object",
+              properties: {
+                slug: { type: "string" },
+                name: { type: "string" },
+              },
+            },
+            year: { type: "integer", example: 2024 },
+            charge_ports: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  kind: { type: "string" },
+                  connector: { type: "string" },
+                  location: {
+                    type: "object",
+                    properties: {
+                      side: { type: "string" },
+                      position: { type: "string" },
+                    },
+                  },
+                },
+              },
+            },
           },
         },
       },

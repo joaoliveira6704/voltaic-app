@@ -5,6 +5,7 @@ import ticketModel from "../models/ticket.model.js";
 import usageModel from "../models/usage.model.js";
 import generateUniqueId from "../utils/utils.js";
 import { paginate } from "../utils/paginate.js";
+import { success, error as sendError } from "../utils/response.js";
 
 const companySortFieldMap = {
   companyId: "companyId",
@@ -30,7 +31,7 @@ export const getCompanies = async (req, res, next) => {
           companyId: { $in: idArray },
         })
         .lean();
-      return res.json(companies);
+      return success(res, { data: companies });
     }
 
     if (view === "dashboard") {
@@ -73,7 +74,7 @@ export const getCompanies = async (req, res, next) => {
         ]),
       ]);
 
-      return res.json({ total, companies });
+      return success(res, { data: { total, companies } });
     }
 
     if (view === "admin") {
@@ -132,13 +133,7 @@ export const getCompanies = async (req, res, next) => {
 
       const total = countResult[0]?.total || 0;
 
-      return res.json({
-        data,
-        page: pageNum,
-        limit: limitNum,
-        total,
-        pages: Math.ceil(total / limitNum),
-      });
+      return success(res, { data: { data, page: pageNum, limit: limitNum, total, pages: Math.ceil(total / limitNum) } });
     }
 
     const result = await paginate(
@@ -146,7 +141,7 @@ export const getCompanies = async (req, res, next) => {
       {},
       { page: req.query.page, limit: req.query.limit },
     );
-    res.json(result);
+    success(res, { data: result });
   } catch (error) {
     next(error);
   }
@@ -161,7 +156,7 @@ export const createCompany = async (req, res, next) => {
       workingArea,
     });
     await newCompany.save();
-    res.status(201).json({ companyId: newCompany.companyId });
+    success(res, { data: { companyId: newCompany.companyId }, statusCode: 201 });
   } catch (error) {
     next(error);
   }
@@ -177,7 +172,7 @@ export const deleteCompany = async (req, res, next) => {
       err.status = 404;
       return next(err);
     }
-    res.json({ message: "Company deleted successfully" });
+    success(res, { message: "Company deleted successfully" });
   } catch (error) {
     next(error);
   }
@@ -195,7 +190,7 @@ export const updateCompany = async (req, res, next) => {
       err.status = 404;
       return next(err);
     }
-    res.json(updatedCompany);
+    success(res, { data: updatedCompany });
   } catch (error) {
     next(error);
   }
@@ -209,7 +204,7 @@ export const getCompanyById = async (req, res, next) => {
       err.status = 404;
       return next(err);
     }
-    res.json(company);
+    success(res, { data: company });
   } catch (error) {
     next(error);
   }
@@ -240,7 +235,7 @@ export const getCompanyGroups = async (req, res, next) => {
     });
     console.log("unassigned:", unassigned);
 
-    return res.status(200).json({ assigned, unassigned });
+    return success(res, { data: { assigned, unassigned } });
   } catch (err) {
     next(err);
   }
@@ -270,7 +265,7 @@ export const assignGroup = async (req, res, next) => {
       { $push: { groups: groupId } },
     );
 
-    return res.status(200).json({ message: "Group assigned successfully." });
+    return success(res, { message: "Group assigned successfully." });
   } catch (err) {
     next(err);
   }
@@ -285,7 +280,7 @@ export const unassignGroup = async (req, res, next) => {
       { $pull: { groups: groupId } },
     );
 
-    return res.status(200).json({ message: "Group unassigned successfully." });
+    return success(res, { message: "Group unassigned successfully." });
   } catch (err) {
     next(err);
   }
@@ -417,16 +412,18 @@ export const getDashboard = async (req, res, next) => {
       }),
     );
 
-    return res.status(200).json({
-      stations: { ...stationStats, inactive },
-      tickets: ticketStats,
-      usage: {
-        thisWeek: thisWeekCount,
-        lastWeek: lastWeekCount,
-        percentageDelta,
+    return success(res, {
+      data: {
+        stations: { ...stationStats, inactive },
+        tickets: ticketStats,
+        usage: {
+          thisWeek: thisWeekCount,
+          lastWeek: lastWeekCount,
+          percentageDelta,
+        },
+        weeklyTotals,
+        latestTickets: enrichedTickets,
       },
-      weeklyTotals,
-      latestTickets: enrichedTickets,
     });
   } catch (err) {
     next(err);
@@ -491,7 +488,7 @@ export const getDashboardWeek = async (req, res, next) => {
       })),
     }));
 
-    return res.status(200).json({ days });
+    return success(res, { data: { days } });
   } catch (err) {
     next(err);
   }

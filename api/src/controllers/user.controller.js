@@ -3,6 +3,7 @@ import stationModel from "../models/station.model.js";
 import generateUniqueId from "../utils/utils.js";
 import companyModel from "../models/company.model.js";
 import { paginate } from "../utils/paginate.js";
+import { success, error as sendError } from "../utils/response.js";
 
 const userSortFieldMap = {
   username: "username",
@@ -26,7 +27,7 @@ export const getUsers = async (req, res, next) => {
 
     if (view === "dashboard") {
       const total = await userModel.countDocuments();
-      return res.json({ total });
+      return success(res, { data: { total } });
     }
 
     if (view === "admin") {
@@ -98,12 +99,8 @@ export const getUsers = async (req, res, next) => {
 
       const total = countResult[0]?.total || 0;
 
-      return res.json({
-        data,
-        page: pageNum,
-        limit: limitNum,
-        total,
-        pages: Math.ceil(total / limitNum),
+      return success(res, {
+        data: { data, page: pageNum, limit: limitNum, total, pages: Math.ceil(total / limitNum) },
       });
     }
 
@@ -112,7 +109,7 @@ export const getUsers = async (req, res, next) => {
       {},
       { page: req.query.page, limit: req.query.limit },
     );
-    res.json(result);
+    success(res, { data: result });
   } catch (error) {
     next(error);
   }
@@ -128,7 +125,7 @@ export const deleteUser = async (req, res, next) => {
       err.status = 404;
       return next(err);
     }
-    res.json({ message: "User deleted successfully" });
+    success(res, { message: "User deleted successfully" });
   } catch (error) {
     next(error);
   }
@@ -144,7 +141,7 @@ export const deleteOwnUser = async (req, res, next) => {
       err.status = 404;
       return next(err);
     }
-    res.json({ message: "User deleted successfully" });
+    success(res, { message: "User deleted successfully" });
   } catch (error) {
     next(error);
   }
@@ -162,7 +159,7 @@ export const updateUser = async (req, res, next) => {
       err.status = 404;
       return next(err);
     }
-    res.json(updatedUser);
+    success(res, { data: updatedUser });
   } catch (error) {
     next(error);
   }
@@ -287,14 +284,14 @@ export const getCurrentUser = async (req, res, next) => {
 
       console.log(userProfile);
 
-      return res.json(userProfile[0]);
+      return success(res, { data: userProfile[0] });
     }
     if (!user) {
       const err = new Error("User not found");
       err.status = 404;
       return next(err);
     }
-    res.json(user);
+    success(res, { data: user });
   } catch (error) {
     next(error);
   }
@@ -308,7 +305,7 @@ export const getUserById = async (req, res, next) => {
       err.status = 404;
       return next(err);
     }
-    res.json(user);
+    success(res, { data: user });
   } catch (error) {
     next(error);
   }
@@ -385,7 +382,7 @@ export const updateOwnUser = async (req, res, next) => {
     // 5. Don't send password back
     updatedUser.password = undefined;
 
-    res.json(updatedUser);
+    success(res, { data: updatedUser });
   } catch (error) {
     if (error.code === 11000) {
       error.status = 400;
@@ -408,7 +405,7 @@ export const updateRole = async (req, res, next) => {
       err.status = 404;
       return next(err);
     }
-    res.json(updatedUser);
+    success(res, { data: updatedUser });
   } catch (error) {
     next(error);
   }
@@ -422,7 +419,7 @@ export const getVehicles = async (req, res, next) => {
       err.status = 404;
       return next(err);
     }
-    res.json(user.vehicles);
+    success(res, { data: user.vehicles });
   } catch (error) {
     next(error);
   }
@@ -463,7 +460,7 @@ export const addVehicle = async (req, res, next) => {
       { new: true },
     );
 
-    res.status(201).json(updatedUser);
+    success(res, { data: updatedUser, statusCode: 201 });
   } catch (error) {
     next(error);
   }
@@ -486,7 +483,7 @@ export const removeVehicle = async (req, res, next) => {
       return next(err);
     }
 
-    res.json(updatedUser);
+    success(res, { data: updatedUser });
   } catch (error) {
     next(error);
   }
@@ -518,7 +515,7 @@ export const editVehicle = async (req, res, next) => {
       err.message = "Vehicle not found";
       return next(err);
     }
-    res.json(updatedUser);
+    success(res, { data: updatedUser });
   } catch (error) {
     next(error);
   }
@@ -532,7 +529,7 @@ export const getFavorites = async (req, res, next) => {
       err.status = 404;
       return next(err);
     }
-    res.json(user.favorites);
+    success(res, { data: user.favorites });
   } catch (error) {
     next(error);
   }
@@ -549,7 +546,7 @@ export const getFavoriteStations = async (req, res, next) => {
     const stations = await stationModel.find({
       stationId: { $in: user.favorites },
     });
-    res.json(stations);
+    success(res, { data: stations });
   } catch (error) {
     next(error);
   }
@@ -592,7 +589,7 @@ export const addFavorite = async (req, res, next) => {
       { new: true, runValidators: true },
     );
 
-    res.status(201).json(updatedUser.favorites);
+    success(res, { data: updatedUser.favorites, statusCode: 201 });
   } catch (error) {
     next(error);
   }
@@ -614,7 +611,7 @@ export const removeFavorite = async (req, res, next) => {
       return next(err);
     }
 
-    res.status(200).json(updatedUser.favorites);
+    success(res, { data: updatedUser.favorites });
   } catch (error) {
     next(error);
   }
@@ -630,7 +627,7 @@ export const getCurrentCompany = async (req, res, next) => {
       err.status = 404;
       return next(err);
     }
-    res.status(200).json(company);
+    success(res, { data: company });
   } catch (error) {
     next(error);
   }

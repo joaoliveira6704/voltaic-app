@@ -8,23 +8,22 @@ const router = Router();
  * /api/vehicles:
  *   get:
  *     tags: [Vehicles]
- *     summary: Listar catálogo de veículos
- *     parameters:
- *       - in: query
- *         name: page
- *         schema:
- *           type: integer
- *       - in: query
- *         name: limit
- *         schema:
- *           type: integer
+ *     summary: Listar catálogo de veículos (sem paginação)
  *     responses:
  *       200:
  *         description: Lista de veículos
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Pagination'
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/CatalogVehicle'
  */
 router.get("/", getVehicles);
 

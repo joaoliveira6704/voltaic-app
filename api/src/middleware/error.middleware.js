@@ -16,13 +16,15 @@ const errorHandler = (err, req, res, next) => {
       validationErrors[field] = err.errors[field].message;
     }
     return res.status(400).json({
-      error: "Validation failed",
+      status: "error",
+      message: "Validation failed",
       details: validationErrors,
     });
   }
 
   res.status(status).json({
-    error: err.message || messages[status] || "Internal Server Error",
+    status: "error",
+    message: err.message || messages[status] || "Internal Server Error",
   });
 };
 

@@ -5,6 +5,10 @@
     display: none !important;
 }
 
+.swal2-checkbox {
+    background-color: hsl(var(--background)) !important;
+}
+
 @custom-variant dark (&:is(.dark *));
 
 @tailwind base;

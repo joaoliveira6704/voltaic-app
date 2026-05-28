@@ -6,6 +6,7 @@ import bcrypt from "bcrypt";
 import generateUniqueId, { generateUniqueToken } from "../utils/utils.js";
 import sendResetEmail from "../utils/mailer.js";
 import mongoose from "mongoose";
+import { success, error as sendError } from "../utils/response.js";
 
 const signAccessToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -38,14 +39,15 @@ export const login = async (req, res, next) => {
     const { email, password } = req.body;
 
     if (!email || !password) {
-      return res
-        .status(400)
-        .json({ message: "Please provide email and password" });
+      return sendError(res, {
+        message: "Please provide email and password",
+        statusCode: 400,
+      });
     }
 
     const user = await userModel.findOne({ email }).select("+password");
     if (!user || !(await user.correctPassword(password, user.password))) {
-      return res.status(401).json({ message: "Invalid Credentials" });
+      return sendError(res, { message: "Invalid Credentials", statusCode: 401 });
     }
 
     const accessToken = signAccessToken(user._id);
@@ -53,11 +55,8 @@ export const login = async (req, res, next) => {
 
     user.password = undefined;
 
-    res.status(200).json({
-      status: "success",
-      token: accessToken,
-      refreshToken,
-      data: { user },
+    success(res, {
+      data: { user, token: accessToken, refreshToken },
     });
   } catch (error) {
     next(error);
@@ -103,9 +102,8 @@ export const refresh = async (req, res, next) => {
     const newAccessToken = signAccessToken(user._id);
     const newRefreshToken = await createAndStoreRefreshToken(user.userId);
 
-    res.status(200).json({
-      token: newAccessToken,
-      refreshToken: newRefreshToken,
+    success(res, {
+      data: { token: newAccessToken, refreshToken: newRefreshToken },
     });
   } catch (error) {
     if (error.name === "JsonWebTokenError" || error.name === "TokenExpiredError") {
@@ -124,7 +122,7 @@ export const logout = async (req, res, next) => {
       await refreshTokenModel.deleteOne({ token: refreshToken });
     }
 
-    res.status(200).json({ message: "Logged out successfully" });
+    success(res, { message: "Logged out successfully" });
   } catch (error) {
     next(error);
   }
@@ -134,9 +132,7 @@ export const logoutAll = async (req, res, next) => {
   try {
     await refreshTokenModel.deleteMany({ userId: req.user.userId });
 
-    res
-      .status(200)
-      .json({ message: "Logged out from all devices successfully" });
+    success(res, { message: "Logged out from all devices successfully" });
   } catch (error) {
     next(error);
   }
@@ -162,9 +158,10 @@ export const register = async (req, res, next) => {
 
     console.log("User created successfully", newUser);
 
-    res.status(201).json({
-      userId: newUser.userId,
+    success(res, {
       message: "User created successfully",
+      data: { userId: newUser.userId },
+      statusCode: 201,
     });
   } catch (error) {
     if (error.code === 11000) {
@@ -177,11 +174,13 @@ export const register = async (req, res, next) => {
 
 export const validateToken = (req, res) => {
   // If the code reaches here, the 'protect' middleware already verified the token
-  res.status(200).json({
-    valid: true,
-    userId: req.user.userId,
-    role: req.user.role,
-    isAdmin: req.user.role === "admin",
+  success(res, {
+    data: {
+      valid: true,
+      userId: req.user.userId,
+      role: req.user.role,
+      isAdmin: req.user.role === "admin",
+    },
   });
 };
 
@@ -214,7 +213,7 @@ export const createResetToken = async (req, res, next) => {
       await sendResetEmail(email, newToken.token);
     }
 
-    return res.status(200).json({
+    return success(res, {
       message:
         "If an account with that email exists, you'll receive a reset link shortly.",
     });
@@ -246,7 +245,7 @@ export const validateResetToken = async (req, res, next) => {
       return next(err);
     }
 
-    return res.status(200).json({ message: "Token is valid." });
+    return success(res, { message: "Token is valid." });
   } catch (err) {
     next(err);
   }
@@ -294,7 +293,7 @@ export const resetPassword = async (req, res, next) => {
     console.log("deleting token");
     await resetTokenModel.deleteOne({ token });
 
-    return res.status(200).json({ message: "Password updated successfully." });
+    return success(res, { message: "Password updated successfully." });
   } catch (err) {
     next(err);
   }
