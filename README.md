@@ -1,167 +1,193 @@
 # Voltaic
 
-Full-stack platform for managing EV charging infrastructure. Includes a REST API, a frontend client, and a data generation toolset for seeding the database.
-
----
+Full-stack EV charging infrastructure management platform. Browse an interactive map of charging stations, manage charging sessions, handle support tickets, and oversee company fleets — all through a modern web interface backed by a REST API.
 
 ## Monorepo Structure
 
 ```
 voltaic-app/
-├── api/                  # Node.js/Bun REST API
-│   ├── src/
-│   ├── tests/
-│   ├── app.js
-│   ├── server.js
-│   ├── Dockerfile
-│   └── package.json
-│
-├── data-gen/             # Python seed data generator
-│   ├── data/             # External datasets (e.g. open-ev-data.json)
-│   ├── generator.py      # Faker-based model generators
-│   ├── db.py             # MongoDB insertion helpers
-│   ├── main.py           # Entry point
-│   └── requirements.txt
-│
-├── frontend/             # Frontend Service
-│   ├── app/
-│   ├── plugins/
-│   ├── public/
-│   ├── bun.lock
-│   ├── components.json
-│   ├── eslint.config.mjs
-│   ├── nuxt.config.ts
-│   ├── package-lock.json
-│   ├── package.json
-│   ├── README.md
-│   ├── tailwind.config.cjs
-│   ├── tsconfig.json
-│   ├── .env
-│   └── .env.example
-│
-├── .env.example          # Environment variables
-├── compose.yaml          # Docker Compose — full stack
-└── Makefile              # Convenience commands
+├── api/              Express/Mongoose REST API
+├── frontend/         Nuxt 4 + Vue 3 SPA
+├── data-gen/         Python seed data generator
+├── compose.yaml      Docker Compose — full stack
+├── Makefile          Convenience dev commands
+└── .env.example      Shared environment template
 ```
 
----
+## Tech Stack
+
+| Service     | Language   | Runtime/Framework             | Database       |
+|-------------|------------|-------------------------------|----------------|
+| **API**     | JavaScript | Express 5 on Bun              | MongoDB 7      |
+| **Frontend**| TypeScript | Nuxt 4 + Vue 3 + Pinia        | —              |
+| **Data Gen**| Python     | Faker + PyMongo               | MongoDB 7      |
+| **Admin UI**| —          | Mongo Express                 | MongoDB 7      |
 
 ## Prerequisites
 
-- [Docker](https://www.docker.com/) and Docker Compose
-- [Bun](https://bun.sh/) (for local API development) or [Node.js](https://nodejs.org/en/)
-- Python 3.9+ (for local data-gen development)
+- [Docker](https://docs.docker.com/get-docker/) + [Docker Compose](https://docs.docker.com/compose/install/)
+- [Bun](https://bun.sh) (recommended) or Node.js 18+
+- Python 3.9+ (for data-gen locally)
 
----
+## Quick Start
 
-## Getting Started
-
-### Run the full project with one command
-
-On mac:
-
-- If you use bun:
+### Full stack with Docker
 
 ```bash
-make mac-bun-dev
-```
-
-- If you use node:
-
-```bash
-make mac-node-dev
-```
-
-On windows:
-
-- If you use bun:
-
-```bash
-make win-bun-dev
-```
-
-- If you use node:
-
-```bash
-make win-node-dev
-```
-
-### Run the full stack with Docker
-
-```bash
+# Start MongoDB, API, and Mongo Express
 docker compose up --build
 ```
 
-This starts MongoDB, the API, and a Mongo Express instance.
+The API is at `http://localhost:3000`, Swagger docs at `http://localhost:3000/docs`, and Mongo Express at `http://localhost:8081`.
 
-### Stop and clean up
+### Development mode (with hot reload)
+
+Using the Makefile:
+
+```bash
+# macOS + Bun
+make mac-bun-dev
+
+# macOS + Node
+make mac-node-dev
+
+# Windows + Bun
+make win-bun-dev
+
+# Windows + Node
+make win-node-dev
+```
+
+Or start each service individually:
+
+```bash
+# 1. Start MongoDB
+docker compose up mongo
+
+# 2. Start API
+cd api && cp .env.example .env && bun install && bun --watch server.js
+
+# 3. Start frontend
+cd frontend && cp .env.example .env && bun install && bun run dev
+
+# 4. (Optional) Seed data
+cd data-gen && pip install -r requirements.txt && python main.py --all
+```
+
+### Stop
 
 ```bash
 docker compose down -v
 ```
 
----
-
 ## Services
 
-### API — `api/`
+### API (`api/`)
 
-Node.js/Bun REST API serving the Voltaic backend.
+Express 5 REST API with JWT authentication, role-based access control, and Swagger documentation. Eight resource groups: Auth, Users, Companies, Stations, Tickets, Usages, Logs, and Vehicles.
 
-```bash
-cd api
-cp .env.example .env
-bun install
-bun run app.js
-```
+Port: `3000`  
+Docs: `http://localhost:3000/docs`
 
-Configure via `api/.env`. See `api/.env.example` for available variables.
+### Frontend (`frontend/`)
 
-### Frontend — `frontend/`
+Nuxt 4 SPA with interactive map (MapLibre GL), dark mode, i18n (en/pt/es), role-based dashboards, and charging station management.
 
-```bash
-cd frontend
-cp .env.example .env
-```
+Port: `5173`
 
-Refer to `frontend/.env.example` for required environment variables.
+### Data Generator (`data-gen/`)
 
-### Data Generator — `data-gen/`
+CLI tool to seed MongoDB with realistic companies, station groups, users, stations, support tickets, usage logs, and EV vehicle catalogue data.
 
-Seeds MongoDB with companies, users, stations, tickets, and EV vehicle data.
+### Mongo Express
 
-```bash
-cd data-gen
-pip install -r requirements.txt
-cp .env.example .env
-python main.py
-```
+Web-based MongoDB admin UI for inspecting the database.
 
-See [`data-gen/README.md`](data-gen/README.md) for full documentation on generated collections and configuration.
-
----
-
-## Makefile
-
-Common tasks are available via `make`. Run `make help` (or just `make`) to list available targets.
-
----
+URL: `http://localhost:8081`
 
 ## Environment Variables
 
-Each service has its own `.env.example` file at its root. Copy it to `.env` and fill in the values before running locally.
+Each service has its own `.env.example`. Copy it to `.env` and adjust as needed.
 
-| Service  | File                    |
-| -------- | ----------------------- |
-| Docker   | `.env.example`          |
-| API      | `api/.env.example`      |
-| Frontend | `frontend/.env.example` |
-| Data Gen | `data-gen/.env.example` |
+### Root (`compose.yaml`)
 
----
+| Variable             | Default |
+|----------------------|---------|
+| `MONGO_ROOT_USERNAME`| `admin` |
+| `MONGO_ROOT_PASSWORD`| `secret`|
+| `MONGO_DB`           | `app`   |
+| `ME_USERNAME`        | `admin` |
+| `ME_PASSWORD`        | `admin123` |
+| `API_PORT`           | `3000`  |
 
-## Contributing
+### API (`api/.env`)
 
-1. Create a branch from `develop`
-2. Make your changes
-3. Open a pull request — CI runs via `.github/`
+| Variable                  | Description |
+|---------------------------|-------------|
+| `MONGO_URI`               | MongoDB connection string |
+| `JWT_SECRET`              | Access token signing key |
+| `JWT_EXPIRES_IN`          | Access token TTL (e.g. `1h`) |
+| `JWT_REFRESH_SECRET`      | Refresh token signing key |
+| `JWT_REFRESH_EXPIRES_IN`  | Refresh token TTL (e.g. `7d`) |
+| `MAILTRAP_TOKEN`          | Mailtrap API token for password reset emails |
+
+### Frontend (`frontend/.env`)
+
+| Variable                     | Default                    |
+|------------------------------|----------------------------|
+| `NUXT_PUBLIC_API_BASE_URL`   | `http://0.0.0.0:3000`      |
+
+### Data Gen (`data-gen/.env`)
+
+| Variable    | Default                                                    |
+|-------------|------------------------------------------------------------|
+| `MONGO_URI` | `mongodb://root:root@localhost:27018/voltaic-db?authSource=admin` |
+
+## API Overview
+
+All endpoints are prefixed with `/api`. Protected routes require a `Bearer` token in the `Authorization` header.
+
+| Resource     | Base Path              | Auth Required |
+|--------------|------------------------|---------------|
+| Auth         | `/api/auth`            | Mixed         |
+| Users        | `/api/users`           | Yes           |
+| Companies    | `/api/companies`       | Mixed         |
+| Stations     | `/api/stations`        | Yes           |
+| Tickets      | `/api/tickets`         | Yes           |
+| Usages       | `/api/usages`          | Yes           |
+| Logs         | `/api/logs`            | Yes           |
+| Vehicles     | `/api/vehicles`        | No            |
+
+### Roles
+
+- **`client`** — browse stations, manage own vehicles and favorites, create tickets, start charging sessions
+- **`worker`** — same as client, plus manage stations and tickets within their company
+- **`company-manager`** — same as worker, plus access company dashboard and manage users
+- **`admin`** — full access to all resources
+
+### Auth Endpoints
+
+| Method   | Path                           | Description |
+|----------|--------------------------------|-------------|
+| `POST`   | `/api/auth/login`              | Login with email/password |
+| `POST`   | `/api/auth/register`           | Create new account |
+| `POST`   | `/api/auth/refresh`            | Rotate refresh token |
+| `POST`   | `/api/auth/logout`             | Revoke refresh token |
+| `POST`   | `/api/auth/logout-all`         | Revoke all sessions |
+| `POST`   | `/api/auth/validate-token`     | Check token validity |
+| `GET`    | `/api/auth/me`                 | Current user profile |
+| `POST`   | `/api/auth/forgot-password`    | Request reset email |
+| `POST`   | `/api/auth/forgot-password/:token` | Validate reset token |
+| `POST`   | `/api/auth/reset-password`     | Set new password |
+
+### Status
+
+| Method | Path            | Description        |
+|--------|-----------------|--------------------|
+| `GET`  | `/api/status`   | Health check       |
+| `GET`  | `/docs`         | Swagger UI         |
+| `GET`  | `/docs.json`    | OpenAPI spec (JSON)|
+
+## License
+
+ISC
