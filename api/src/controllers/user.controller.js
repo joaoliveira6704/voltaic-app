@@ -109,12 +109,17 @@ export const getUsers = async (req, res, next) => {
 
     const filter = {};
     if (req.query.companyId) filter.companyId = req.query.companyId;
+    if (req.query.search) {
+      filter.$or = [
+        { username: { $regex: req.query.search, $options: "i" } },
+        { email: { $regex: req.query.search, $options: "i" } },
+      ];
+    }
 
-    const result = await paginate(
-      userModel,
-      filter,
-      { page: req.query.page, limit: req.query.limit },
-    );
+    const result = await paginate(userModel, filter, {
+      page: req.query.page,
+      limit: req.query.limit,
+    });
     res.json(result);
   } catch (error) {
     next(error);
@@ -401,6 +406,17 @@ export const updateOwnUser = async (req, res, next) => {
 
 export const updateRole = async (req, res, next) => {
   try {
+    const allowedRoles =
+      req.user.role === "admin"
+        ? ["client", "worker", "company-manager", "admin"]
+        : ["worker", "company-manager"];
+
+    if (!allowedRoles.includes(req.body.role)) {
+      const err = new Error("Cannot assign this role");
+      err.status = 403;
+      return next(err);
+    }
+
     const updatedUser = await userModel.findOneAndUpdate(
       { userId: req.params.id },
       { role: req.body.role },

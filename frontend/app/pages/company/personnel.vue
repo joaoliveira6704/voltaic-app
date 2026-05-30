@@ -1,12 +1,8 @@
 <script setup lang="ts">
 import { useCompanyStore } from "~/stores/company";
-import {
-  CompanyPersonnelColumns,
-  UserRoles,
-  colorMap,
-} from "@/utils/constants";
+import { CompanyPersonnelColumns } from "@/utils/constants";
 import PersonnelTable from "~/components/company/personnel/PersonnelTable.vue";
-import { UserRoundMinus } from "lucide-vue-next";
+import { UserMinus, UserPlus } from "lucide-vue-next";
 import { Skeleton, SkeletonTable } from "~/components/ui/Skeleton";
 import Swal from "sweetalert2";
 import { toast } from "vue-sonner";
@@ -14,8 +10,13 @@ import { toast } from "vue-sonner";
 const { t } = useI18n();
 const companyStore = useCompanyStore();
 
+const token = useCookie("token");
+const apiBase = useRuntimeConfig().public.apiBaseUrl;
+
 const isPending = ref(true);
 const companyUsers = ref<any[]>([]);
+const searchQuery = ref("");
+const isAddingWorker = ref(false);
 
 async function init() {
   await companyStore.fetchCurrentCompany();
@@ -30,12 +31,10 @@ init();
 const currentCompany = computed(() => companyStore.currentCompany || "");
 
 async function fetchCompanyUsers(companyId: string) {
-  const token = useCookie("token").value;
-  const apiBase = useRuntimeConfig().public.apiBaseUrl;
   try {
     const data = await $fetch<any>(
       `${apiBase}/api/users?companyId=${companyId}`,
-      { headers: { Authorization: `Bearer ${token}` } },
+      { headers: { Authorization: `Bearer ${token.value}` } },
     );
     companyUsers.value = data.data ?? data;
   } catch (e) {
@@ -62,12 +61,10 @@ async function removeFromCompany(userId: string, username: string) {
 
   if (!confirmed.isConfirmed) return;
 
-  const token = useCookie("token").value;
-  const apiBase = useRuntimeConfig().public.apiBaseUrl;
   try {
     await $fetch(`${apiBase}/api/users/${userId}`, {
       method: "PATCH",
-      headers: { Authorization: `Bearer ${token}` },
+      headers: { Authorization: `Bearer ${token.value}` },
       body: { companyId: "" },
     });
     companyUsers.value = companyUsers.value.filter((u) => u.userId !== userId);
@@ -78,9 +75,69 @@ async function removeFromCompany(userId: string, username: string) {
   }
 }
 
-function getRoleColor(role: string) {
-  const entry = UserRoles.find((r) => r.key === role);
-  return entry ? colorMap[entry.color] : "bg-muted text-muted-foreground";
+async function handleRoleChange({
+  userId,
+  role,
+}: {
+  userId: string;
+  role: string;
+}) {
+  try {
+    await $fetch(`${apiBase}/api/users/${userId}/role`, {
+      method: "PATCH",
+      headers: { Authorization: `Bearer ${token.value}` },
+      body: { role },
+    });
+    const idx = companyUsers.value.findIndex((u) => u.userId === userId);
+    if (idx !== -1) companyUsers.value[idx].role = role;
+    toast.success("Role updated");
+  } catch (e) {
+    console.error("Failed to update role:", e);
+    toast.error("Failed to update role");
+  }
+}
+
+async function addWorker() {
+  if (!searchQuery.value.trim()) return;
+  isAddingWorker.value = true;
+
+  try {
+    const data = await $fetch<any>(
+      `${apiBase}/api/users?search=${encodeURIComponent(searchQuery.value)}`,
+      { headers: { Authorization: `Bearer ${token.value}` } },
+    );
+
+    const users = data.data ?? data;
+    if (!users || users.length === 0) {
+      toast.error("User not found");
+      return;
+    }
+
+    const user = users[0];
+    if (user.role !== "worker") {
+      toast.error("User is not a worker");
+      return;
+    }
+    if (user.companyId && user.companyId !== "") {
+      toast.error("User already belongs to a company");
+      return;
+    }
+
+    await $fetch(`${apiBase}/api/users/${user.userId}`, {
+      method: "PATCH",
+      headers: { Authorization: `Bearer ${token.value}` },
+      body: { companyId: companyStore.currentCompany?.companyId },
+    });
+
+    companyUsers.value.push(user);
+    searchQuery.value = "";
+    toast.success("Worker added to company");
+  } catch (e) {
+    console.error("Failed to add worker:", e);
+    toast.error("Failed to add worker");
+  } finally {
+    isAddingWorker.value = false;
+  }
 }
 </script>
 
@@ -97,11 +154,33 @@ function getRoleColor(role: string) {
       </DashboardCard>
     </template>
     <template v-else>
-      <DashboardCard
-        :title="`${currentCompany?.name || ''} ${t('nav.personnel')}`"
-        :has-line="false"
-      >
-        <CardContent class="px-0">
+      <DashboardCard :has-line="false">
+        <div class="w-full space-y-4">
+          <div class="flex items-center justify-between px-6 pt-4">
+            <h2 class="text-xs font-bold uppercase text-gray-400 dark:text-white">
+              {{ currentCompany?.name || '' }} {{ t('nav.personnel') }}
+            </h2>
+            <div class="flex items-center gap-2">
+              <Input
+                v-model="searchQuery"
+                placeholder="Username or email"
+                class="h-8 text-xs w-56"
+                @keyup.enter="addWorker"
+              />
+              <button
+                class="flex items-center gap-1 text-xs"
+                :disabled="isAddingWorker"
+                @click="addWorker"
+              >
+                <UserPlus class="h-4 w-4" />
+                Add Worker
+              </button>
+            </div>
+          </div>
+
+          <hr class="w-full dark:border-[#333333]" />
+
+          <CardContent class="px-0">
           <PersonnelTable
             :rows="companyUsers"
             :columns="CompanyPersonnelColumns"
@@ -118,24 +197,26 @@ function getRoleColor(role: string) {
                 row.email
               }}</TableCell>
               <TableCell class="text-sm">
-                <span
-                  class="text-xs uppercase px-2 py-0.5 rounded"
-                  :class="getRoleColor(row.role)"
-                >
-                  {{ row.role }}
-                </span>
+                <StatusBadge
+                  :value="row.role"
+                  :user-id="row.userId"
+                  type="users"
+                  :allowed-keys="['worker', 'company-manager']"
+                  @update:value="handleRoleChange"
+                />
               </TableCell>
               <TableCell>
                 <button
                   class="text-red-600 hover:text-red-800"
                   @click="removeFromCompany(row.userId, row.username)"
                 >
-                  <UserRoundMinus class="h-5 w-5" />
+                  <UserMinus class="h-6 w-6" />
                 </button>
               </TableCell>
             </template>
           </PersonnelTable>
         </CardContent>
+        </div>
       </DashboardCard>
     </template>
   </div>

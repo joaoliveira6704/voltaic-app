@@ -20,6 +20,10 @@ const props = defineProps({
     type: String,
     default: null,
   },
+  allowedKeys: {
+    type: Array,
+    default: null,
+  },
   type: {
     type: String,
     required: true,
@@ -32,9 +36,13 @@ const emit = defineEmits(["update:value"]);
 const { t } = useI18n();
 
 const options = computed(() => {
-  if (props.type === "users") return UserRoles;
-  if (props.type === "tickets") return TicketStates;
-  return [];
+  let opts = [];
+  if (props.type === "users") opts = UserRoles;
+  if (props.type === "tickets") opts = TicketStates;
+  if (props.allowedKeys) {
+    opts = opts.filter((o) => props.allowedKeys.includes(o.key));
+  }
+  return opts;
 });
 
 const activeData = computed(() => {

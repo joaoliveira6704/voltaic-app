@@ -86,7 +86,6 @@ router.patch(
   "/:id/role",
   protect,
   requireRole("admin", "company-manager"),
-  checkOwnership(userModel),
   updateRole,
 );
 
