@@ -107,9 +107,12 @@ export const getUsers = async (req, res, next) => {
       });
     }
 
+    const filter = {};
+    if (req.query.companyId) filter.companyId = req.query.companyId;
+
     const result = await paginate(
       userModel,
-      {},
+      filter,
       { page: req.query.page, limit: req.query.limit },
     );
     res.json(result);

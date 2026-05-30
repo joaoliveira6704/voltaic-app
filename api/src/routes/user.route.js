@@ -19,16 +19,12 @@ import {
   getCurrentCompany,
 } from "../controllers/user.controller.js";
 import { register } from "../controllers/auth.controller.js";
-import {
-  getActiveUserUsages,
-} from "../controllers/usage.controller.js";
+import { getActiveUserUsages } from "../controllers/usage.controller.js";
 import {
   getMyTickets,
   getCompanyTickets,
 } from "../controllers/ticket.controller.js";
-import {
-  getCompanyStations,
-} from "../controllers/station.controller.js";
+import { getCompanyStations } from "../controllers/station.controller.js";
 import {
   checkOwnership,
   protect,
@@ -38,7 +34,7 @@ import userModel from "../models/user.model.js";
 
 const router = Router();
 
-router.get("/", protect, requireRole("admin"), getUsers);
+router.get("/", protect, requireRole("admin", "company-manager"), getUsers);
 router.post("/", register);
 
 router.get("/me", protect, getCurrentUser);
@@ -78,7 +74,12 @@ router.get("/me/usages", protect, getActiveUserUsages);
 router.get("/me/tickets", protect, getMyTickets);
 
 router.get("/:id", protect, getUserById);
-router.patch("/:id", protect, requireRole("admin"), updateUser);
+router.patch(
+  "/:id",
+  protect,
+  requireRole("admin", "company-manager"),
+  updateUser,
+);
 router.delete("/:id", protect, requireRole("admin"), deleteUser);
 
 router.patch(
