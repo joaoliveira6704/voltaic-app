@@ -17,30 +17,25 @@ command -v docker &>/dev/null || err "Docker not installed"
 command -v docker compose &>/dev/null || err "Docker Compose not installed"
 
 # ── SSL setup ──────────────────────────────────────────────────────────────
-if [ -z "${DOMAIN:-}" ]; then
-    warn "DOMAIN not set — deploying HTTP only"
-    warn "To enable HTTPS, run: DOMAIN=voltaic.seudominio.com ./deploy.sh"
-else
-    if [ ! -d "/etc/letsencrypt/live/$DOMAIN" ]; then
-        log "Obtaining SSL certificate for $DOMAIN"
-        command -v certbot &>/dev/null || apt install -y certbot
-        # Temporarily stop nginx to free port 80 for certbot standalone
-        docker compose -f docker-compose.prod.yml stop nginx 2>/dev/null || true
-        certbot certonly --standalone -d "$DOMAIN" --non-interactive --agree-tos --email admin@"$DOMAIN" || true
-    else
-        log "SSL certificate found for $DOMAIN"
-    fi
+DOMAIN="voltaic.diacidos.pt"
 
-    # Set up renewal hook to reload nginx
-    HOOK_DIR="/etc/letsencrypt/renewal-hooks/post"
-    mkdir -p "$HOOK_DIR"
-    cat > "$HOOK_DIR/restart-nginx.sh" << 'EOF'
+if [ ! -d "/etc/letsencrypt/live/$DOMAIN" ]; then
+    log "Obtaining SSL certificate for $DOMAIN"
+    command -v certbot &>/dev/null || apt install -y certbot
+    docker compose -f docker-compose.prod.yml stop nginx 2>/dev/null || true
+    certbot certonly --standalone -d "$DOMAIN" --non-interactive --agree-tos --email admin@"$DOMAIN" || true
+else
+    log "SSL certificate found for $DOMAIN"
+fi
+
+HOOK_DIR="/etc/letsencrypt/renewal-hooks/post"
+mkdir -p "$HOOK_DIR"
+cat > "$HOOK_DIR/restart-nginx.sh" << 'EOF'
 #!/bin/sh
 docker exec voltaic-nginx nginx -s reload
 EOF
-    chmod +x "$HOOK_DIR/restart-nginx.sh"
-    log "Renewal hook installed"
-fi
+chmod +x "$HOOK_DIR/restart-nginx.sh"
+log "Renewal hook installed"
 
 # ── Build and start ────────────────────────────────────────────────────────
 export DOMAIN="${DOMAIN:-}"
@@ -56,20 +51,11 @@ docker compose -f docker-compose.prod.yml ps
 echo ""
 log "Deploy complete!"
 echo ""
-
-if [ -n "${DOMAIN:-}" ]; then
-    echo -e "${GREEN}  https://$DOMAIN${NC}"
-else
-    echo -e "${YELLOW}  http://$(curl -s ifconfig.me)${NC}"
-fi
-
+echo -e "${GREEN}  https://$DOMAIN${NC}"
 echo ""
 echo "  Logs:      docker compose -f docker-compose.prod.yml logs -f"
 echo "  Stop:      docker compose -f docker-compose.prod.yml down"
 echo "  Restart:   docker compose -f docker-compose.prod.yml restart"
 echo "  Rebuild:   docker compose -f docker-compose.prod.yml up -d --build"
-echo ""
-if [ -n "${DOMAIN:-}" ]; then
-    echo "  Renew cert: certbot renew"
-fi
+echo "  Renew cert: certbot renew"
 echo ""
