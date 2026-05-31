@@ -11,8 +11,8 @@ const options = {
     },
     servers: [
       {
-        url: "http://localhost:3000",
-        description: "Servidor de desenvolvimento",
+        url: "https://voltaic.diacidos.pt",
+        description: "Servidor de produção",
       },
     ],
     components: {
