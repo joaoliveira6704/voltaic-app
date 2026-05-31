@@ -16,7 +16,7 @@ const { t } = useI18n();
 function setCookie(name: string, value: string | null, maxAge: number | undefined) {
   const cookie = useCookie<string | null>(name, {
     path: "/",
-    secure: true,
+    secure: location.protocol === "https:",
     sameSite: "lax",
     maxAge,
   });
@@ -99,7 +99,7 @@ const handleLogin = async () => {
         setCookie("refreshToken", response.data.refreshToken, maxAge);
         setCookie("user", JSON.stringify(response.data.user), maxAge);
 
-        await navigateTo("/profile", { external: true });
+        await navigateTo("/profile");
     } catch (err: unknown) {
         console.error("Login failed:", err);
 
