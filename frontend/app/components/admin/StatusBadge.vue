@@ -23,7 +23,7 @@ const props = defineProps({
     type: {
         type: String,
         required: true,
-        validator: (v) => ["users", "tickets"].includes(v),
+        validator: (v) => ["users", "tickets", "company"].includes(v),
     },
 });
 
@@ -57,14 +57,14 @@ function getLabel(option) {
 }
 
 function getItemClass(option) {
-    if (props.type === "users") {
+    if (props.type === "users" || props.type === "company") {
         return colorMap[option.color] ?? "bg-muted text-muted-foreground";
     }
     return option.color;
 }
 
 function handleChange(val) {
-    if (props.type === "users") {
+    if (props.type === "users" || props.type === "company") {
         emit("update:value", { userId: props.userId, role: val });
     } else if (props.type === "tickets") {
         emit("update:value", { ticketId: props.ticketId, status: val });

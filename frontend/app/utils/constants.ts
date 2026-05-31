@@ -7,6 +7,17 @@ export const AdminUserColumns = [
   { key: "vehicles", label: "Vehicles" },
 ];
 
+export const companyRoles = [
+  {
+    key: "worker",
+    color: "purple",
+  },
+  {
+    key: "company-manager",
+    color: "pink",
+  },
+];
+
 export const AdminStationColumns = [
   { key: "stationId", label: "Station ID" },
   { key: "title", label: "Name" },
