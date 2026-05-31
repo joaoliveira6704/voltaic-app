@@ -34,8 +34,8 @@ app.use("/api/usages", usageRoute);
 
 app.get("/api/status", (req, res) => res.json({ status: "Alive" }));
 
-app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-app.get("/docs.json", (req, res) => res.json(swaggerSpec));
+app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.get("/api/docs.json", (req, res) => res.json(swaggerSpec));
 
 app.use(errorHandler);
 
