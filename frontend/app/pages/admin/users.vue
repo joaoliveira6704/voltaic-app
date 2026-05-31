@@ -76,7 +76,7 @@ function onUserUpdated() {
 }
 
 function handleRoleChange(userId: string, role: string) {
-    userStore.editUserRole(userId, role);
+    userStore.editUser(userId, { role });
 }
 
 let debounceTimer: ReturnType<typeof setTimeout>;
