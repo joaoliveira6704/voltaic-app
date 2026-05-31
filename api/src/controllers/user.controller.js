@@ -117,7 +117,7 @@ export const getUsers = async (req, res, next) => {
       page: req.query.page,
       limit: req.query.limit,
     });
-    res.json(result);
+    success(res, { data: result });
   } catch (error) {
     next(error);
   }
