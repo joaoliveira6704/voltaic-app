@@ -16,4 +16,4 @@ COPY --from=install /app/node_modules ./node_modules
 COPY . .
 RUN npm run build
 EXPOSE 5173
-CMD ["npm", "run", "preview"]
+CMD ["npm", "run", "preview", "--", "--port", "5173"]
