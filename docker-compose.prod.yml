@@ -1,0 +1,49 @@
+services:
+  api:
+    build:
+      context: ./api
+      target: production
+    container_name: voltaic-api
+    restart: unless-stopped
+    expose:
+      - "3000"
+    env_file: ./api/.env
+    environment:
+      PORT: 3000
+    networks:
+      - voltaic-net
+
+  frontend:
+    build:
+      context: ./frontend
+      target: production
+    container_name: voltaic-frontend
+    restart: unless-stopped
+    expose:
+      - "5173"
+    environment:
+      NUXT_PUBLIC_API_BASE_URL: ""
+    networks:
+      - voltaic-net
+    depends_on:
+      - api
+
+  nginx:
+    image: nginx:alpine
+    container_name: voltaic-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    networks:
+      - voltaic-net
+    depends_on:
+      - api
+      - frontend
+
+networks:
+  voltaic-net:
+    driver: bridge
