@@ -1,163 +1,174 @@
 # Voltaic Data Generator
 
-Seed script for the **Voltaic** EV charging platform. Generates realistic fake data for companies, users, stations, and support tickets, then inserts everything into MongoDB.
+CLI tool to seed the Voltaic MongoDB with realistic test data — companies, station groups, users, charging stations, support tickets, usage logs, and an EV vehicle catalogue.
 
----
-
-## Project Structure
-
-```
-.
-├── generator.py          # Data model definitions and faker-based generators
-├── db.py                 # MongoDB connection and insertion helpers
-├── main.py               # Entry point — orchestrates generation and insertion
-├── data/
-│   └── open-ev-data.json # External EV vehicle dataset
-├── users.txt             # Auto-generated plaintext credentials (email:password:role)
-└── requirements.txt # Python Package Dependencies
-```
-
----
-
-## Prerequisites
+## Tech Stack
 
 - Python 3.9+
-- A running MongoDB instance (default: `localhost:27018`)
-- The following Python packages:
+- [Faker](https://github.com/joke2k/faker) — realistic fake data
+- [PyMongo](https://pymongo.readthedocs.io/) — MongoDB driver
+- [bcrypt](https://pypi.org/project/bcrypt/) — password hashing
+
+## Setup
 
 ```bash
 pip install -r requirements.txt
 ```
 
-OR Manually:
-
-```bash
-pip install faker pymongo bcrypt
-```
-
----
-
 ## Configuration
 
-The MongoDB connection string is read from the environment variable `MONGO_URI`. If not set, it falls back to:
+The MongoDB URI is read from the `MONGO_URI` environment variable. Copy `.env.example` to `.env` to override:
 
 ```
-mongodb://root:root@localhost:27018/voltaic-db?authSource=admin
+MONGO_URI="mongodb://root:root@localhost:27018/voltaic-db?authSource=admin"
 ```
-
-To override:
-
-```bash
-export MONGO_URI="mongodb://user:pass@host:port/voltaic-db?authSource=admin"
-```
-
----
 
 ## Usage
 
+### Generate everything
+
 ```bash
-python3 main.py
+python main.py --all
 ```
 
-This will:
+This generates and inserts:
+- 5 station groups
+- 10 companies
+- 30 users
+- 25 charging stations
+- 40 tickets (mixed intervention + bug reports)
+- 30 usage logs
+- EV vehicle catalogue from `data/open-ev-data.json`
 
-1. Generate **10 companies** across Porto, Lisboa, Madrid, Faro, and Sevilla
-2. Generate **100 users** with bcrypt-hashed passwords (roles: `client`, `worker`, `company-manager`, `admin`)
-3. Generate **20 charging stations** with random connectors, telemetry, and states
-4. Generate **20 support tickets** linked to users and stations
-5. Insert all of the above into MongoDB (`voltaic-db`)
-6. Import EV vehicle data from `data/open-ev-data.json` into the `vehicles` collection
+### Generate selectively with individual flags
 
-Plaintext credentials are saved to `users.txt` in `email:password:role` format for testing.
+```bash
+# Only generate groups
+python main.py --groups 5
 
----
+# Generate companies (uses existing groups if available)
+python main.py --companies 10
 
-## Generated Collections
+# Generate users with company assignments
+python main.py --users 50
 
-### `companies`
+# Generate stations (requires existing groups + companies)
+python main.py --stations 20
 
-| Field         | Description                         |
-| ------------- | ----------------------------------- |
-| `companyId`   | UUID                                |
-| `name`        | Faker company name + "EV Solutions" |
-| `workingArea` | GeoJSON Point near a seeded city    |
+# Generate tickets by type
+python main.py --tickets 30 --ticket-type intervention
+python main.py --tickets 30 --ticket-type bug
+python main.py --tickets 30 --ticket-type mixed   # default
 
-### `users`
+# Generate usage logs
+python main.py --usage 50
 
-| Field       | Description                                       |
-| ----------- | ------------------------------------------------- |
-| `userId`    | UUID                                              |
-| `username`  | Derived from first/last name + random suffix      |
-| `email`     | Faker email                                       |
-| `password`  | bcrypt hash (12 rounds)                           |
-| `role`      | `client`, `worker`, `company-manager`, or `admin` |
-| `companyId` | Set for `worker` and `company-manager` roles      |
-| `vehicles`  | 1–3 vehicles for `client` and `worker` roles      |
-| `favorites` | Empty list (populated by app logic)               |
+# Import EV vehicle data
+python main.py --ev-data
+```
 
-### `stations`
+### Drop collections before inserting
 
-| Field                   | Description                                                    |
-| ----------------------- | -------------------------------------------------------------- |
-| `stationId`             | UUID                                                           |
-| `title`                 | City name + random index                                       |
-| `location`              | GeoJSON Point                                                  |
-| `connector.socketTypes` | 1–3 types from a fixed list (e.g. `CCS/SAE`, `Type2`, `Tesla`) |
-| `connector.maxPower`    | kW (7.4 – 350)                                                 |
-| `telemetry`             | Amperage, voltage, temperature                                 |
-| `state`                 | `available`, `unavailable`, or `inactive`                      |
-| `alive`                 | `false` only when state is `inactive`                          |
+Add `--drop` to any command to clear the relevant collections first:
 
-### `tickets`
+```bash
+python main.py --all --drop
+```
 
-| Field       | Description                                     |
-| ----------- | ----------------------------------------------- |
-| `ticketId`  | UUID                                            |
-| `createdBy` | Random user ID                                  |
-| `stationId` | Random station ID                               |
-| `title`     | One of 10 predefined issue types                |
-| `status`    | `open`, `closed`, `resolved`, or `unresolved`   |
-| `remarks`   | Optional (40% chance of being set)              |
-| `closedAt`  | ISO timestamp, only set when status is `closed` |
+## CLI Reference
 
-### `vehicles`
+| Flag                | Type    | Default     | Description |
+|---------------------|---------|-------------|-------------|
+| `--all`             | flag    | —           | Generate everything with preset counts |
+| `--groups`          | int     | `0`         | Number of station groups |
+| `--companies`       | int     | `0`         | Number of companies |
+| `--users`           | int     | `0`         | Number of users |
+| `--stations`        | int     | `0`         | Number of charging stations |
+| `--tickets`         | int     | `0`         | Number of support tickets |
+| `--ticket-type`     | choice  | `mixed`     | Ticket category: `mixed`, `intervention`, `bug` |
+| `--usage`           | int     | `0`         | Number of charging usage logs |
+| `--ev-data`         | flag    | —           | Import EV catalogue from JSON |
+| `--drop`            | flag    | —           | Drop collections before inserting |
 
-Imported as-is from `data/open-ev-data.json`. Structure depends on the source file.
+Flags are composable. When running individual flags, the tool attempts to reuse existing data from the database as a base. For example, `--stations 10` will try to use existing groups and companies already in the DB.
 
----
+## Generated Data
 
-## Supported Socket Types
+### Station Groups
 
-`Type2`, `CHAdeMO`, `CCS/SAE`, `Type3`, `Tesla`, `J-1772`, `Wall_Euro`, `Caravan_Mains_Socket`, `Dual_J-1772`, `Dual_CHAdeMO`, `Mennekes`, `Dual_Mennekes`, `Other`
+5 groups are generated, each named after a city and a zone type (e.g. "Porto — North Zone"). Cities: Porto, Lisboa, Madrid, Faro, Sevilla.
 
----
+### Companies
 
-## Seeded Cities
+10 companies with unique names (e.g. "John Doe EV"). Each company is assigned 1–3 random groups.
 
-| City    | Country  |
-| ------- | -------- |
-| Porto   | Portugal |
-| Lisboa  | Portugal |
-| Faro    | Portugal |
-| Madrid  | Spain    |
-| Sevilla | Spain    |
+### Users
 
-Station and company coordinates are randomly jittered within ±0.5° of each city center.
+30 users generated with:
 
----
+| Field       | Description |
+|-------------|-------------|
+| `userId`    | UUID4 |
+| `username`  | 8–20 character Faker username |
+| `firstName` | Realistic first name |
+| `lastName`  | Realistic last name |
+| `email`     | Faker email |
+| `password`  | Bcrypt-hashed (12 rounds) |
+| `role`      | Random: `client`, `worker`, `company-manager`, `admin` |
+| `companyId` | Assigned if role is not admin |
+| `vehicles`  | 1–2 vehicles for client/worker roles |
 
-## Notes
+Plaintext credentials are saved to `users.txt` in `email:password:role` format.
 
-- Password hashing runs in parallel using `ThreadPoolExecutor` to speed up large user counts.
-- `users.txt` is overwritten on every run — back it up if needed.
-- Re-running the script will append duplicate documents to MongoDB. Drop the collections first if you need a clean seed:
+### Stations
 
-```js
-// MongoDB shell
-use voltaic-db
-db.companies.drop()
-db.users.drop()
-db.stations.drop()
-db.tickets.drop()
-db.vehicles.drop()
+25 stations distributed across groups. Each station includes:
+- GeoPoint location within ~4km of the group's city centre
+- 2–4 random socket types (`ccs1`, `ccs2`, `chademo`, `type1`, `type2`, `nacs`, etc.)
+- Max power: 50kW, 150kW, or 350kW
+- Telemetry: amperage (16/32/63A), voltage (230/400V), temperature
+- State weighted toward `available` with some `maintenance` and `unavailable`
+
+### Tickets
+
+40 tickets, split roughly 70% intervention / 30% bug reports.
+
+**Intervention templates** — 20 realistic scenarios with placeholders for station name, temperature, time, power, etc. Examples:
+- "Connector Type2 not responding"
+- "Station overheating — temperature above threshold"
+- "Charging cable damaged — exposed wiring"
+- "Ground fault detected — station auto-shutdown"
+
+**Bug templates** — 15 software bug reports:
+- "Dashboard chart not rendering on Safari"
+- "Dark mode toggle not persisting across page reload"
+- "Map markers overlapping at zoom level 14"
+
+### Usage Logs
+
+30 charging session records linking users (with vehicles) to stations.
+
+### EV Vehicle Catalogue
+
+Imported from `data/open-ev-data.json` into the `vehicles` collection. Skipped if the collection already has documents.
+
+## Project Structure
+
+```
+data-gen/
+├── main.py              Entry point — CLI parsing and orchestration
+├── generator.py         Data generators using Faker (groups, companies, users, stations, tickets, usage)
+├── models.py            Data classes: StationGroup, Company, User, Station, Ticket, StationUsage
+├── db.py                MongoDB connection, CRUD helpers, insert/import logic
+├── requirements.txt     Python dependencies
+├── data/
+│   └── open-ev-data.json    EV vehicle catalogue (make, model, year, charge ports)
+└── users.txt            Generated credentials (gitignored)
+```
+
+## Docker
+
+```bash
+docker build -t voltaic-data-gen .
+docker run --rm --network host --env-file .env voltaic-data-gen python main.py --all
 ```
