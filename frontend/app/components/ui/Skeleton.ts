@@ -1,0 +1,5 @@
+export { default as Skeleton } from './skeleton/Skeleton.vue'
+export { default as SkeletonTable } from './skeleton/SkeletonTable.vue'
+export { default as SkeletonVehicleCard } from './skeleton/SkeletonVehicleCard.vue'
+export { default as SkeletonMetricCard } from './skeleton/SkeletonMetricCard.vue'
+export { default as SkeletonInterventionCard } from './skeleton/SkeletonInterventionCard.vue'
