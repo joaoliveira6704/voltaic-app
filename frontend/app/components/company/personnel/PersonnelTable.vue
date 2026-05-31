@@ -2,16 +2,9 @@
 defineProps({
   columns: Array,
   rows: Array,
-  type: "users" | "tickets" | "stations" | "companies",
-  rowKey: { type: String, default: "id" },
+  rowKey: { type: String, default: "userId" },
 });
-defineEmits(["click"]);
-
-const router = useRouter();
-
-const handleNavigation = (type, id) => {
-  router.push(`${type}/${id}`);
-};
+defineEmits(["remove"]);
 </script>
 
 <template>
@@ -27,14 +20,8 @@ const handleNavigation = (type, id) => {
         </TableHead>
       </TableRow>
     </TableHeader>
-    <!-- AdminTable.vue -->
     <TableBody>
-      <TableRow
-        v-for="row in rows"
-        :key="row[rowKey]"
-        class="cursor-pointer hover:bg-muted/50"
-        @click="handleNavigation(type, row.stationId)"
-      >
+      <TableRow v-for="row in rows" :key="row[rowKey]">
         <slot :row="row" />
       </TableRow>
     </TableBody>

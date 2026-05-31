@@ -19,16 +19,12 @@ import {
   getCurrentCompany,
 } from "../controllers/user.controller.js";
 import { register } from "../controllers/auth.controller.js";
-import {
-  getActiveUserUsages,
-} from "../controllers/usage.controller.js";
+import { getActiveUserUsages } from "../controllers/usage.controller.js";
 import {
   getMyTickets,
   getCompanyTickets,
 } from "../controllers/ticket.controller.js";
-import {
-  getCompanyStations,
-} from "../controllers/station.controller.js";
+import { getCompanyStations } from "../controllers/station.controller.js";
 import {
   checkOwnership,
   protect,
@@ -38,75 +34,7 @@ import userModel from "../models/user.model.js";
 
 const router = Router();
 
-/**
- * @openapi
- * /api/users:
- *   get:
- *     tags: [Users]
- *     summary: Listar utilizadores (admin)
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: query
- *         name: view
- *         schema:
- *           type: string
- *           enum: [dashboard, admin]
- *       - in: query
- *         name: search
- *         schema:
- *           type: string
- *       - in: query
- *         name: sort
- *         schema:
- *           type: string
- *       - in: query
- *         name: role
- *         schema:
- *           type: string
- *       - in: query
- *         name: page
- *         schema:
- *           type: integer
- *           default: 1
- *       - in: query
- *         name: limit
- *         schema:
- *           type: integer
- *           default: 20
- *     responses:
- *       200:
- *         description: Lista de utilizadores
- *         content:
- *           application/json:
- *             schema:
- *               oneOf:
- *                 - $ref: '#/components/schemas/Pagination'
- *                 - type: object
- *                   properties:
- *                     total:
- *                       type: integer
- */
-router.get("/", protect, requireRole("admin"), getUsers);
-
-/**
- * @openapi
- * /api/users:
- *   post:
- *     tags: [Users]
- *     summary: Registar novo utilizador
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/CreateUserInput'
- *     responses:
- *       201:
- *         description: Utilizador criado
- *       400:
- *         description: Dados inválidos
- */
+router.get("/", protect, requireRole("admin", "company-manager"), getUsers);
 router.post("/", register);
 
 /**
@@ -539,55 +467,12 @@ router.get("/me/tickets", protect, getMyTickets);
  *         description: Utilizador não encontrado
  */
 router.get("/:id", protect, getUserById);
-
-/**
- * @openapi
- * /api/users/{id}:
- *   patch:
- *     tags: [Users]
- *     summary: Atualizar utilizador (admin)
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *     responses:
- *       200:
- *         description: Utilizador atualizado
- *       404:
- *         description: Utilizador não encontrado
- */
-router.patch("/:id", protect, requireRole("admin"), updateUser);
-
-/**
- * @openapi
- * /api/users/{id}:
- *   delete:
- *     tags: [Users]
- *     summary: Eliminar utilizador (admin)
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Utilizador eliminado
- *       404:
- *         description: Utilizador não encontrado
- */
+router.patch(
+  "/:id",
+  protect,
+  requireRole("admin", "company-manager"),
+  updateUser,
+);
 router.delete("/:id", protect, requireRole("admin"), deleteUser);
 
 /**
@@ -620,7 +505,6 @@ router.patch(
   "/:id/role",
   protect,
   requireRole("admin", "company-manager"),
-  checkOwnership(userModel),
   updateRole,
 );
 
