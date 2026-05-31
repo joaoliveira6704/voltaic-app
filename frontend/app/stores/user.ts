@@ -250,6 +250,10 @@ export const useUserStore = defineStore("user", () => {
         method: "PATCH",
         body: payload,
       });
+      const idx = users.value.findIndex((u) => u.userId === userId);
+      if (idx !== -1) {
+        users.value[idx] = { ...users.value[idx], ...payload };
+      }
       toast.success("User updated", {
         description: "User updated successfully.",
       });
