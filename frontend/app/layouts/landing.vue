@@ -2,6 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Toaster } from "@/components/ui/sonner";
+import "vue-sonner/style.css";
 import { Home, LogIn, Shield, User, UserPlus } from "lucide-vue-next";
 
 const userStore = useUserStore();
