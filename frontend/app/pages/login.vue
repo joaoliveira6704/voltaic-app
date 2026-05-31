@@ -13,23 +13,21 @@ const rememberMe = ref(true);
 const isSubmitting = ref(false);
 const { t } = useI18n();
 
-// Nuxt safe way to handle cookies (SSR compatible)
-const tokenCookie = useCookie("token", {
+function setCookie(name: string, value: string | null, maxAge: number | undefined) {
+  const cookie = useCookie<string | null>(name, {
     path: "/",
-    maxAge: 86400,
     secure: true,
     sameSite: "lax",
-});
-const userCookie = useCookie("user", {
-    path: "/",
-    maxAge: 86400,
-    secure: true,
-    sameSite: "lax",
-});
+    maxAge,
+  });
+  cookie.value = value;
+}
 
 interface LoginResponse {
-    token: string;
+    status: string;
     data: {
+        token: string;
+        refreshToken: string;
         user: {
             id: string;
             username: string;
@@ -96,8 +94,10 @@ const handleLogin = async () => {
 
         console.log("Login successful:", response);
 
-        tokenCookie.value = response.token;
-        userCookie.value = JSON.stringify(response.data.user);
+        const maxAge = rememberMe.value ? 86400 * 30 : undefined;
+        setCookie("token", response.data.token, maxAge);
+        setCookie("refreshToken", response.data.refreshToken, maxAge);
+        setCookie("user", JSON.stringify(response.data.user), maxAge);
 
         await navigateTo("/profile", { external: true });
     } catch (err: unknown) {

@@ -1,12 +1,13 @@
 const fetchAuth = async <T>(token: string): Promise<T | null> => {
   const config = useRuntimeConfig();
   try {
-    return await $fetch<T>(
+    const res = await $fetch<any>(
       `${config.public.apiBaseUrl}/api/auth/me`,
       {
         headers: { Authorization: `Bearer ${token}` },
       },
     );
+    return (res?.data ?? res) as T;
   } catch (error) {
     console.error("Auth check error:", error);
     return null;

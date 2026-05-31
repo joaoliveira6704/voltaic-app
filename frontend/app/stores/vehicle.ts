@@ -32,26 +32,19 @@ interface PaginatedResponse<T> {
 }
 
 export const useVehicleStore = defineStore("vehicle", () => {
+  const { api } = useApi();
   const vehicles = ref<CatalogVehicle[]>([]);
   const isLoading = ref(false);
   const error = ref<string | null>(null);
 
-  const apiBase = () => useRuntimeConfig().public.apiBaseUrl;
-  const token = () => useCookie("token").value;
-
   vehicles.value = [];
 
-  async function fetchVehicles(page = 1, limit = 50) {
+  async function fetchVehicles() {
     isLoading.value = true;
     error.value = null;
     try {
-      const data = await $fetch<PaginatedResponse<CatalogVehicle>>(
-        `${apiBase()}/api/vehicles?page=${page}&limit=${limit}`,
-        {
-          headers: { Authorization: `Bearer ${token()}` },
-        },
-      );
-      vehicles.value = data.data;
+      const data = await api<CatalogVehicle[]>("/api/vehicles");
+      vehicles.value = data;
     } catch (e) {
       console.error("Failed to fetch vehicle catalog:", e);
       error.value = "Failed to load vehicle catalog.";

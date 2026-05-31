@@ -13,6 +13,7 @@ interface PaginatedResponse<T> {
 }
 
 export const useStationStore = defineStore("station", () => {
+  const { api } = useApi();
   const stations = shallowRef([]);
   const companyStations = shallowRef([]);
   const currentStation = ref(null);
@@ -20,11 +21,6 @@ export const useStationStore = defineStore("station", () => {
   const currentPage = ref(1);
   const totalPages = ref(1);
   const dashboardStats = ref(null);
-
-  // ── Helpers ───────────────────────────────────────────────────────────────
-
-  const token = useCookie("token");
-  const apiBaseUrl = useRuntimeConfig().public.apiBaseUrl;
 
   // ── Actions ───────────────────────────────────────────────────────────────
 
@@ -35,11 +31,8 @@ export const useStationStore = defineStore("station", () => {
         limit: String(limit),
         ...params,
       });
-      const data = await $fetch<PaginatedResponse<Station>>(
-        `${apiBaseUrl}/api/stations?${query}`,
-        {
-          headers: { Authorization: `Bearer ${token.value}` },
-        },
+      const data = await api<PaginatedResponse<Station>>(
+        `/api/stations?${query}`,
       );
       stations.value = data.data;
       currentPage.value = data.page;
@@ -51,12 +44,7 @@ export const useStationStore = defineStore("station", () => {
 
   async function fetchDashboardStats() {
     try {
-      const data = await $fetch<any>(
-        `${apiBaseUrl}/api/stations?view=dashboard`,
-        {
-          headers: { Authorization: `Bearer ${token.value}` },
-        },
-      );
+      const data = await api<any>("/api/stations?view=dashboard");
       dashboardStats.value = data;
     } catch (e) {
       console.error("Failed to fetch station dashboard stats:", e);
@@ -65,12 +53,7 @@ export const useStationStore = defineStore("station", () => {
 
   async function fetchCompanyStations() {
     try {
-      const data = await $fetch<Station[]>(
-        `${apiBaseUrl}/api/users/me/company/stations`,
-        {
-          headers: { Authorization: `Bearer ${token.value}` },
-        },
-      );
+      const data = await api<Station[]>("/api/users/me/company/stations");
       companyStations.value = data;
     } catch (e) {
       console.error("Failed to fetch company stations:", e);
@@ -91,9 +74,8 @@ export const useStationStore = defineStore("station", () => {
         telemetry,
       };
 
-      const response = await $fetch<any>(`${apiBaseUrl}/api/stations`, {
+      const response = await api<any>("/api/stations", {
         method: "POST",
-        headers: { Authorization: `Bearer ${token.value}` },
         body: payload,
       });
 
@@ -128,10 +110,7 @@ export const useStationStore = defineStore("station", () => {
     if (!confirmed.isConfirmed) return;
 
     try {
-      await $fetch<any>(`${apiBaseUrl}/api/stations/${stationId}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${token.value}` },
-      });
+      await api(`/api/stations/${stationId}`, { method: "DELETE" });
 
       stations.value = stations.value.filter((s) => s.stationId !== stationId);
       toast.success("Station deleted successfully");
@@ -148,11 +127,8 @@ export const useStationStore = defineStore("station", () => {
     distanceKm: number = 10,
   ) {
     try {
-      const data = await $fetch<PaginatedResponse<Station>>(
-        `${apiBaseUrl}/api/stations?near=${lat},${lng}&maxDistance=${distanceKm}`,
-        {
-          headers: { Authorization: `Bearer ${token.value}` },
-        },
+      const data = await api<PaginatedResponse<Station>>(
+        `/api/stations?near=${lat},${lng}&maxDistance=${distanceKm}`,
       );
       stations.value = data;
       currentPage.value = data.page;
@@ -166,9 +142,8 @@ export const useStationStore = defineStore("station", () => {
     if (station.state === "unavailable") return;
 
     try {
-      const res = await $fetch<any>(`${apiBaseUrl}/api/usages`, {
+      const res = await api<any>("/api/usages", {
         method: "POST",
-        headers: { Authorization: `Bearer ${token.value}` },
         body: { stationId: station.stationId, plate: plate },
       });
       console.log(res);
@@ -186,9 +161,8 @@ export const useStationStore = defineStore("station", () => {
 
   async function stopCharge(usageId: string, stationId: string) {
     try {
-      const res = await $fetch<any>(`${apiBaseUrl}/api/usages/${usageId}`, {
+      const res = await api<any>(`/api/usages/${usageId}`, {
         method: "PATCH",
-        headers: { Authorization: `Bearer ${token.value}` },
       });
       console.log(res);
 
@@ -204,9 +178,7 @@ export const useStationStore = defineStore("station", () => {
 
   async function fetchStationById(id: string) {
     try {
-      const res = await $fetch<any>(`${apiBaseUrl}/api/stations/${id}`, {
-        headers: { Authorization: `Bearer ${token.value}` },
-      });
+      const res = await api<any>(`/api/stations/${id}`);
       currentStation.value = res;
       isLoaded.value = true;
     } catch (e) {
@@ -217,14 +189,10 @@ export const useStationStore = defineStore("station", () => {
 
   async function executeCommand(id: string, command: string) {
     try {
-      const res = await $fetch<any>(
-        `${apiBaseUrl}/api/stations/${id}/commands`,
-        {
-          method: "POST",
-          headers: { Authorization: `Bearer ${token.value}` },
-          body: { command },
-        },
-      );
+      const res = await api<any>(`/api/stations/${id}/commands`, {
+        method: "POST",
+        body: { command },
+      });
       console.log(res);
       toast.success("Command executed successfully");
     } catch (e) {

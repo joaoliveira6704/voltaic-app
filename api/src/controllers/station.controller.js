@@ -3,6 +3,7 @@ import companyModel from "../models/company.model.js";
 import logModel from "../models/log.model.js";
 import generateUniqueId from "../utils/utils.js";
 import { paginate } from "../utils/paginate.js";
+import { success, error as sendError } from "../utils/response.js";
 
 const stationSortFieldMap = {
   stationId: "stationId",
@@ -41,15 +42,16 @@ export const getStations = async (req, res, next) => {
           },
         },
       ]);
-      return res.json(
-        stats[0] || {
-          total: 0,
-          available: 0,
-          unavailable: 0,
-          maintenance: 0,
-          alive: 0,
-        },
-      );
+      return success(res, {
+        data:
+          stats[0] || {
+            total: 0,
+            available: 0,
+            unavailable: 0,
+            maintenance: 0,
+            alive: 0,
+          },
+      });
     }
 
     if (near) {
@@ -67,7 +69,7 @@ export const getStations = async (req, res, next) => {
       });
 
       console.log("Found: ", result.length);
-      return res.json(result);
+      return success(res, { data: result });
     }
 
     const filter = search
@@ -85,7 +87,7 @@ export const getStations = async (req, res, next) => {
       limit: req.query.limit,
       sort: sortObj,
     });
-    res.json(result);
+    success(res, { data: result });
   } catch (error) {
     next(error);
   }
@@ -103,7 +105,7 @@ export const createStation = async (req, res, next) => {
       alive,
     });
     await newStation.save();
-    res.status(201).json({ stationId: newStation.stationId });
+    success(res, { data: { stationId: newStation.stationId }, statusCode: 201 });
   } catch (error) {
     next(error);
   }
@@ -119,7 +121,7 @@ export const deleteStation = async (req, res, next) => {
       err.status = 404;
       return next(err);
     }
-    res.json({ message: "Station deleted successfully" });
+    success(res, { message: "Station deleted successfully" });
   } catch (error) {
     next(error);
   }
@@ -137,7 +139,7 @@ export const updateStation = async (req, res, next) => {
       err.status = 404;
       return next(err);
     }
-    res.json(updatedStation);
+    success(res, { data: updatedStation });
   } catch (error) {
     next(error);
   }
@@ -147,10 +149,10 @@ export const getCompanyStations = async (req, res, next) => {
   try {
     const company = await companyModel.findOne({ companyId: req.user.companyId });
     if (!company) {
-      return res.json([]);
+      return success(res, { data: [] });
     }
     const stations = await stationModel.find({ groupId: { $in: company.groups } });
-    res.json(stations);
+    success(res, { data: stations });
   } catch (error) {
     next(error);
   }
@@ -184,7 +186,7 @@ export const getStationById = async (req, res, next) => {
       err.status = 404;
       return next(err);
     }
-    res.json(station);
+    success(res, { data: station });
   } catch (error) {
     next(error);
   }
@@ -214,7 +216,7 @@ export const executeStationCommand = async (req, res, next) => {
         action: "start",
         details: "Station started successfully",
       });
-      res.json({ message: "Station started" });
+      success(res, { message: "Station started" });
     } else if (command === "restart") {
       await restartStation(station);
       await logModel.create({
@@ -224,7 +226,7 @@ export const executeStationCommand = async (req, res, next) => {
         action: "restart",
         details: "Station restarted successfully",
       });
-      res.json({ message: "Station restarted" });
+      success(res, { message: "Station restarted" });
     } else if (command === "shutdown") {
       await shutdownStation(station);
       await logModel.create({
@@ -234,7 +236,7 @@ export const executeStationCommand = async (req, res, next) => {
         action: "shutdown",
         details: "Station shut down successfully",
       });
-      res.json({ message: "Station shutdown" });
+      success(res, { message: "Station shutdown" });
     } else {
       await logModel.create({
         userId,
@@ -244,7 +246,7 @@ export const executeStationCommand = async (req, res, next) => {
         details: `Unknown command: ${command}`,
       });
       const result = await station.executeCommand(command);
-      res.json(result);
+      success(res, { data: result });
     }
   } catch (error) {
     // Log failures too

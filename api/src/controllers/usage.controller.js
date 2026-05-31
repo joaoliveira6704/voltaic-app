@@ -2,6 +2,7 @@ import usageModel from "../models/usage.model.js";
 import stationModel from "../models/station.model.js";
 import generateUniqueId from "../utils/utils.js";
 import { paginate, paginateAggregate } from "../utils/paginate.js";
+import { success, error as sendError } from "../utils/response.js";
 
 // POST /usages/start
 export const startUsage = async (req, res, next) => {
@@ -37,7 +38,7 @@ export const startUsage = async (req, res, next) => {
       { usageId, userId, stationId, plate, state: "active" },
     ]);
 
-    res.status(201).json(usage);
+    success(res, { data: usage, statusCode: 201 });
   } catch (error) {
     next(error);
   }
@@ -68,7 +69,7 @@ export const endUsage = async (req, res, next) => {
       { state: "available" },
     );
 
-    res.status(200).json(usage);
+    success(res, { data: usage });
   } catch (error) {
     next(error);
   }
@@ -83,7 +84,7 @@ export const getUsage = async (req, res, next) => {
       error.status = 404;
       return next(error);
     }
-    res.status(200).json(usage);
+    success(res, { data: usage });
   } catch (error) {
     next(error);
   }
@@ -101,7 +102,7 @@ export const getUsages = async (req, res, next) => {
         page: req.query.page,
         limit: req.query.limit,
       });
-      return res.json(result);
+      return success(res, { data: result });
     }
 
     const err = new Error("Invalid user");
@@ -120,7 +121,7 @@ export const getActiveUserUsages = async (req, res, next) => {
       { userId: req.user.userId, endTime: null },
       { page: req.query.page, limit: req.query.limit, sort: { createdAt: -1 } },
     );
-    res.json(result);
+    success(res, { data: result });
   } catch (error) {
     next(error);
   }
@@ -134,7 +135,7 @@ export const getStationUsages = async (req, res, next) => {
       { stationId: req.params.stationId },
       { page: req.query.page, limit: req.query.limit, sort: { createdAt: -1 } },
     );
-    res.json(result);
+    success(res, { data: result });
   } catch (error) {
     next(error);
   }
@@ -148,7 +149,7 @@ export const getActiveUsages = async (req, res, next) => {
       { state: "active" },
       { page: req.query.page, limit: req.query.limit, sort: { createdAt: -1 } },
     );
-    res.json(result);
+    success(res, { data: result });
   } catch (error) {
     next(error);
   }

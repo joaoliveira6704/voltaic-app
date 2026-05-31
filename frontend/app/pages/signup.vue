@@ -51,11 +51,11 @@ const handleRegister = async () => {
 
         const error = err as {
             message?: string;
-            data?: { error?: string };
+            data?: { message?: string };
         };
 
         const errorMessage =
-            error.data?.error || error.message || t("signup.error");
+            error.data?.message || error.message || t("signup.error");
 
         alert(`${t("error")}: ${errorMessage}`);
     } finally {

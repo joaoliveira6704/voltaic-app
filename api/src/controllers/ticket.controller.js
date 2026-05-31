@@ -3,6 +3,7 @@ import stationModel from "../models/station.model.js";
 import companyModel from "../models/company.model.js";
 import logModel from "../models/log.model.js";
 import generateUniqueId from "../utils/utils.js";
+import { success, error as sendError } from "../utils/response.js";
 
 const sortFieldMap = {
   ticketId: "ticketId",
@@ -145,7 +146,7 @@ export const createTicket = async (req, res, next) => {
       details: `Ticket ${newTicket.ticketId} created: ${title}`,
     });
 
-    res.status(201).json({ ticketId: newTicket.ticketId });
+    success(res, { data: { ticketId: newTicket.ticketId }, statusCode: 201 });
   } catch (error) {
     next(error);
   }
@@ -207,7 +208,7 @@ export const getTickets = async (req, res, next) => {
         stats[c._id] = c.count;
       }
 
-      return res.json({ ...stats, recent });
+      return success(res, { data: { ...stats, recent } });
     }
 
     const filter = {};
@@ -216,7 +217,7 @@ export const getTickets = async (req, res, next) => {
 
     const sortObj = parseSort(sort);
     const result = await paginate(ticketModel, filter, page, limit, sortObj, search);
-    res.json(result);
+    success(res, { data: result });
   } catch (error) {
     next(error);
   }
@@ -229,7 +230,7 @@ export const getMyTickets = async (req, res, next) => {
     if (status) filter.status = status;
     const sortObj = parseSort(sort);
     const result = await paginate(ticketModel, filter, page, limit, sortObj, search);
-    res.json(result);
+    success(res, { data: result });
   } catch (error) {
     next(error);
   }
@@ -242,7 +243,7 @@ export const getCompanyTickets = async (req, res, next) => {
     if (status) filter.status = status;
     const sortObj = parseSort(sort);
     const result = await paginate(ticketModel, filter, page, limit, sortObj, search);
-    res.json(result);
+    success(res, { data: result });
   } catch (error) {
     next(error);
   }
@@ -264,7 +265,7 @@ export const getStationTickets = async (req, res, next) => {
     if (status) filter.status = status;
     const sortObj = parseSort(sort);
     const result = await paginate(ticketModel, filter, page, limit, sortObj, search);
-    res.json(result);
+    success(res, { data: result });
   } catch (error) {
     next(error);
   }
@@ -327,7 +328,7 @@ export const updateTicket = async (req, res, next) => {
       details: `Ticket ${req.params.id} updated: ${JSON.stringify(update)}`,
     });
 
-    res.json(updatedTicket);
+    success(res, { data: updatedTicket });
   } catch (error) {
     next(error);
   }
@@ -352,7 +353,7 @@ export const deleteTicket = async (req, res, next) => {
       details: `Ticket ${req.params.id} deleted: ${deletedTicket.title}`,
     });
 
-    res.json({ message: "Ticket deleted successfully" });
+    success(res, { message: "Ticket deleted successfully" });
   } catch (error) {
     next(error);
   }

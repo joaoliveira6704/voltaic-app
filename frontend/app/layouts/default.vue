@@ -87,7 +87,7 @@ const navLinks = [{ path: "/map", label: t("nav.map") }];
 
         <main class="flex pl-4 w-full h-screen gap-5 overflow-y-auto">
             <div class="hidden md:flex flex-col py-4 md:pl-2 justify-between">
-                <DashboardCard class="!h-full w-[220px]">
+                <DashboardCard class="!h-full w-[240px]">
                     <div class="flex flex-col justify-between h-full">
                         <div v-if="isLoaded">
                             <NavGroup :role="currentUser?.role" />
@@ -105,6 +105,6 @@ const navLinks = [{ path: "/map", label: t("nav.map") }];
             <slot class="flex-1 min-w-0 overflow-y-auto" />
         </main>
 
-        <Toaster position="top-right" richColors closeButton theme="dark" />
+        <Toaster position="top-right" rich-colors close-button theme="dark" />
     </div>
 </template>

@@ -1,4 +1,6 @@
 import express from "express";
+import swaggerUi from "swagger-ui-express";
+import swaggerSpec from "./src/swagger.js";
 import userRoute from "./src/routes/user.route.js";
 import companyRoute from "./src/routes/company.route.js";
 import logRoute from "./src/routes/log.route.js";
@@ -33,6 +35,9 @@ app.use("/api/vehicles", vehicleRoute);
 app.use("/api/usages", usageRoute);
 
 app.get("/api/status", (req, res) => res.json({ status: "Alive" }));
+
+app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.get("/docs.json", (req, res) => res.json(swaggerSpec));
 
 app.use(errorHandler);
 

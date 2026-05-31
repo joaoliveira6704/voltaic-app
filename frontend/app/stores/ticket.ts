@@ -19,6 +19,7 @@ interface UpdateTicketPayload {
 }
 
 export const useTicketStore = defineStore("ticket", () => {
+  const { api } = useApi();
   const tickets = ref<Ticket[]>([]);
   const isLoaded = ref(false);
   const currentPage = ref(1);
@@ -26,17 +27,9 @@ export const useTicketStore = defineStore("ticket", () => {
   const total = ref(0);
   const dashboardStats = ref(null);
 
-  const token = () => useCookie("token").value;
-  const apiBase = () => useRuntimeConfig().public.apiBaseUrl;
-
   async function fetchDashboardStats() {
     try {
-      const data = await $fetch<any>(
-        `${apiBase()}/api/tickets?view=dashboard`,
-        {
-          headers: { Authorization: `Bearer ${token()}` },
-        },
-      );
+      const data = await api<any>("/api/tickets?view=dashboard");
       dashboardStats.value = data;
     } catch (e) {
       console.error("Failed to fetch ticket dashboard stats:", e);
@@ -50,11 +43,8 @@ export const useTicketStore = defineStore("ticket", () => {
         limit: String(limit),
         ...params,
       });
-      const data = await $fetch<PaginatedResponse<Ticket>>(
-        `${apiBase()}/api/tickets?${query}`,
-        {
-          headers: { Authorization: `Bearer ${token()}` },
-        },
+      const data = await api<PaginatedResponse<Ticket>>(
+        `/api/tickets?${query}`,
       );
       tickets.value = data.data;
       currentPage.value = data.page;
@@ -72,11 +62,8 @@ export const useTicketStore = defineStore("ticket", () => {
         limit: String(limit),
         ...params,
       });
-      const data = await $fetch<PaginatedResponse<Ticket>>(
-        `${apiBase()}/api/users/me/tickets?${query}`,
-        {
-          headers: { Authorization: `Bearer ${token()}` },
-        },
+      const data = await api<PaginatedResponse<Ticket>>(
+        `/api/users/me/tickets?${query}`,
       );
       tickets.value = data.data;
       currentPage.value = data.page;
@@ -94,11 +81,8 @@ export const useTicketStore = defineStore("ticket", () => {
         limit: String(limit),
         ...params,
       });
-      const data = await $fetch<PaginatedResponse<Ticket>>(
-        `${apiBase()}/api/users/me/company/tickets?${query}`,
-        {
-          headers: { Authorization: `Bearer ${token()}` },
-        },
+      const data = await api<PaginatedResponse<Ticket>>(
+        `/api/users/me/company/tickets?${query}`,
       );
       tickets.value = data.data;
       currentPage.value = data.page;
@@ -111,11 +95,8 @@ export const useTicketStore = defineStore("ticket", () => {
 
   async function fetchStationTickets(stationId: string, page = 1, limit = 1) {
     try {
-      const data = await $fetch<PaginatedResponse<Ticket>>(
-        `${apiBase()}/api/stations/${stationId}/tickets?page=${page}&limit=${limit}`,
-        {
-          headers: { Authorization: `Bearer ${token()}` },
-        },
+      const data = await api<PaginatedResponse<Ticket>>(
+        `/api/stations/${stationId}/tickets?page=${page}&limit=${limit}`,
       );
       tickets.value = data.data;
       currentPage.value = data.page;
@@ -128,17 +109,10 @@ export const useTicketStore = defineStore("ticket", () => {
 
   async function createTicket(payload: CreateTicketPayload) {
     try {
-      const data = await $fetch<{ ticketId: string }>(
-        `${apiBase()}/api/tickets`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token()}`,
-            "Content-Type": "application/json",
-          },
-          body: payload,
-        },
-      );
+      const data = await api<{ ticketId: string }>("/api/tickets", {
+        method: "POST",
+        body: payload,
+      });
       toast.success("Ticket created successfully");
       return data;
     } catch (e) {
@@ -150,17 +124,10 @@ export const useTicketStore = defineStore("ticket", () => {
 
   async function updateTicket(ticketId: string, payload: UpdateTicketPayload) {
     try {
-      const data = await $fetch<Ticket>(
-        `${apiBase()}/api/tickets/${ticketId}`,
-        {
-          method: "PATCH",
-          headers: {
-            Authorization: `Bearer ${token()}`,
-            "Content-Type": "application/json",
-          },
-          body: payload,
-        },
-      );
+      const data = await api<Ticket>(`/api/tickets/${ticketId}`, {
+        method: "PATCH",
+        body: payload,
+      });
       tickets.value = tickets.value.map((t) =>
         t.ticketId === ticketId ? { ...t, ...data } : t,
       );
@@ -193,10 +160,7 @@ export const useTicketStore = defineStore("ticket", () => {
     if (!confirmed.isConfirmed) return;
 
     try {
-      await $fetch(`${apiBase()}/api/tickets/${ticketId}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${token()}` },
-      });
+      await api(`/api/tickets/${ticketId}`, { method: "DELETE" });
 
       tickets.value = tickets.value.filter((t) => t.ticketId !== ticketId);
       toast.success("Ticket deleted successfully");
