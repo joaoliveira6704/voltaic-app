@@ -11,6 +11,7 @@ let refreshPromise: Promise<ApiResponse<{ token: string; refreshToken: string }>
 
 export const useApi = () => {
   const config = useRuntimeConfig();
+  const baseUrl = import.meta.server ? config.apiBaseUrl : config.public.apiBaseUrl;
 
   const unwrap = <T>(res: any): T => {
     if (res && typeof res === "object" && "status" in res && res.status === "success") {
@@ -28,7 +29,7 @@ export const useApi = () => {
       const refreshTokenCookie = useCookie("refreshToken");
 
       const doFetch = () =>
-        $fetch<ApiResponse<T>>(`${config.public.apiBaseUrl}${url}`, {
+        $fetch<ApiResponse<T>>(`${baseUrl}${url}`, {
           ...opts,
           headers: {
             ...(opts.headers || {}),
@@ -48,7 +49,7 @@ export const useApi = () => {
         if (!refreshPromise) {
           const userCookie = useCookie("user");
           refreshPromise = $fetch<ApiResponse<{ token: string; refreshToken: string }>>(
-            `${config.public.apiBaseUrl}/api/users/refresh`,
+            `${baseUrl}/api/users/refresh`,
             {
               method: "POST",
               body: { refreshToken: refreshTokenCookie.value },

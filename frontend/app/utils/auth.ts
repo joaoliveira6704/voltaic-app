@@ -1,8 +1,9 @@
 const fetchAuth = async <T>(token: string): Promise<T | null> => {
   const config = useRuntimeConfig();
+  const baseUrl = import.meta.server ? config.apiBaseUrl : config.public.apiBaseUrl;
   try {
     const res = await $fetch<any>(
-      `${config.public.apiBaseUrl}/api/users/verify`,
+      `${baseUrl}/api/users/verify`,
       {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
