@@ -280,7 +280,7 @@ export const updateTicket = async (req, res, next) => {
       return next(err);
     }
 
-    if (req.user.role === "company-manager") {
+    if (req.user.role === "company-manager" || req.user.role === "worker") {
       const ownsTicket = existing.companyId === req.user.companyId;
       let ownsStation = false;
 
