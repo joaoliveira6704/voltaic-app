@@ -1,0 +1,31 @@
+services:
+  api:
+    build:
+      context: ./api
+      target: development
+    container_name: voltaic-api
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    env_file: ./api/.env
+    environment:
+      PORT: 3000
+    volumes:
+      - ./api:/app
+      - /app/node_modules
+
+  frontend:
+    build:
+      context: ./frontend
+      target: development
+    container_name: voltaic-frontend
+    restart: unless-stopped
+    ports:
+      - "5173:5173"
+    environment:
+      NUXT_PUBLIC_API_BASE_URL: "http://localhost:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - api
