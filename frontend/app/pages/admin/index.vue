@@ -54,18 +54,40 @@ const userDash = computed(() => userStore.dashboardStats);
 <template>
     <div
         v-if="isPending"
-        class="flex-1 py-4 px-2 min-w-0 overflow-y-auto space-y-6"
+        class="flex-1 py-4 px-2 min-w-0 overflow-y-auto space-y-6 pr-6"
     >
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
             <SkeletonMetricCard v-for="n in 4" :key="n" />
         </div>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <DashboardCard class="h-full">
+                <div class="flex items-center justify-center py-6 gap-6">
+                    <Skeleton class="size-28 rounded-full" />
+                    <div class="space-y-3">
+                        <Skeleton class="h-4 w-20" />
+                        <Skeleton class="h-4 w-16" />
+                        <Skeleton class="h-4 w-24" />
+                    </div>
+                </div>
+            </DashboardCard>
+            <DashboardCard>
+                <div class="space-y-3 py-4">
+                    <Skeleton class="h-4 w-32" />
+                    <Skeleton class="h-[180px] w-full rounded-lg" />
+                </div>
+            </DashboardCard>
+        </div>
+        <DashboardCard class="hidden lg:block">
+            <Skeleton class="h-[300px] w-full rounded-lg" />
+        </DashboardCard>
     </div>
-    <div v-else class="flex-1 py-4 px-2 min-w-0 overflow-y-auto space-y-6">
+    <div v-else class="flex-1 py-4 px-2 min-w-0 overflow-y-auto space-y-6 pr-6">
         <!-- Metric cards -->
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
             <DashboardCard
                 :title="t('admin.index.totalUsers')"
                 :has-line="false"
+                class="h-full"
             >
                 <CardContent class="max-[700px]:px-0">
                     <div class="flex items-center gap-2">
@@ -80,7 +102,7 @@ const userDash = computed(() => userStore.dashboardStats);
                 </CardContent>
             </DashboardCard>
 
-            <DashboardCard :title="t('admin.index.stations')" :has-line="false">
+            <DashboardCard :title="t('admin.index.stations')" :has-line="false" class="h-full">
                 <CardContent class="max-[700px]:px-0">
                     <div class="flex items-center gap-2">
                         <EvCharger />
@@ -101,6 +123,7 @@ const userDash = computed(() => userStore.dashboardStats);
             <DashboardCard
                 :title="t('admin.index.openTickets')"
                 :has-line="false"
+                class="h-full"
             >
                 <CardContent class="max-[700px]:px-0">
                     <div class="flex items-center gap-2">
@@ -118,6 +141,7 @@ const userDash = computed(() => userStore.dashboardStats);
             <DashboardCard
                 :title="t('admin.index.companies')"
                 :has-line="false"
+                class="h-full"
             >
                 <CardContent class="max-[700px]:px-0">
                     <div class="flex items-center gap-2">

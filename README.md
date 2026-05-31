@@ -149,8 +149,7 @@ All endpoints are prefixed with `/api`. Protected routes require a `Bearer` toke
 
 | Resource     | Base Path              | Auth Required |
 |--------------|------------------------|---------------|
-| Auth         | `/api/auth`            | Mixed         |
-| Users        | `/api/users`           | Yes           |
+| Users        | `/api/users`           | Mixed         |
 | Companies    | `/api/companies`       | Mixed         |
 | Stations     | `/api/stations`        | Yes           |
 | Tickets      | `/api/tickets`         | Yes           |
@@ -169,16 +168,16 @@ All endpoints are prefixed with `/api`. Protected routes require a `Bearer` toke
 
 | Method   | Path                           | Description |
 |----------|--------------------------------|-------------|
-| `POST`   | `/api/auth/login`              | Login with email/password |
-| `POST`   | `/api/auth/register`           | Create new account |
-| `POST`   | `/api/auth/refresh`            | Rotate refresh token |
-| `POST`   | `/api/auth/logout`             | Revoke refresh token |
-| `POST`   | `/api/auth/logout-all`         | Revoke all sessions |
-| `POST`   | `/api/auth/validate-token`     | Check token validity |
-| `GET`    | `/api/auth/me`                 | Current user profile |
-| `POST`   | `/api/auth/forgot-password`    | Request reset email |
-| `POST`   | `/api/auth/forgot-password/:token` | Validate reset token |
-| `POST`   | `/api/auth/reset-password`     | Set new password |
+| `POST`   | `/api/users/login`              | Login with email/password |
+| `POST`   | `/api/users`                    | Create new account |
+| `POST`   | `/api/users/refresh`            | Rotate refresh token |
+| `POST`   | `/api/users/verify`             | Validate token |
+| `POST`   | `/api/users/logout`             | Revoke refresh token |
+| `POST`   | `/api/users/logout-all`         | Revoke all sessions |
+| `GET`    | `/api/users/me`                 | Current user profile |
+| `POST`   | `/api/users/forgot-password`    | Request reset email |
+| `POST`   | `/api/users/forgot-password/:token` | Validate reset token |
+| `POST`   | `/api/users/reset-password`     | Set new password |
 
 ### Status
 

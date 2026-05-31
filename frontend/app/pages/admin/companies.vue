@@ -78,7 +78,7 @@ companyStore.fetchCompanies(1, 100, { view: "admin" }).finally(() => {
 </script>
 
 <template>
-  <template v-if="isPending">
+  <template v-if="isPending" class="pr-6">
     <DashboardCard class="mt-4 mx-2">
       <div class="flex-1 py-2 pr-4 min-w-0 overflow-y-auto space-y-4">
         <Skeleton class="h-8 w-[200px]" />
@@ -116,10 +116,10 @@ companyStore.fetchCompanies(1, 100, { view: "admin" }).finally(() => {
       :columns="AdminCompanyColumns"
       :sort-column="sortColumn"
       :sort-direction="sortDirection"
+      type="company"
       @sort="onSort"
       @edit="editCompany"
       @delete="deleteCompany"
-      type="company"
     >
       <template #default="{ row }">
         <TableCell class="text-xs font-bold">{{ row.companyId }}</TableCell>

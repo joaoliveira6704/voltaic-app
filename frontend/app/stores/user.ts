@@ -260,34 +260,6 @@ export const useUserStore = defineStore("user", () => {
     }
   }
 
-  async function editUserRole(
-    userId: string,
-    role: "client" | "worker" | "company-manager" | "admin",
-  ) {
-    if (userId === currentUser.value?.userId) {
-      toast.error("Cannot edit own role", {
-        description: "You cannot edit your own role.",
-      });
-      return;
-    }
-    try {
-      await api(`/api/users/${userId}/role`, {
-        method: "PATCH",
-        body: { role },
-      });
-      toast.success("User Role updated", {
-        description: "User Role updated successfully.",
-      });
-      users.value = users.value.map((user) =>
-        user.userId === userId ? { ...user, role } : user,
-      );
-    } catch (e) {
-      toast.error("Failed to edit user role", {
-        description: `There was an error editing the user role: ${e}`,
-      });
-    }
-  }
-
   async function fetchChargingHistory(page = 1, limit = 20) {
     const userId = currentUser.value?.userId;
     if (!userId) return;
@@ -461,7 +433,7 @@ export const useUserStore = defineStore("user", () => {
 
       if (refreshToken) {
         try {
-          await api("/api/auth/logout", {
+          await api("/api/users/logout", {
             method: "POST",
             body: { refreshToken },
           });
@@ -470,7 +442,7 @@ export const useUserStore = defineStore("user", () => {
         }
         if (result.value) {
           try {
-            await api("/api/auth/logout-all", { method: "POST" });
+            await api("/api/users/logout-all", { method: "POST" });
           } catch {
             // Silently ignore
           }
@@ -511,7 +483,6 @@ export const useUserStore = defineStore("user", () => {
     getUserById,
     deleteUser,
     editUser,
-    editUserRole,
     addFavorite,
     removeFavorite,
     favoriteStations,

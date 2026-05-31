@@ -48,7 +48,7 @@ export const useApi = () => {
         if (!refreshPromise) {
           const userCookie = useCookie("user");
           refreshPromise = $fetch<ApiResponse<{ token: string; refreshToken: string }>>(
-            `${config.public.apiBaseUrl}/api/auth/refresh`,
+            `${config.public.apiBaseUrl}/api/users/refresh`,
             {
               method: "POST",
               body: { refreshToken: refreshTokenCookie.value },

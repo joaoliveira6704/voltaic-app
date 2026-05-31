@@ -18,6 +18,9 @@ const form = ref({
     acceptedTerms: true,
 });
 
+const fieldErrors = ref<Record<string, string>>({});
+const genericError = ref("");
+
 definePageMeta({ layout: "landing" });
 
 useHead({
@@ -34,6 +37,8 @@ const authStore = useAuthStore();
 
 const handleRegister = async () => {
     isSubmitting.value = true;
+    fieldErrors.value = {};
+    genericError.value = "";
     try {
         await authStore
             .register(
@@ -51,13 +56,15 @@ const handleRegister = async () => {
 
         const error = err as {
             message?: string;
-            data?: { message?: string };
+            data?: { message?: string; details?: Record<string, string> };
         };
 
-        const errorMessage =
-            error.data?.message || error.message || t("signup.error");
-
-        alert(`${t("error")}: ${errorMessage}`);
+        if (error.data?.details) {
+            fieldErrors.value = error.data.details;
+        } else {
+            genericError.value =
+                error.data?.message || error.message || t("signup.error");
+        }
     } finally {
         isSubmitting.value = false;
     }
@@ -86,8 +93,10 @@ const handleRegister = async () => {
                             v-model="form.username"
                             type="text"
                             :placeholder="t('signup.usernamePlaceholder')"
-                            class="h-11 dark:border-[#232323]"
+                            class="h-11"
+                            :class="fieldErrors.username ? 'border-red-500 dark:border-red-400' : 'dark:border-[#232323]'"
                         />
+                        <p v-if="fieldErrors.username" class="text-xs text-red-500 mt-1">{{ fieldErrors.username }}</p>
                     </div>
 
                     <div class="grid grid-cols-2 gap-4">
@@ -101,8 +110,10 @@ const handleRegister = async () => {
                                 id="firstName"
                                 v-model="form.firstName"
                                 :placeholder="t('signup.firstNamePlaceholder')"
-                                class="h-11 dark:border-[#232323]"
+                                class="h-11"
+                                :class="fieldErrors.firstName ? 'border-red-500 dark:border-red-400' : 'dark:border-[#232323]'"
                             />
+                            <p v-if="fieldErrors.firstName" class="text-xs text-red-500">{{ fieldErrors.firstName }}</p>
                         </div>
                         <div class="space-y-2">
                             <Label
@@ -114,8 +125,10 @@ const handleRegister = async () => {
                                 id="lastName"
                                 v-model="form.lastName"
                                 :placeholder="t('signup.lastNamePlaceholder')"
-                                class="h-11 dark:border-[#232323]"
+                                class="h-11"
+                                :class="fieldErrors.lastName ? 'border-red-500 dark:border-red-400' : 'dark:border-[#232323]'"
                             />
+                            <p v-if="fieldErrors.lastName" class="text-xs text-red-500">{{ fieldErrors.lastName }}</p>
                         </div>
                     </div>
 
@@ -130,8 +143,10 @@ const handleRegister = async () => {
                             v-model="form.email"
                             type="email"
                             :placeholder="t('signup.emailPlaceholder')"
-                            class="h-11 dark:border-[#232323]"
+                            class="h-11"
+                            :class="fieldErrors.email ? 'border-red-500 dark:border-red-400' : 'dark:border-[#232323]'"
                         />
+                        <p v-if="fieldErrors.email" class="text-xs text-red-500">{{ fieldErrors.email }}</p>
                     </div>
 
                     <div class="space-y-2">
@@ -145,8 +160,10 @@ const handleRegister = async () => {
                             v-model="form.password"
                             type="password"
                             placeholder="••••••••"
-                            class="h-11 dark:border-[#232323]"
+                            class="h-11"
+                            :class="fieldErrors.password ? 'border-red-500 dark:border-red-400' : 'dark:border-[#232323]'"
                         />
+                        <p v-if="fieldErrors.password" class="text-xs text-red-500">{{ fieldErrors.password }}</p>
                     </div>
 
                     <div class="flex items-center gap-3">
@@ -198,6 +215,12 @@ const handleRegister = async () => {
                         </span>
                         <span v-else>{{ t("signup.submit") }}</span>
                     </Button>
+                    <div
+                        v-if="genericError"
+                        class="p-3 rounded-md bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800"
+                    >
+                        <p class="text-xs text-red-700 dark:text-red-400">{{ genericError }}</p>
+                    </div>
                 </form>
             </CardContent>
         </Card>

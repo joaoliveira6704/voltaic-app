@@ -82,7 +82,7 @@ export const useTicketStore = defineStore("ticket", () => {
         ...params,
       });
       const data = await api<PaginatedResponse<Ticket>>(
-        `/api/users/me/company/tickets?${query}`,
+        `/api/users/my_company/tickets?${query}`,
       );
       tickets.value = data.data;
       currentPage.value = data.page;

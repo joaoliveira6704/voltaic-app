@@ -143,7 +143,7 @@ export const useCompanyStore = defineStore("company", () => {
 
   async function fetchCurrentCompany() {
     try {
-      const response = await api<any>("/api/users/me/company");
+      const response = await api<any>("/api/users/my_company");
       currentCompany.value = response;
       isLoaded.value = true;
     } catch (e) {

@@ -2,8 +2,9 @@ const fetchAuth = async <T>(token: string): Promise<T | null> => {
   const config = useRuntimeConfig();
   try {
     const res = await $fetch<any>(
-      `${config.public.apiBaseUrl}/api/auth/me`,
+      `${config.public.apiBaseUrl}/api/users/verify`,
       {
+        method: "POST",
         headers: { Authorization: `Bearer ${token}` },
       },
     );

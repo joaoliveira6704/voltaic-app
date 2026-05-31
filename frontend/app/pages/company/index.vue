@@ -36,6 +36,7 @@ Promise.all([
   companyStore.fetchCurrentCompany(),
   companyStore.fetchDashboard().then((data) => {
     dashboard.value = data;
+    console.log(dashboard.value);
   }),
 ]).finally(() => {
   isPending.value = false;

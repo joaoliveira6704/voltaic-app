@@ -94,51 +94,29 @@ router.get("/:id", protect, getUsage);
 
 /**
  * @openapi
- * /api/usages/active:
- *   get:
- *     tags: [Usages]
- *     summary: Listar sessões ativas (admin)
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: query
- *         name: page
- *         schema:
- *           type: integer
- *       - in: query
- *         name: limit
- *         schema:
- *           type: integer
- *     responses:
- *       200:
- *         description: Sessões ativas
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Pagination'
- */
-router.get("/active", protect, requireRole("admin"), getActiveUsages);
-
-/**
- * @openapi
  * /api/usages:
  *   get:
  *     tags: [Usages]
- *     summary: Listar sessões do utilizador autenticado
+ *     summary: Listar sessões de carregamento
  *     security:
  *       - bearerAuth: []
  *     parameters:
  *       - in: query
  *         name: userId
- *         required: true
  *         schema:
  *           type: string
- *         description: Deve ser o ID do próprio utilizador
+ *         description: ID do utilizador (apenas o próprio)
  *       - in: query
  *         name: active
  *         schema:
  *           type: string
- *         description: "Filtrar apenas ativas (true)"
+ *         description: "active=true — filtrar apenas sessões ativas (endTime: null)"
+ *       - in: query
+ *         name: state
+ *         schema:
+ *           type: string
+ *           enum: [active]
+ *         description: "state=active — listar todas as sessões ativas (admin)"
  *       - in: query
  *         name: page
  *         schema:
@@ -157,6 +135,16 @@ router.get("/active", protect, requireRole("admin"), getActiveUsages);
  *       403:
  *         description: userId diferente do próprio utilizador
  */
-router.get("/", protect, getUsages);
+router.get("/", protect, (req, res, next) => {
+  if (req.query.state === "active") {
+    return requireRole("admin")(req, res, next);
+  }
+  next();
+}, (req, res, next) => {
+  if (req.query.state === "active") {
+    return getActiveUsages(req, res, next);
+  }
+  return getUsages(req, res, next);
+});
 
 export default router;

@@ -53,7 +53,7 @@ export const useStationStore = defineStore("station", () => {
 
   async function fetchCompanyStations() {
     try {
-      const data = await api<Station[]>("/api/users/me/company/stations");
+      const data = await api<Station[]>("/api/users/my_company/stations");
       companyStations.value = data;
     } catch (e) {
       console.error("Failed to fetch company stations:", e);
@@ -189,7 +189,7 @@ export const useStationStore = defineStore("station", () => {
 
   async function executeCommand(id: string, command: string) {
     try {
-      const res = await api<any>(`/api/stations/${id}/commands`, {
+      const res = await api<any>(`/api/stations/${id}/execute`, {
         method: "POST",
         body: { command },
       });

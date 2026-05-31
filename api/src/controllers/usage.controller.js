@@ -141,7 +141,7 @@ export const getStationUsages = async (req, res, next) => {
   }
 };
 
-// GET /usages/active (admin)
+// GET /usages?state=active (admin)
 export const getActiveUsages = async (req, res, next) => {
   try {
     const result = await paginate(

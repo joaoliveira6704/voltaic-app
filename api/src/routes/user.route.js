@@ -15,10 +15,19 @@ import {
   deleteOwnUser,
   addFavorite,
   removeFavorite,
-  updateRole,
   getCurrentCompany,
 } from "../controllers/user.controller.js";
-import { register } from "../controllers/auth.controller.js";
+import {
+  register,
+  login,
+  validateToken,
+  createResetToken,
+  validateResetToken,
+  resetPassword,
+  refresh,
+  logout,
+  logoutAll,
+} from "../controllers/auth.controller.js";
 import { getActiveUserUsages } from "../controllers/usage.controller.js";
 import {
   getMyTickets,
@@ -36,6 +45,194 @@ const router = Router();
 
 router.get("/", protect, requireRole("admin", "company-manager"), getUsers);
 router.post("/", register);
+
+/**
+ * @openapi
+ * /api/users/login:
+ *   post:
+ *     tags: [Auth]
+ *     summary: Autenticar utilizador
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/LoginInput'
+ *     responses:
+ *       200:
+ *         description: Login bem-sucedido
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 token:
+ *                   type: string
+ *                 refreshToken:
+ *                   type: string
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     user:
+ *                       $ref: '#/components/schemas/User'
+ *       400:
+ *         description: Credenciais não fornecidas
+ *       401:
+ *         description: Credenciais inválidas
+ */
+router.post("/login", login);
+
+/**
+ * @openapi
+ * /api/users/verify:
+ *   post:
+ *     tags: [Auth]
+ *     summary: Validar token JWT
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Token válido
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 valid:
+ *                   type: boolean
+ *                 userId:
+ *                   type: string
+ *                 role:
+ *                   type: string
+ *                 isAdmin:
+ *                   type: boolean
+ *       401:
+ *         description: Token inválido ou ausente
+ */
+router.post("/verify", protect, validateToken);
+
+/**
+ * @openapi
+ * /api/users/forgot-password:
+ *   post:
+ *     tags: [Auth]
+ *     summary: Solicitar reset de password
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/ForgotPasswordInput'
+ *     responses:
+ *       200:
+ *         description: Email enviado se a conta existir
+ */
+router.post("/forgot-password", createResetToken);
+
+/**
+ * @openapi
+ * /api/users/forgot-password/{token}:
+ *   post:
+ *     tags: [Auth]
+ *     summary: Validar token de reset
+ *     parameters:
+ *       - in: path
+ *         name: token
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Token válido
+ *       404:
+ *         description: Token inválido ou expirado
+ */
+router.post("/forgot-password/:token", validateResetToken);
+
+/**
+ * @openapi
+ * /api/users/reset-password:
+ *   post:
+ *     tags: [Auth]
+ *     summary: Definir nova password
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/ResetPasswordInput'
+ *     responses:
+ *       200:
+ *         description: Password atualizada com sucesso
+ *       400:
+ *         description: Token inválido ou password fraca
+ */
+router.post("/reset-password", resetPassword);
+
+/**
+ * @openapi
+ * /api/users/refresh:
+ *   post:
+ *     tags: [Auth]
+ *     summary: Renovar access token com refresh token (rotação)
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/RefreshTokenInput'
+ *     responses:
+ *       200:
+ *         description: Novo par de tokens emitido
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 token:
+ *                   type: string
+ *                 refreshToken:
+ *                   type: string
+ *       401:
+ *         description: Refresh token inválido, expirado ou revogado
+ */
+router.post("/refresh", refresh);
+
+/**
+ * @openapi
+ * /api/users/logout:
+ *   post:
+ *     tags: [Auth]
+ *     summary: Terminar sessão (revoga refresh token)
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/RefreshTokenInput'
+ *     responses:
+ *       200:
+ *         description: Sessão terminada
+ */
+router.post("/logout", protect, logout);
+
+/**
+ * @openapi
+ * /api/users/logout-all:
+ *   post:
+ *     tags: [Auth]
+ *     summary: Terminar sessão em todos os dispositivos
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Todas as sessões terminadas
+ */
+router.post("/logout-all", protect, logoutAll);
 
 /**
  * @openapi
@@ -189,7 +386,7 @@ router.delete("/me/favorites/:stationId", protect, removeFavorite);
 
 /**
  * @openapi
- * /api/users/me/company:
+ * /api/users/my_company:
  *   get:
  *     tags: [Users]
  *     summary: Obter empresa do utilizador
@@ -206,7 +403,7 @@ router.delete("/me/favorites/:stationId", protect, removeFavorite);
  *         description: Empresa não encontrada
  */
 router.get(
-  "/me/company",
+  "/my_company",
   protect,
   requireRole("company-manager", "worker"),
   getCurrentCompany,
@@ -214,7 +411,7 @@ router.get(
 
 /**
  * @openapi
- * /api/users/me/company/stations:
+ * /api/users/my_company/stations:
  *   get:
  *     tags: [Users]
  *     summary: Obter estações da empresa do utilizador
@@ -231,7 +428,7 @@ router.get(
  *                 $ref: '#/components/schemas/Station'
  */
 router.get(
-  "/me/company/stations",
+  "/my_company/stations",
   protect,
   requireRole("company-manager", "worker"),
   getCompanyStations,
@@ -239,7 +436,7 @@ router.get(
 
 /**
  * @openapi
- * /api/users/me/company/tickets:
+ * /api/users/my_company/tickets:
  *   get:
  *     tags: [Users]
  *     summary: Obter tickets da empresa do utilizador
@@ -276,7 +473,7 @@ router.get(
  *               $ref: '#/components/schemas/Pagination'
  */
 router.get(
-  "/me/company/tickets",
+  "/my_company/tickets",
   protect,
   requireRole("company-manager", "worker"),
   getCompanyTickets,
@@ -474,38 +671,5 @@ router.patch(
   updateUser,
 );
 router.delete("/:id", protect, requireRole("admin"), deleteUser);
-
-/**
- * @openapi
- * /api/users/{id}/role:
- *   patch:
- *     tags: [Users]
- *     summary: Alterar role de um utilizador
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/UpdateRoleInput'
- *     responses:
- *       200:
- *         description: Role atualizado
- *       404:
- *         description: Utilizador não encontrado
- */
-router.patch(
-  "/:id/role",
-  protect,
-  requireRole("admin", "company-manager"),
-  updateRole,
-);
 
 export default router;

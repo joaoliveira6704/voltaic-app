@@ -75,28 +75,6 @@ async function removeFromCompany(userId: string, username: string) {
   }
 }
 
-async function handleRoleChange({
-  userId,
-  role,
-}: {
-  userId: string;
-  role: string;
-}) {
-  try {
-    await $fetch(`${apiBase}/api/users/${userId}/role`, {
-      method: "PATCH",
-      headers: { Authorization: `Bearer ${token.value}` },
-      body: { role },
-    });
-    const idx = companyUsers.value.findIndex((u) => u.userId === userId);
-    if (idx !== -1) companyUsers.value[idx].role = role;
-    toast.success("Role updated");
-  } catch (e) {
-    console.error("Failed to update role:", e);
-    toast.error("Failed to update role");
-  }
-}
-
 async function addWorker() {
   if (!searchQuery.value.trim()) return;
   isAddingWorker.value = true;

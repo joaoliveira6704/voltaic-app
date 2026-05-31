@@ -80,7 +80,7 @@ stationStore.fetchStations(1, 20).finally(() => {
 </script>
 
 <template>
-    <template v-if="isPending">
+    <template v-if="isPending" class="pr-6">
         <DashboardCard class="mt-4 mx-2">
             <div class="flex-1 py-2 pr-4 min-w-0 overflow-y-auto space-y-4">
                 <Skeleton class="h-8 w-[200px]" />
@@ -112,10 +112,10 @@ stationStore.fetchStations(1, 20).finally(() => {
             :columns="AdminStationColumns"
             :sort-column="sortColumn"
             :sort-direction="sortDirection"
+            type="stations"
             @sort="onSort"
             @edit="editStation"
             @delete="deleteStation"
-            type="stations"
         >
             <template #default="{ row }">
                 <TableCell class="text-xs font-bold">{{

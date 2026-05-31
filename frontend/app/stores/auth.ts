@@ -19,7 +19,7 @@ export const useAuthStore = defineStore("auth", () => {
   async function sendRecoveryEmail(email: string) {
     isLoading.value = true;
     try {
-      await api("/api/auth/forgot-password", {
+      await api("/api/users/forgot-password", {
         method: "POST",
         body: { email },
       });
@@ -44,7 +44,7 @@ export const useAuthStore = defineStore("auth", () => {
   ) {
     isLoading.value = true;
     try {
-      await api("/api/auth/register", {
+      await api("/api/users", {
         method: "POST",
         body: {
           username,
@@ -56,8 +56,10 @@ export const useAuthStore = defineStore("auth", () => {
         },
       });
       toast.success("Account created successfully.");
-    } catch (e) {
-      toast.error("Failed to create account, " + e);
+    } catch (e: any) {
+      if (!e?.data?.details) {
+        toast.error("Failed to create account" + (e?.data?.message ? `: ${e.data.message}` : ""));
+      }
       throw e;
     } finally {
       isLoading.value = false;
@@ -68,7 +70,7 @@ export const useAuthStore = defineStore("auth", () => {
     isLoading.value = true;
     console.log("authStore: ", token);
     try {
-      await api(`/api/auth/forgot-password/${token}`, {
+      await api(`/api/users/forgot-password/${token}`, {
         method: "POST",
       });
       console.log("authStore: after fetch");
@@ -87,7 +89,7 @@ export const useAuthStore = defineStore("auth", () => {
   async function resetPassword(newPassword: string) {
     isLoading.value = true;
     try {
-      await api("/api/auth/reset-password", {
+      await api("/api/users/reset-password", {
         method: "POST",
         body: { token: resetToken.value, newPassword },
       });

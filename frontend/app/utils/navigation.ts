@@ -29,7 +29,7 @@ export const getRoleExtraLink = (
     icon: Users,
     path: "/manager",
   },
-  worker: { label: t("nav.worker"), icon: Ticket, path: "/worker" },
+  worker: { label: t("nav.worker"), icon: Ticket, path: "/company/stations" },
 });
 
 export const getNavigationMap = (
@@ -53,8 +53,8 @@ export const getNavigationMap = (
     { label: t("nav.personnel"), icon: Users, path: "/company/personnel" },
   ],
   worker: [
-    { label: "Dashboard", icon: LayoutDashboard, path: "/profile" },
-    { label: t("nav.assignedTickets"), icon: Ticket, path: "" },
+    { label: t("nav.stations"), icon: Zap, path: "/company/stations" },
+    { label: t("nav.tickets"), icon: Ticket, path: "/company/tickets" },
   ],
   client: [
     { label: t("nav.map"), icon: LayoutDashboard, path: "/map" },

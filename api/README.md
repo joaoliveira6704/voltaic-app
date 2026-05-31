@@ -95,16 +95,16 @@ All paths prefixed with `/api`. Protected routes require `Authorization: Bearer 
 
 | Method   | Path                           | Auth     | Description |
 |----------|--------------------------------|----------|-------------|
-| `POST`   | `/api/auth/login`              | —        | Login with email/password |
-| `POST`   | `/api/auth/register`           | —        | Create new account |
-| `POST`   | `/api/auth/refresh`            | —        | Rotate refresh token |
-| `POST`   | `/api/auth/logout`             | Required | Revoke refresh token |
-| `POST`   | `/api/auth/logout-all`         | Required | Revoke all sessions |
-| `POST`   | `/api/auth/validate-token`     | Required | Check token validity |
-| `GET`    | `/api/auth/me`                 | Required | Current user profile |
-| `POST`   | `/api/auth/forgot-password`    | —        | Request password reset email |
-| `POST`   | `/api/auth/forgot-password/:token` | —    | Validate reset token |
-| `POST`   | `/api/auth/reset-password`     | —        | Set new password |
+| `POST`   | `/api/users/login`              | —        | Login with email/password |
+| `POST`   | `/api/users/register`           | —        | Create new account |
+| `POST`   | `/api/users/refresh`            | —        | Rotate refresh token |
+| `POST`   | `/api/users/logout`             | Required | Revoke refresh token |
+| `POST`   | `/api/users/logout-all`         | Required | Revoke all sessions |
+| `POST`   | `/api/users/validate-token`     | Required | Check token validity |
+| `GET`    | `/api/users/me`                 | Required | Current user profile |
+| `POST`   | `/api/users/forgot-password`    | —        | Request password reset email |
+| `POST`   | `/api/users/forgot-password/:token` | —    | Validate reset token |
+| `POST`   | `/api/users/reset-password`     | —        | Set new password |
 
 ### Users
 
@@ -119,9 +119,9 @@ All paths prefixed with `/api`. Protected routes require `Authorization: Bearer 
 | `POST`   | `/api/users/me/favorites`               | Required   | any         |
 | `DELETE` | `/api/users/me/favorites/:stationId`    | Required   | any         |
 | `GET`    | `/api/users/me/favorites/stations`      | Required   | any         |
-| `GET`    | `/api/users/me/company`                 | Required   | company-manager, worker |
-| `GET`    | `/api/users/me/company/stations`        | Required   | company-manager, worker |
-| `GET`    | `/api/users/me/company/tickets`         | Required   | company-manager, worker |
+| `GET`    | `/api/users/my_company`                 | Required   | company-manager, worker |
+| `GET`    | `/api/users/my_company/stations`        | Required   | company-manager, worker |
+| `GET`    | `/api/users/my_company/tickets`         | Required   | company-manager, worker |
 | `GET`    | `/api/users/me/vehicles`                | Required   | any         |
 | `POST`   | `/api/users/me/vehicles`                | Required   | any         |
 | `PATCH`  | `/api/users/me/vehicles/:plate`         | Required   | any         |
@@ -131,7 +131,7 @@ All paths prefixed with `/api`. Protected routes require `Authorization: Bearer 
 | `GET`    | `/api/users/:id`                        | Required   | any         |
 | `PATCH`  | `/api/users/:id`                        | Required   | admin       |
 | `DELETE` | `/api/users/:id`                        | Required   | admin       |
-| `PATCH`  | `/api/users/:id/role`                   | Required   | admin, company-manager |
+| `GET`    | `/api/users/me/vehicles`                | Required   | any         |
 
 ### Companies
 
@@ -157,7 +157,7 @@ All paths prefixed with `/api`. Protected routes require `Authorization: Bearer 
 | `GET`    | `/api/stations/:id`                     | Required   | any                          |
 | `PATCH`  | `/api/stations/:id`                     | Required   | admin, company-manager, worker |
 | `DELETE` | `/api/stations/:id`                     | Required   | admin                        |
-| `POST`   | `/api/stations/:stationId/commands`     | Required   | admin, company-manager, worker |
+| `POST`   | `/api/stations/:stationId/execute`      | Required   | admin, company-manager, worker |
 | `GET`    | `/api/stations/:stationId/usages`       | Required   | any                          |
 | `GET`    | `/api/stations/:stationId/tickets`      | Required   | company-manager, worker      |
 
@@ -176,7 +176,7 @@ All paths prefixed with `/api`. Protected routes require `Authorization: Bearer 
 |----------|----------------------|------------|-------|
 | `POST`   | `/api/usages`        | Required   | any   |
 | `GET`    | `/api/usages`        | Required   | any   |
-| `GET`    | `/api/usages/active` | Required   | admin |
+| `GET`    | `/api/usages?state=active` | Required   | admin |
 | `GET`    | `/api/usages/:id`    | Required   | any   |
 | `PATCH`  | `/api/usages/:id`    | Required   | any   |
 
@@ -234,11 +234,11 @@ Paginated responses follow this shape:
 
 ## Authentication Flow
 
-1. **Register** — `POST /api/auth/register` with username, email, password
-2. **Login** — `POST /api/auth/login` returns `token` (access, short-lived) and `refreshToken` (long-lived)
+1. **Register** — `POST /api/users/register` with username, email, password
+2. **Login** — `POST /api/users/login` returns `token` (access, short-lived) and `refreshToken` (long-lived)
 3. **Authenticate** — include `Authorization: Bearer <token>` in protected requests
-4. **Refresh** — `POST /api/auth/refresh` with `{ refreshToken }` when access token expires (rotation enabled)
-5. **Logout** — `POST /api/auth/logout` revokes the refresh token
+4. **Refresh** — `POST /api/users/refresh` with `{ refreshToken }` when access token expires (rotation enabled)
+5. **Logout** — `POST /api/users/logout` revokes the refresh token
 
 ## Roles & Permissions
 

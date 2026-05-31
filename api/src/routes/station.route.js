@@ -197,7 +197,7 @@ router.get("/:id", protect, getStationById);
 
 /**
  * @openapi
- * /api/stations/{stationId}/commands:
+ * /api/stations/{stationId}/execute:
  *   post:
  *     tags: [Stations]
  *     summary: Executar comando numa estação
@@ -222,7 +222,7 @@ router.get("/:id", protect, getStationById);
  *         description: Estação não encontrada
  */
 router.post(
-  "/:stationId/commands",
+  "/:stationId/execute",
   protect,
   requireRole("admin", "worker", "company-manager"),
   executeStationCommand,

@@ -47,7 +47,7 @@ const handleVehicleClick = () => {
 <template>
     <div
         v-if="isPending"
-        class="flex-1 py-2 pr-4 min-w-0 overflow-y-auto space-y-6"
+        class="flex-1 py-2 pr-4 min-w-0 overflow-y-auto space-y-6 pt-4 px-2"
     >
         <div
             class="rounded-xl border border-gray-100 dark:border-[#232323] p-6 dark:bg-[#171717]"

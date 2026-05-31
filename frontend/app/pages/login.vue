@@ -82,7 +82,7 @@ const handleLogin = async () => {
 
     try {
         const response = await $fetch<LoginResponse>(
-            `${config.public.apiBaseUrl}/api/auth/login`,
+            `${config.public.apiBaseUrl}/api/users/login`,
             {
                 method: "POST",
                 body: {
