@@ -37,9 +37,7 @@ services:
       - "443:443"
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
-      - /etc/letsencrypt:/etc/letsencrypt:ro
-    environment:
-      DOMAIN: "voltaic.diacidos.pt"
+      - /etc/ssl/voltaic:/etc/ssl/voltaic:ro
     networks:
       - voltaic-net
     depends_on:

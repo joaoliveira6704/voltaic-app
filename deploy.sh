@@ -18,6 +18,7 @@ command -v docker compose &>/dev/null || err "Docker Compose not installed"
 
 # ── SSL setup ──────────────────────────────────────────────────────────────
 DOMAIN="voltaic.diacidos.pt"
+SSL_DIR="/etc/ssl/voltaic"
 
 if [ ! -d "/etc/letsencrypt/live/$DOMAIN" ]; then
     log "Obtaining SSL certificate for $DOMAIN"
@@ -28,17 +29,24 @@ else
     log "SSL certificate found for $DOMAIN"
 fi
 
+# Copy cert files (resolving symlinks) for Docker mount
+mkdir -p "$SSL_DIR"
+cp -L /etc/letsencrypt/live/$DOMAIN/fullchain.pem "$SSL_DIR/fullchain.pem"
+cp -L /etc/letsencrypt/live/$DOMAIN/privkey.pem "$SSL_DIR/privkey.pem"
+log "SSL certificates copied to $SSL_DIR"
+
+# Renewal hook — copies certs and reloads nginx
 HOOK_DIR="/etc/letsencrypt/renewal-hooks/post"
 mkdir -p "$HOOK_DIR"
-cat > "$HOOK_DIR/restart-nginx.sh" << 'EOF'
+cat > "$HOOK_DIR/restart-nginx.sh" << 'SCRIPT'
 #!/bin/sh
-docker exec voltaic-nginx nginx -s reload
-EOF
+cp -L /etc/letsencrypt/live/voltaic.diacidos.pt/fullchain.pem /etc/ssl/voltaic/fullchain.pem
+cp -L /etc/letsencrypt/live/voltaic.diacidos.pt/privkey.pem /etc/ssl/voltaic/privkey.pem
+docker exec voltaic-nginx nginx -s reload || true
+SCRIPT
 chmod +x "$HOOK_DIR/restart-nginx.sh"
-log "Renewal hook installed"
 
 # ── Build and start ────────────────────────────────────────────────────────
-export DOMAIN="${DOMAIN:-}"
 log "Building and starting containers"
 docker compose -f docker-compose.prod.yml up -d --build
 
