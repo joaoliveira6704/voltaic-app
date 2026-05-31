@@ -107,7 +107,7 @@ const handleVehicleClick = () => {
         <AddVehicleModal
             :is-open="isAddVehicleModal"
             @close="isAddVehicleModal = false"
-            @added="userStore.fetchCurrentUser()"
+            @added="isAddVehicleModal = false"
         />
         <Grid :split-cell-d="true">
             <template #cell-b>
