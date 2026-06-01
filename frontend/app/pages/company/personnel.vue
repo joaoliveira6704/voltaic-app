@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useCompanyStore } from "~/stores/company";
+import { useUserStore } from "~/stores/user";
 import { CompanyPersonnelColumns } from "@/utils/constants";
 import PersonnelTable from "~/components/company/personnel/PersonnelTable.vue";
 import { UserMinus, UserPlus } from "lucide-vue-next";
@@ -9,6 +10,7 @@ import { toast } from "vue-sonner";
 
 const { t } = useI18n();
 const companyStore = useCompanyStore();
+const userStore = useUserStore();
 
 const token = useCookie("token");
 const apiBase = useRuntimeConfig().public.apiBaseUrl;
@@ -30,6 +32,20 @@ init();
 
 const currentCompany = computed(() => companyStore.currentCompany || "");
 
+const currentUserId = computed(() => userStore.currentUser?.userId);
+
+function handleRoleChange(userId: string, role: string) {
+  if (userId === currentUserId.value) {
+    toast.error("You cannot change your own role");
+    return;
+  }
+  userStore.editUser(userId, { role });
+  const idx = companyUsers.value.findIndex((u) => u.userId === userId);
+  if (idx !== -1) {
+    companyUsers.value[idx] = { ...companyUsers.value[idx], role };
+  }
+}
+
 async function fetchCompanyUsers(companyId: string) {
   try {
     const data = await $fetch<any>(
@@ -44,6 +60,10 @@ async function fetchCompanyUsers(companyId: string) {
 }
 
 async function removeFromCompany(userId: string, username: string) {
+  if (userId === currentUserId.value) {
+    toast.error("You cannot remove yourself from the company");
+    return;
+  }
   const confirmed = await Swal.fire({
     title: "Remove User",
     text: `Remove ${username} from the company?`,
@@ -181,7 +201,7 @@ async function addWorker() {
                   :user-id="row.userId"
                   type="users"
                   :allowed-keys="['worker', 'company-manager']"
-                  @update:value="handleRoleChange"
+                  @update:value="({ userId, role }) => handleRoleChange(userId, role)"
                 />
               </TableCell>
               <TableCell>
