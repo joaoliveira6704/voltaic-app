@@ -1,4 +1,3 @@
-// composables/useMapClustering.ts
 import { ref, watch, shallowRef } from "vue";
 import type { Ref, ComputedRef } from "vue";
 import type { Map as MapLibreMap, Marker } from "maplibre-gl";
@@ -10,9 +9,7 @@ interface ClusterGroup {
   center: [number, number];
 }
 
-// ── Zoom level thresholds ─────────────────────────────────────────────────────
-export const ZOOM_INDIVIDUAL = 13; // zoom > 13: only individual markers
-// zoom <= 13: only group markers
+export const ZOOM_INDIVIDUAL = 13;
 
 export function useMapClustering(
   mapInstance: Ref<MapLibreMap | null>,
@@ -43,28 +40,32 @@ export function useMapClustering(
     return count > 0 ? [totalLng / count, totalLat / count] : [0, 0];
   }
 
-  function calculateMarkerSize(stationCount: number): number {
-    const baseSize = 40;
-    const maxSize = 80;
-    return Math.min(baseSize + (stationCount - 1) * 4, maxSize);
+  function getCellSize(): number {
+    const CLUSTER_RADIUS_PX = 40;
+    return CLUSTER_RADIUS_PX * (360 / (256 * Math.pow(2, currentZoom.value)));
   }
 
-  function buildClusterGroups(): Map<string, ClusterGroup> {
+  function buildGeoClusters(): Map<string, ClusterGroup> {
     const groups = new Map<string, ClusterGroup>();
+    const cellSize = getCellSize();
 
     filteredStations.value.forEach((station) => {
-      if (!station.groupId) return;
+      const coords = station.location?.coordinates;
+      if (!coords || coords.length !== 2) return;
 
-      if (!groups.has(station.groupId)) {
-        groups.set(station.groupId, {
-          groupId: station.groupId,
+      const cellX = Math.floor(coords[0] / cellSize);
+      const cellY = Math.floor(coords[1] / cellSize);
+      const cellKey = `${cellX}:${cellY}`;
+
+      if (!groups.has(cellKey)) {
+        groups.set(cellKey, {
+          groupId: cellKey,
           stations: [],
           center: [0, 0],
         });
       }
 
-      const group = groups.get(station.groupId)!;
-      group.stations.push(station);
+      groups.get(cellKey)!.stations.push(station);
     });
 
     groups.forEach((group) => {
@@ -72,6 +73,12 @@ export function useMapClustering(
     });
 
     return groups;
+  }
+
+  function calculateMarkerSize(stationCount: number): number {
+    const baseSize = 40;
+    const maxSize = 80;
+    return Math.min(baseSize + (stationCount - 1) * 4, maxSize);
   }
 
   function clearClusterMarkers() {
@@ -82,17 +89,15 @@ export function useMapClustering(
   function renderClusterMarkers() {
     if (!mapInstance.value || !MarkerClass.value || !isReady.value) return;
 
-    // zoom > ZOOM_INDIVIDUAL: hide clusters, individual markers take over
     if (currentZoom.value > ZOOM_INDIVIDUAL) {
       clearClusterMarkers();
       return;
     }
 
-    clusterGroups.value = buildClusterGroups();
+    clusterGroups.value = buildGeoClusters();
 
     const newGroupIds = new Set(clusterGroups.value.keys());
 
-    // Remove markers for groups no longer present
     for (const [groupId, marker] of clusterMarkersMap) {
       if (!newGroupIds.has(groupId)) {
         marker.remove();
@@ -100,7 +105,6 @@ export function useMapClustering(
       }
     }
 
-    // Add/update markers
     clusterGroups.value.forEach((group) => {
       const existing = clusterMarkersMap.get(group.groupId);
 
@@ -140,17 +144,19 @@ export function useMapClustering(
         if (!mapInstance.value) return;
         const maplibre = await import("maplibre-gl");
         const bounds = new maplibre.LngLatBounds();
+        let hasValidCoords = false;
         group.stations.forEach((station) => {
           const coords = station.location?.coordinates;
           if (coords && coords.length === 2) {
             bounds.extend([coords[0], coords[1]]);
+            hasValidCoords = true;
           }
         });
 
-        // ── Zoom level when expanding a cluster ───────────────────────────
-        mapInstance.value.flyTo({
-          center: bounds.getCenter(),
-          zoom: ZOOM_INDIVIDUAL + 1,
+        if (!hasValidCoords) return;
+
+        mapInstance.value.fitBounds(bounds, {
+          padding: 50,
           duration: 800,
         });
       });
@@ -160,7 +166,6 @@ export function useMapClustering(
   }
 
   function onRenderTrigger() {
-    // Debounce zoom-only changes to avoid rapid clear/recreate cycles
     if (zoomDebounceTimer) {
       clearTimeout(zoomDebounceTimer);
     }
@@ -175,7 +180,6 @@ export function useMapClustering(
     { immediate: true },
   );
 
-  // Debounced watch for zoom changes
   watch(currentZoom, () => onRenderTrigger());
 
   return { renderClusterMarkers, clearClusterMarkers };
