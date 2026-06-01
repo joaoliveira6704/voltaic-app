@@ -36,7 +36,8 @@ async function fetchCompanyUsers(companyId: string) {
       `${apiBase}/api/users?companyId=${companyId}`,
       { headers: { Authorization: `Bearer ${token.value}` } },
     );
-    companyUsers.value = data.data ?? data;
+    companyUsers.value = data.data.data;
+    console.log(companyUsers.value);
   } catch (e) {
     console.error("Failed to fetch company users:", e);
   }
@@ -156,7 +157,7 @@ async function addWorker() {
             </div>
           </div>
 
-          <hr class="w-full dark:border-[#333333]" />
+          <hr class="w-full dark:border-[#333333]" >
 
           <CardContent class="px-0">
           <PersonnelTable
