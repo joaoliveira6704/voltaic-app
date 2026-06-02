@@ -140,6 +140,18 @@ export const updateStation = async (req, res, next) => {
       return next(err);
     }
     success(res, { data: updatedStation });
+
+    if (req.body.state) {
+      try {
+        await logModel.create({
+          userId: req.user.userId,
+          stationId: req.params.id,
+          type: "state_change",
+          action: "station.update.state",
+          details: `Station state changed to ${req.body.state}`,
+        });
+      } catch (_) {}
+    }
   } catch (error) {
     next(error);
   }
