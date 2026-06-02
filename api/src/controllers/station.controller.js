@@ -1,6 +1,8 @@
 import stationModel from "../models/station.model.js";
 import companyModel from "../models/company.model.js";
 import logModel from "../models/log.model.js";
+import ticketModel from "../models/ticket.model.js";
+import usageModel from "../models/usage.model.js";
 import generateUniqueId from "../utils/utils.js";
 import { paginate } from "../utils/paginate.js";
 import { success, error as sendError } from "../utils/response.js";
@@ -151,6 +153,62 @@ export const updateStation = async (req, res, next) => {
           details: `Station state changed to ${req.body.state}`,
         });
       } catch (_) {}
+    }
+
+    if (req.body.telemetry) {
+      const { amperage, voltage, temperature } = req.body.telemetry;
+      const threshold = { amperage: 100, voltage: 1000, temperature: 80 };
+
+      const violations = [];
+      if (amperage !== undefined && amperage > threshold.amperage)
+        violations.push(`amperage ${amperage}A > ${threshold.amperage}A`);
+      if (voltage !== undefined && voltage > threshold.voltage)
+        violations.push(`voltage ${voltage}V > ${threshold.voltage}V`);
+      if (temperature !== undefined && temperature > threshold.temperature)
+        violations.push(`temperature ${temperature}°C > ${threshold.temperature}°C`);
+
+      if (violations.length > 0) {
+        const detail = `Anomaly at ${updatedStation.title || req.params.id}: ${violations.join("; ")}`;
+
+        try {
+          await logModel.create({
+            userId: req.user.userId,
+            stationId: req.params.id,
+            type: "anomaly",
+            action: "station.telemetry.anomaly",
+            details: detail,
+          });
+        } catch (_) {}
+
+        try {
+          await stationModel.updateOne(
+            { stationId: req.params.id },
+            { $set: { state: "maintenance" } },
+          );
+        } catch (_) {}
+
+        try {
+          await usageModel.updateMany(
+            { stationId: req.params.id, state: "active" },
+            { $set: { state: "completed", endTime: new Date() } },
+          );
+        } catch (_) {}
+
+        try {
+          const company = await companyModel.findOne({ groups: updatedStation.groupId });
+          if (company) {
+            await ticketModel.create({
+              ticketId: generateUniqueId(),
+              stationId: req.params.id,
+              companyId: company.companyId,
+              createdBy: req.user.userId,
+              title: `Telemetry anomaly at ${updatedStation.title || req.params.id}`,
+              description: detail,
+              status: "open",
+            });
+          }
+        } catch (_) {}
+      }
     }
   } catch (error) {
     next(error);
