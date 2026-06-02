@@ -227,16 +227,15 @@ export const useCompanyStore = defineStore("company", () => {
   }
 
   async function assignGroup(companyId: string, groupId: string) {
-    await api(`/api/companies/${companyId}/groups/assign`, {
-      method: "PATCH",
+    await api(`/api/companies/${companyId}/groups`, {
+      method: "POST",
       body: { groupId },
     });
   }
 
   async function unassignGroup(companyId: string, groupId: string) {
-    await api(`/api/companies/${companyId}/groups/unassign`, {
-      method: "PATCH",
-      body: { groupId },
+    await api(`/api/companies/${companyId}/groups/${groupId}`, {
+      method: "DELETE",
     });
   }
 

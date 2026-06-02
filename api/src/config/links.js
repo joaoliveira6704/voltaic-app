@@ -200,8 +200,7 @@ export const linkGroups = [
       update: { method: "PATCH", path: "/api/companies/:id", roles: ["admin", "company-manager"] },
       delete: { method: "DELETE", path: "/api/companies/:id", roles: ["admin", "company-manager"] },
       groups: { method: "GET", path: "/api/companies/:id/groups", roles: ["admin", "company-manager"] },
-      assignGroup: { method: "PATCH", path: "/api/companies/:id/groups/assign", roles: ["admin"] },
-      unassignGroup: { method: "PATCH", path: "/api/companies/:id/groups/unassign", roles: ["admin"] },
+      addGroup: { method: "POST", path: "/api/companies/:id/groups", roles: ["admin"] },
       list: { method: "GET", path: "/api/companies", roles: null },
     },
   },
@@ -222,22 +221,19 @@ export const linkGroups = [
     match: { methods: ["GET"], path: "/api/companies/:id/groups" },
     links: {
       company: { method: "GET", path: "/api/companies/:id", roles: null },
-      assignGroup: { method: "PATCH", path: "/api/companies/:id/groups/assign", roles: ["admin"] },
-      unassignGroup: { method: "PATCH", path: "/api/companies/:id/groups/unassign", roles: ["admin"] },
+      addGroup: { method: "POST", path: "/api/companies/:id/groups", roles: ["admin"] },
     },
   },
   {
-    match: { methods: ["PATCH"], path: "/api/companies/:id/groups/assign" },
+    match: { methods: ["POST"], path: "/api/companies/:id/groups" },
     links: {
       groups: { method: "GET", path: "/api/companies/:id/groups", roles: null },
-      unassignGroup: { method: "PATCH", path: "/api/companies/:id/groups/unassign", roles: ["admin"] },
     },
   },
   {
-    match: { methods: ["PATCH"], path: "/api/companies/:id/groups/unassign" },
+    match: { methods: ["DELETE"], path: "/api/companies/:id/groups/:groupId" },
     links: {
       groups: { method: "GET", path: "/api/companies/:id/groups", roles: null },
-      assignGroup: { method: "PATCH", path: "/api/companies/:id/groups/assign", roles: ["admin"] },
     },
   },
 

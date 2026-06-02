@@ -279,8 +279,8 @@ router.get("/:id/groups", protect, getCompanyGroups);
 
 /**
  * @openapi
- * /api/companies/{id}/groups/assign:
- *   patch:
+ * /api/companies/{id}/groups:
+ *   post:
  *     tags: [Companies]
  *     summary: Atribuir grupo a uma empresa (admin)
  *     security:
@@ -301,19 +301,19 @@ router.get("/:id/groups", protect, getCompanyGroups);
  *               groupId:
  *                 type: string
  *     responses:
- *       200:
+ *       201:
  *         description: Grupo atribuído
  *       400:
  *         description: Grupo já atribuído a outra empresa
  *       404:
  *         description: Grupo não encontrado
  */
-router.patch("/:id/groups/assign", protect, requireRole("admin"), assignGroup);
+router.post("/:id/groups", protect, requireRole("admin"), assignGroup);
 
 /**
  * @openapi
- * /api/companies/{id}/groups/unassign:
- *   patch:
+ * /api/companies/{id}/groups/{groupId}:
+ *   delete:
  *     tags: [Companies]
  *     summary: Remover grupo de uma empresa (admin)
  *     security:
@@ -324,24 +324,15 @@ router.patch("/:id/groups/assign", protect, requireRole("admin"), assignGroup);
  *         required: true
  *         schema:
  *           type: string
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               groupId:
- *                 type: string
+ *       - in: path
+ *         name: groupId
+ *         required: true
+ *         schema:
+ *           type: string
  *     responses:
  *       200:
  *         description: Grupo removido
  */
-router.patch(
-  "/:id/groups/unassign",
-  protect,
-  requireRole("admin"),
-  unassignGroup,
-);
+router.delete("/:id/groups/:groupId", protect, requireRole("admin"), unassignGroup);
 
 export default router;

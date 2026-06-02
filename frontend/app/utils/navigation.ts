@@ -6,6 +6,7 @@ import {
   Ticket,
   Shield,
   Building2,
+  Map,
 } from "lucide-vue-next";
 import type { Component } from "vue";
 
@@ -57,7 +58,7 @@ export const getNavigationMap = (
     { label: t("nav.tickets"), icon: Ticket, path: "/company/tickets" },
   ],
   client: [
-    { label: t("nav.map"), icon: LayoutDashboard, path: "/map" },
+    { label: t("nav.map"), icon: Map, path: "/map" },
     { label: t("nav.favoriteStations"), icon: Zap, path: "/profile/favorites" },
     { label: t("nav.history"), icon: History, path: "/profile/history" },
   ],

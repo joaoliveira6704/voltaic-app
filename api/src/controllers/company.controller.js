@@ -273,7 +273,7 @@ export const assignGroup = async (req, res, next) => {
 
 export const unassignGroup = async (req, res, next) => {
   try {
-    const { groupId } = req.body;
+    const { groupId } = req.params;
 
     await companyModel.updateOne(
       { companyId: req.params.id },

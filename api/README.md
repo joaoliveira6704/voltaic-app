@@ -143,8 +143,8 @@ All paths prefixed with `/api`. Protected routes require `Authorization: Bearer 
 | `PATCH`  | `/api/companies/:id`                     | Required   | admin, company-manager |
 | `DELETE` | `/api/companies/:id`                     | Required   | admin, company-manager |
 | `GET`    | `/api/companies/:id/groups`              | Required   | any                 |
-| `PATCH`  | `/api/companies/:id/groups/assign`       | Required   | admin               |
-| `PATCH`  | `/api/companies/:id/groups/unassign`     | Required   | admin               |
+| `POST`   | `/api/companies/:id/groups`              | Required   | admin               |
+| `DELETE` | `/api/companies/:id/groups/:groupId`     | Required   | admin               |
 | `GET`    | `/api/companies/me/dashboard`            | Required   | company-manager, admin |
 | `GET`    | `/api/companies/me/dashboard/week`       | Required   | company-manager, admin |
 
