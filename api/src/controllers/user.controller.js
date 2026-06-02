@@ -548,20 +548,6 @@ export const getFavorites = async (req, res, next) => {
       err.status = 404;
       return next(err);
     }
-    success(res, { data: user.favorites });
-  } catch (error) {
-    next(error);
-  }
-};
-
-export const getFavoriteStations = async (req, res, next) => {
-  try {
-    const user = await userModel.findOne({ userId: req.user.userId });
-    if (!user) {
-      const err = new Error("User not found");
-      err.status = 404;
-      return next(err);
-    }
     const stations = await stationModel.find({
       stationId: { $in: user.favorites },
     });

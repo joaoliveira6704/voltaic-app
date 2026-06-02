@@ -75,7 +75,6 @@ export const linkGroups = [
       update: { method: "PATCH", path: "/api/users/me", roles: ["admin", "company-manager", "worker", "client"] },
       delete: { method: "DELETE", path: "/api/users/me", roles: ["admin", "company-manager", "worker", "client"] },
       favorites: { method: "GET", path: "/api/users/me/favorites", roles: ["admin", "company-manager", "worker", "client"] },
-      "favorites/stations": { method: "GET", path: "/api/users/me/favorites/stations", roles: ["admin", "company-manager", "worker", "client"] },
       vehicles: { method: "GET", path: "/api/users/me/vehicles", roles: ["admin", "company-manager", "worker", "client"] },
       usages: { method: "GET", path: "/api/users/me/usages", roles: ["admin", "company-manager", "worker", "client"] },
       tickets: { method: "GET", path: "/api/users/me/tickets", roles: ["admin", "company-manager", "worker", "client"] },
@@ -89,25 +88,16 @@ export const linkGroups = [
     links: {
       self: { method: "GET", path: "/api/users/me/favorites", roles: null },
       add: { method: "POST", path: "/api/users/me/favorites", roles: ["admin", "company-manager", "worker", "client"] },
-      stations: { method: "GET", path: "/api/users/me/favorites/stations", roles: ["admin", "company-manager", "worker", "client"] },
     },
   },
   {
     match: { methods: ["POST"], path: "/api/users/me/favorites" },
     links: {
       favorites: { method: "GET", path: "/api/users/me/favorites", roles: null },
-      stations: { method: "GET", path: "/api/users/me/favorites/stations", roles: ["admin", "company-manager", "worker", "client"] },
     },
   },
   {
     match: { methods: ["DELETE"], path: "/api/users/me/favorites/:stationId" },
-    links: {
-      favorites: { method: "GET", path: "/api/users/me/favorites", roles: null },
-      stations: { method: "GET", path: "/api/users/me/favorites/stations", roles: ["admin", "company-manager", "worker", "client"] },
-    },
-  },
-  {
-    match: { methods: ["GET"], path: "/api/users/me/favorites/stations" },
     links: {
       favorites: { method: "GET", path: "/api/users/me/favorites", roles: null },
     },

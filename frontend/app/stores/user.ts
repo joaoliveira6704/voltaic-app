@@ -400,7 +400,7 @@ export const useUserStore = defineStore("user", () => {
 
   async function fetchFavoriteStations() {
     try {
-      const data = await api<any[]>("/api/users/me/favorites/stations");
+      const data = await api<any[]>("/api/users/me/favorites");
       favoriteStations.value = data;
     } catch (e) {
       console.error("Failed to fetch favorite stations:", e);

@@ -11,7 +11,6 @@ import {
   editVehicle,
   getVehicles,
   getFavorites,
-  getFavoriteStations,
   deleteOwnUser,
   addFavorite,
   removeFavorite,
@@ -305,18 +304,18 @@ router.delete("/me", protect, deleteOwnUser);
  * /api/users/me/favorites:
  *   get:
  *     tags: [Users]
- *     summary: Listar favoritos
+ *     summary: Listar estações favoritas
  *     security:
  *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: Lista de IDs de estações favoritas
+ *         description: Lista de estações favoritas
  *         content:
  *           application/json:
  *             schema:
  *               type: array
  *               items:
- *                 type: string
+ *                 $ref: '#/components/schemas/Station'
  */
 router.get("/me/favorites", protect, getFavorites);
 
@@ -343,26 +342,6 @@ router.get("/me/favorites", protect, getFavorites);
  *         description: Estação não encontrada
  */
 router.post("/me/favorites", protect, addFavorite);
-
-/**
- * @openapi
- * /api/users/me/favorites/stations:
- *   get:
- *     tags: [Users]
- *     summary: Obter estações favoritas (detalhes completos)
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: Lista de estações favoritas
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Station'
- */
-router.get("/me/favorites/stations", protect, getFavoriteStations);
 
 /**
  * @openapi
