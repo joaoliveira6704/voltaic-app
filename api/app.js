@@ -9,8 +9,11 @@ import ticketRoute from "./src/routes/ticket.route.js";
 import errorHandler from "./src/middleware/error.middleware.js";
 import vehicleRoute from "./src/routes/vehicle.route.js";
 import usageRoute from "./src/routes/usage.route.js";
+import compression from "compression";
 
 const app = express();
+
+app.use(compression());
 
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");

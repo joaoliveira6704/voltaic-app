@@ -33,6 +33,8 @@
         "nuxt": "^4.4.4",
         "pinia": "^3.0.4",
         "reka-ui": "^2.9.7",
+        "selenium": "^2.20.0",
+        "selenium-webdriver": "^4.44.0",
         "shadcn-nuxt": "^2.6.2",
         "sweetalert2": "^11.26.24",
         "swiper": "^12.1.4",
