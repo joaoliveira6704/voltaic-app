@@ -164,6 +164,41 @@ All endpoints are prefixed with `/api`. Protected routes require a `Bearer` toke
 - **`company-manager`** — same as worker, plus access company dashboard and manage users
 - **`admin`** — full access to all resources
 
+### Test Accounts
+
+| Email | Password | Role |
+|---|---|---|
+| epowell@example.com | pbS!vjR2%6^R | worker |
+| raguilar@example.com | LJCzEaeJ_0*& | worker |
+| cpitts@example.com | +WKU!ZGaHs6J | company-manager |
+| glendagibson@example.org | tMyykYqf%5Zk | admin |
+| cole32@example.com | y@4uhsU4&KI7 | admin |
+| briggsdavid@example.org | k)d!JIUrAV1G | worker |
+| valenzuelaashley@example.org | +2kV!tVZ7tc_ | company-manager |
+| miranda09@example.org | Z+_favasae6X | admin |
+| nicolereynolds@example.org | lA8&2l%z$iBR | admin |
+| moorecrystal@example.org | f7Uq1Shb)8G9 | company-manager |
+| cnorman@example.org | Tf6CVmJM&Cha | client |
+| bsingleton@example.net | G3RJEuk1(Kt1 | admin |
+| mikewade@example.net | X3Pm_$Cj@uiZ | worker |
+| coffeysteven@example.org | ^1&ZgfkL)NMx | worker |
+| lewisjoshua@example.org | %0L8fp$iInYi | company-manager |
+| rachel62@example.org | 4kpRz0K@*4!Q | client |
+| powellkristina@example.net | 9qnq3T7(%rK1 | worker |
+| kmartinez@example.net | %T6p)s4f)HAD | client |
+| abigail68@example.org | $^9J%4wpSBRC | worker |
+| richardsmith@example.com | 1%yO0AWm%KR4 | admin |
+| iwhite@example.org | c)ZLYBJabT3E | company-manager |
+| mariawhitney@example.com | $)JE2Wr)@6Ak | client |
+| mark07@example.com | jrKOb7Aj9@w) | company-manager |
+| navarronatasha@example.org | Jy%L2M%f4d8% | company-manager |
+| sueedwards@example.net | %9PT+0ZHlWg3 | worker |
+| richardwatson@example.net | D0HEizlk&%Oo | worker |
+| fbowman@example.org | ig8q^7Xb#6q( | company-manager |
+| christinehale@example.com | Kr0^zD5G)67K | worker |
+| alyssa90@example.org | IceKHYiVu!7I | client |
+| tperez@example.org | eG5^p5G&hFWi | company-manager |
+
 ### Auth Endpoints
 
 | Method   | Path                           | Description |
