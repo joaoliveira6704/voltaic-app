@@ -48,6 +48,17 @@ services:
     networks:
       - app_network
 
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - app_network
+
   api:
     build:
       context: ./api
@@ -57,9 +68,12 @@ services:
     depends_on:
       mongo:
         condition: service_healthy
+      redis:
+        condition: service_started
     environment:
       PORT: ${API_PORT:-3000}
       MONGO_URL: mongodb://${MONGO_ROOT_USERNAME:-admin}:${MONGO_ROOT_PASSWORD:-secret}@mongo:27018/${MONGO_DB:-app}?authSource=admin
+      REDIS_URL: redis://redis:6379
       NODE_ENV: ${NODE_ENV:-development}
     ports:
       - "${API_PORT:-3000}:${API_PORT:-3000}"
@@ -73,6 +87,7 @@ services:
 volumes:
   mongo_data:
   bun_modules:
+  redis_data:
 
 networks:
   app_network:

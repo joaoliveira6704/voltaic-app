@@ -1,4 +1,15 @@
 services:
+  redis:
+    image: redis:7-alpine
+    container_name: voltaic-redis
+    restart: unless-stopped
+    expose:
+      - "6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - voltaic-net
+
   api:
     build:
       context: ./api
@@ -10,6 +21,9 @@ services:
     env_file: ./api/.env
     environment:
       PORT: 3000
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      - redis
     networks:
       - voltaic-net
 
@@ -44,6 +58,9 @@ services:
     depends_on:
       - api
       - frontend
+
+volumes:
+  redis_data:
 
 networks:
   voltaic-net:
