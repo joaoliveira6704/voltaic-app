@@ -25,7 +25,9 @@ const router = Router();
  * /api/companies:
  *   get:
  *     tags: [Companies]
- *     summary: Listar empresas
+ *     summary: Listar empresas (admin)
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: query
  *         name: companyIds
@@ -72,6 +74,10 @@ const router = Router();
  *                       type: array
  *                       items:
  *                         $ref: '#/components/schemas/Company'
+ *       401:
+ *         description: Não autenticado
+ *       403:
+ *         description: Sem permissões de administrador
  */
 router.get("/", protect, requireRole("admin"), getCompanies);
 
