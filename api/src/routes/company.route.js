@@ -73,7 +73,7 @@ const router = Router();
  *                       items:
  *                         $ref: '#/components/schemas/Company'
  */
-router.get("/", getCompanies);
+router.get("/", protect, requireRole("admin"), getCompanies);
 
 /**
  * @openapi

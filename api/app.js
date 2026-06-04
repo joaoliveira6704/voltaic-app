@@ -1,4 +1,5 @@
 import express from "express";
+import helmet from "helmet";
 import swaggerUi from "swagger-ui-express";
 import swaggerSpec from "./src/swagger.js";
 import userRoute from "./src/routes/user.route.js";
@@ -13,6 +14,7 @@ import compression from "compression";
 
 const app = express();
 
+app.use(helmet());
 app.use(compression());
 
 app.use((req, res, next) => {

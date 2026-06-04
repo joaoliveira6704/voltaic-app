@@ -34,6 +34,11 @@ import {
 } from "../controllers/ticket.controller.js";
 import { getCompanyStations } from "../controllers/station.controller.js";
 import {
+  authLimiter,
+  loginLimiter,
+  generalLimiter,
+} from "../middleware/rateLimiter.middleware.js";
+import {
   checkOwnership,
   protect,
   requireRole,
@@ -43,7 +48,7 @@ import userModel from "../models/user.model.js";
 const router = Router();
 
 router.get("/", protect, requireRole("admin", "company-manager"), getUsers);
-router.post("/", register);
+router.post("/", authLimiter, register);
 
 /**
  * @openapi
@@ -82,7 +87,7 @@ router.post("/", register);
  *       401:
  *         description: Credenciais inválidas
  */
-router.post("/login", login);
+router.post("/login", loginLimiter, login);
 
 /**
  * @openapi
@@ -129,7 +134,7 @@ router.post("/verify", protect, validateToken);
  *       200:
  *         description: Email enviado se a conta existir
  */
-router.post("/forgot-password", createResetToken);
+router.post("/forgot-password", authLimiter, createResetToken);
 
 /**
  * @openapi
@@ -149,7 +154,7 @@ router.post("/forgot-password", createResetToken);
  *       404:
  *         description: Token inválido ou expirado
  */
-router.post("/forgot-password/:token", validateResetToken);
+router.post("/forgot-password/:token", generalLimiter, validateResetToken);
 
 /**
  * @openapi
@@ -169,7 +174,7 @@ router.post("/forgot-password/:token", validateResetToken);
  *       400:
  *         description: Token inválido ou password fraca
  */
-router.post("/reset-password", resetPassword);
+router.post("/reset-password", generalLimiter, resetPassword);
 
 /**
  * @openapi
@@ -198,7 +203,7 @@ router.post("/reset-password", resetPassword);
  *       401:
  *         description: Refresh token inválido, expirado ou revogado
  */
-router.post("/refresh", refresh);
+router.post("/refresh", generalLimiter, refresh);
 
 /**
  * @openapi
