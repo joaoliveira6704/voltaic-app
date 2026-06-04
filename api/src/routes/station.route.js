@@ -35,7 +35,7 @@ const router = Router();
  *         schema:
  *           type: string
  *           enum: [dashboard]
- *         description: "view=dashboard (admin) retorna estatísticas"
+ *         description: "view=dashboard (admin) retorna estatísticas (cache 60s)"
  *       - in: query
  *         name: near
  *         schema:
@@ -64,7 +64,7 @@ const router = Router();
  *           type: integer
  *     responses:
  *       200:
- *         description: Lista de estações
+ *         description: Lista de estações (view=dashboard, cache 60s)
  *         content:
  *           application/json:
  *             schema:

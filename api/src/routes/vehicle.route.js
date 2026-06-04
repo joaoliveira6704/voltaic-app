@@ -11,7 +11,7 @@ const router = Router();
  *     summary: Listar catálogo de veículos (sem paginação)
  *     responses:
  *       200:
- *         description: Lista de veículos
+ *         description: Lista de veículos (cache 1h)
  *         content:
  *           application/json:
  *             schema:

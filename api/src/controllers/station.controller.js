@@ -6,6 +6,7 @@ import usageModel from "../models/usage.model.js";
 import generateUniqueId from "../utils/utils.js";
 import { paginate } from "../utils/paginate.js";
 import { success, error as sendError } from "../utils/response.js";
+import { wrap } from "../utils/cache.js";
 
 const stationSortFieldMap = {
   stationId: "stationId",
@@ -26,34 +27,29 @@ export const getStations = async (req, res, next) => {
     const { near, maxDistance, view, search, sort } = req.query;
 
     if (view === "dashboard") {
-      const stats = await stationModel.aggregate([
-        {
-          $group: {
-            _id: null,
-            total: { $sum: 1 },
-            available: {
-              $sum: { $cond: [{ $eq: ["$state", "available"] }, 1, 0] },
+      const data = await wrap("admin:stations:dashboard", async () => {
+        const stats = await stationModel.aggregate([
+          {
+            $group: {
+              _id: null,
+              total: { $sum: 1 },
+              available: {
+                $sum: { $cond: [{ $eq: ["$state", "available"] }, 1, 0] },
+              },
+              unavailable: {
+                $sum: { $cond: [{ $eq: ["$state", "unavailable"] }, 1, 0] },
+              },
+              maintenance: {
+                $sum: { $cond: [{ $eq: ["$state", "maintenance"] }, 1, 0] },
+              },
+              alive: { $sum: { $cond: ["$alive", 1, 0] } },
             },
-            unavailable: {
-              $sum: { $cond: [{ $eq: ["$state", "unavailable"] }, 1, 0] },
-            },
-            maintenance: {
-              $sum: { $cond: [{ $eq: ["$state", "maintenance"] }, 1, 0] },
-            },
-            alive: { $sum: { $cond: ["$alive", 1, 0] } },
           },
-        },
-      ]);
-      return success(res, {
-        data:
-          stats[0] || {
-            total: 0,
-            available: 0,
-            unavailable: 0,
-            maintenance: 0,
-            alive: 0,
-          },
-      });
+        ]);
+        return stats[0] || { total: 0, available: 0, unavailable: 0, maintenance: 0, alive: 0 };
+      }, 60);
+
+      return success(res, { data });
     }
 
     if (near) {

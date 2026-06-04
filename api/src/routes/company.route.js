@@ -39,6 +39,7 @@ const router = Router();
  *         schema:
  *           type: string
  *           enum: [dashboard, admin]
+ *         description: "view=dashboard (admin) retorna contagens (cache 60s)"
  *       - in: query
  *         name: search
  *         schema:
@@ -57,7 +58,7 @@ const router = Router();
  *           type: integer
  *     responses:
  *       200:
- *         description: Lista de empresas
+ *         description: Lista de empresas (view=dashboard, cache 60s)
  *         content:
  *           application/json:
  *             schema:
@@ -184,7 +185,7 @@ router.patch(
  *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: Dados do dashboard
+ *         description: Dados do dashboard (cache 60s)
  *         content:
  *           application/json:
  *             schema:

@@ -6,6 +6,7 @@ import usageModel from "../models/usage.model.js";
 import generateUniqueId from "../utils/utils.js";
 import { paginate } from "../utils/paginate.js";
 import { success, error as sendError } from "../utils/response.js";
+import { wrap } from "../utils/cache.js";
 
 const companySortFieldMap = {
   companyId: "companyId",
@@ -35,46 +36,49 @@ export const getCompanies = async (req, res, next) => {
     }
 
     if (view === "dashboard") {
-      const [total, companies] = await Promise.all([
-        companyModel.countDocuments(),
-        companyModel.aggregate([
-          {
-            $lookup: {
-              from: "users",
-              localField: "companyId",
-              foreignField: "companyId",
-              as: "members",
+      const data = await wrap("admin:companies:dashboard", async () => {
+        const [total, companies] = await Promise.all([
+          companyModel.countDocuments(),
+          companyModel.aggregate([
+            {
+              $lookup: {
+                from: "users",
+                localField: "companyId",
+                foreignField: "companyId",
+                as: "members",
+              },
             },
-          },
-          {
-            $lookup: {
-              from: "stations",
-              localField: "groups",
-              foreignField: "groupId",
-              as: "stationList",
+            {
+              $lookup: {
+                from: "stations",
+                localField: "groups",
+                foreignField: "groupId",
+                as: "stationList",
+              },
             },
-          },
-          {
-            $addFields: {
-              userCount: { $size: "$members" },
-              stationCount: { $size: "$stationList" },
+            {
+              $addFields: {
+                userCount: { $size: "$members" },
+                stationCount: { $size: "$stationList" },
+              },
             },
-          },
-          { $sort: { name: 1 } },
-          { $limit: 6 },
-          {
-            $project: {
-              _id: 0,
-              companyId: 1,
-              name: 1,
-              userCount: 1,
-              stationCount: 1,
+            { $sort: { name: 1 } },
+            { $limit: 6 },
+            {
+              $project: {
+                _id: 0,
+                companyId: 1,
+                name: 1,
+                userCount: 1,
+                stationCount: 1,
+              },
             },
-          },
-        ]),
-      ]);
+          ]),
+        ]);
+        return { total, companies };
+      }, 60);
 
-      return success(res, { data: { total, companies } });
+      return success(res, { data });
     }
 
     if (view === "admin") {
@@ -290,130 +294,121 @@ export const getDashboard = async (req, res, next) => {
   try {
     const companyId = req.user.companyId;
 
-    // 1. get company groups
-    const company = await companyModel.findOne({ companyId });
-    if (!company) return next({ status: 404, message: "Company not found" });
+    const data = await wrap(`company:dashboard:${companyId}`, async () => {
+      const company = await companyModel.findOne({ companyId });
+      if (!company) return null;
 
-    const groupIds = company.groups;
+      const groupIds = company.groups;
 
-    // 2. get all stations in those groups
-    const stations = await stationModel.find({ groupId: { $in: groupIds } });
-    const stationIds = stations.map((s) => s.stationId);
+      const stations = await stationModel.find({ groupId: { $in: groupIds } });
+      const stationIds = stations.map((s) => s.stationId);
 
-    // 3. station status counts
-    const stationStats = {
-      available: stations.filter((s) => s.state === "available").length,
-      unavailable: stations.filter((s) => s.state === "unavailable").length,
-      maintenance: stations.filter((s) => s.state === "maintenance").length,
-    };
+      const stationStats = {
+        available: stations.filter((s) => s.state === "available").length,
+        unavailable: stations.filter((s) => s.state === "unavailable").length,
+        maintenance: stations.filter((s) => s.state === "maintenance").length,
+      };
 
-    // 4. current week range
-    const now = new Date();
-    const weekStart = new Date(now);
-    weekStart.setHours(0, 0, 0, 0);
-    const day = weekStart.getDay();
-    weekStart.setDate(weekStart.getDate() - day + (day === 0 ? -6 : 1));
-    const weekEnd = new Date(weekStart);
-    weekEnd.setDate(weekStart.getDate() + 7);
+      const now = new Date();
+      const weekStart = new Date(now);
+      weekStart.setHours(0, 0, 0, 0);
+      const day = weekStart.getDay();
+      weekStart.setDate(weekStart.getDate() - day + (day === 0 ? -6 : 1));
+      const weekEnd = new Date(weekStart);
+      weekEnd.setDate(weekStart.getDate() + 7);
 
-    // 5. inactive stations — zero completed usages this week
-    const activeStationIds = await usageModel.distinct("stationId", {
-      stationId: { $in: stationIds },
-      state: "completed",
-      createdAt: { $gte: weekStart, $lt: weekEnd },
-    });
-
-    const inactive = stations
-      .filter((s) => !activeStationIds.includes(s.stationId))
-      .map((s) => ({ stationId: s.stationId, name: s.title }));
-
-    // 6. ticket counts
-    const ticketAgg = await ticketModel.aggregate([
-      { $match: { companyId } },
-      { $group: { _id: "$status", count: { $sum: 1 } } },
-    ]);
-
-    const ticketStats = { open: 0, closed: 0, resolved: 0, unresolved: 0 };
-    ticketAgg.forEach(({ _id, count }) => {
-      if (_id in ticketStats) ticketStats[_id] = count;
-    });
-
-    // 7. usage this week vs last week
-    const lastWeekStart = new Date(weekStart);
-    lastWeekStart.setDate(weekStart.getDate() - 7);
-    const lastWeekEnd = new Date(weekStart);
-
-    const [thisWeekCount, lastWeekCount] = await Promise.all([
-      usageModel.countDocuments({
+      const activeStationIds = await usageModel.distinct("stationId", {
         stationId: { $in: stationIds },
         state: "completed",
         createdAt: { $gte: weekStart, $lt: weekEnd },
-      }),
-      usageModel.countDocuments({
-        stationId: { $in: stationIds },
-        state: "completed",
-        createdAt: { $gte: lastWeekStart, $lt: lastWeekEnd },
-      }),
-    ]);
+      });
 
-    const percentageDelta =
-      lastWeekCount === 0
-        ? 100
-        : Math.round(((thisWeekCount - lastWeekCount) / lastWeekCount) * 100);
+      const inactive = stations
+        .filter((s) => !activeStationIds.includes(s.stationId))
+        .map((s) => ({ stationId: s.stationId, name: s.title }));
 
-    // 8. weekly totals
-    const allUsages = await usageModel.find(
-      { stationId: { $in: stationIds }, state: "completed" },
-      "createdAt",
-    );
+      const ticketAgg = await ticketModel.aggregate([
+        { $match: { companyId } },
+        { $group: { _id: "$status", count: { $sum: 1 } } },
+      ]);
 
-    const weeklyMap = {};
-    allUsages.forEach(({ createdAt }) => {
-      const d = new Date(createdAt);
-      const dow = d.getDay();
-      d.setDate(d.getDate() - dow + (dow === 0 ? -6 : 1));
-      d.setHours(0, 0, 0, 0);
-      const ws = d.toISOString().split("T")[0];
-      weeklyMap[ws] = (weeklyMap[ws] || 0) + 1;
-    });
+      const ticketStats = { open: 0, closed: 0, resolved: 0, unresolved: 0 };
+      ticketAgg.forEach(({ _id, count }) => {
+        if (_id in ticketStats) ticketStats[_id] = count;
+      });
 
-    const weeklyTotals = Object.entries(weeklyMap)
-      .map(([weekStart, total]) => ({ weekStart, total }))
-      .sort((a, b) => new Date(a.weekStart) - new Date(b.weekStart));
+      const lastWeekStart = new Date(weekStart);
+      lastWeekStart.setDate(weekStart.getDate() - 7);
+      const lastWeekEnd = new Date(weekStart);
 
-    // 9. latest 5 tickets with group name
-    const latestTickets = await ticketModel
-      .find({ companyId })
-      .sort({ createdAt: -1 })
-      .limit(5)
-      .lean();
+      const [thisWeekCount, lastWeekCount] = await Promise.all([
+        usageModel.countDocuments({
+          stationId: { $in: stationIds },
+          state: "completed",
+          createdAt: { $gte: weekStart, $lt: weekEnd },
+        }),
+        usageModel.countDocuments({
+          stationId: { $in: stationIds },
+          state: "completed",
+          createdAt: { $gte: lastWeekStart, $lt: lastWeekEnd },
+        }),
+      ]);
 
-    const enrichedTickets = await Promise.all(
-      latestTickets.map(async (ticket) => {
-        let groupName = "—";
-        if (ticket.stationId) {
-          const station = await stationModel.findOne({
-            stationId: ticket.stationId,
-          });
-          if (station) {
-            const group = await groupModel.findOne({
-              groupId: station.groupId,
+      const percentageDelta =
+        lastWeekCount === 0
+          ? 100
+          : Math.round(((thisWeekCount - lastWeekCount) / lastWeekCount) * 100);
+
+      const allUsages = await usageModel.find(
+        { stationId: { $in: stationIds }, state: "completed" },
+        "createdAt",
+      );
+
+      const weeklyMap = {};
+      allUsages.forEach(({ createdAt }) => {
+        const d = new Date(createdAt);
+        const dow = d.getDay();
+        d.setDate(d.getDate() - dow + (dow === 0 ? -6 : 1));
+        d.setHours(0, 0, 0, 0);
+        const ws = d.toISOString().split("T")[0];
+        weeklyMap[ws] = (weeklyMap[ws] || 0) + 1;
+      });
+
+      const weeklyTotals = Object.entries(weeklyMap)
+        .map(([weekStart, total]) => ({ weekStart, total }))
+        .sort((a, b) => new Date(a.weekStart) - new Date(b.weekStart));
+
+      const latestTickets = await ticketModel
+        .find({ companyId })
+        .sort({ createdAt: -1 })
+        .limit(5)
+        .lean();
+
+      const enrichedTickets = await Promise.all(
+        latestTickets.map(async (ticket) => {
+          let groupName = "—";
+          if (ticket.stationId) {
+            const station = await stationModel.findOne({
+              stationId: ticket.stationId,
             });
-            if (group) groupName = group.name;
+            if (station) {
+              const group = await groupModel.findOne({
+                groupId: station.groupId,
+              });
+              if (group) groupName = group.name;
+            }
           }
-        }
-        return {
-          ticketId: ticket.ticketId,
-          title: ticket.title,
-          status: ticket.status,
-          groupName,
-          createdAt: ticket.createdAt,
-        };
-      }),
-    );
+          return {
+            ticketId: ticket.ticketId,
+            title: ticket.title,
+            status: ticket.status,
+            groupName,
+            createdAt: ticket.createdAt,
+          };
+        }),
+      );
 
-    return success(res, {
-      data: {
+      return {
         stations: { ...stationStats, inactive },
         tickets: ticketStats,
         usage: {
@@ -423,8 +418,12 @@ export const getDashboard = async (req, res, next) => {
         },
         weeklyTotals,
         latestTickets: enrichedTickets,
-      },
-    });
+      };
+    }, 60);
+
+    if (!data) return next({ status: 404, message: "Company not found" });
+
+    return success(res, { data });
   } catch (err) {
     next(err);
   }

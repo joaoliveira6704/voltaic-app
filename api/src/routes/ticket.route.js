@@ -50,6 +50,7 @@ router.post("/", protect, createTicket);
  *         schema:
  *           type: string
  *           enum: [dashboard]
+ *         description: "view=dashboard retorna contagens e recentes (cache 60s)"
  *       - in: query
  *         name: page
  *         schema:
@@ -78,7 +79,7 @@ router.post("/", protect, createTicket);
  *         description: "Filtrar tickets sem estação (true)"
  *     responses:
  *       200:
- *         description: Lista de tickets
+ *         description: Lista de tickets (view=dashboard, cache 60s)
  *         content:
  *           application/json:
  *             schema:

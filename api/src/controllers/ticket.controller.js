@@ -4,6 +4,7 @@ import companyModel from "../models/company.model.js";
 import logModel from "../models/log.model.js";
 import generateUniqueId from "../utils/utils.js";
 import { success, error as sendError } from "../utils/response.js";
+import { wrap } from "../utils/cache.js";
 
 const sortFieldMap = {
   ticketId: "ticketId",
@@ -157,58 +158,62 @@ export const getTickets = async (req, res, next) => {
     const { page, limit, stationless, view, search, sort, status } = req.query;
 
     if (view === "dashboard") {
-      const [counts, recent] = await Promise.all([
-        ticketModel.aggregate([
-          { $group: { _id: "$status", count: { $sum: 1 } } },
-        ]),
-        ticketModel.aggregate([
-          { $sort: { createdAt: -1 } },
-          { $limit: 5 },
-          {
-            $lookup: {
-              from: "users",
-              let: { createdBy: "$createdBy" },
-              pipeline: [
-                { $match: { $expr: { $eq: ["$userId", "$$createdBy"] } } },
-                { $project: { _id: 0, firstName: 1, lastName: 1 } },
-              ],
-              as: "createdByUser",
+      const data = await wrap("admin:tickets:dashboard", async () => {
+        const [counts, recent] = await Promise.all([
+          ticketModel.aggregate([
+            { $group: { _id: "$status", count: { $sum: 1 } } },
+          ]),
+          ticketModel.aggregate([
+            { $sort: { createdAt: -1 } },
+            { $limit: 5 },
+            {
+              $lookup: {
+                from: "users",
+                let: { createdBy: "$createdBy" },
+                pipeline: [
+                  { $match: { $expr: { $eq: ["$userId", "$$createdBy"] } } },
+                  { $project: { _id: 0, firstName: 1, lastName: 1 } },
+                ],
+                as: "createdByUser",
+              },
             },
-          },
-          {
-            $lookup: {
-              from: "stations",
-              let: { stationId: "$stationId" },
-              pipeline: [
-                { $match: { $expr: { $eq: ["$stationId", "$$stationId"] } } },
-                { $project: { _id: 0, title: 1 } },
-              ],
-              as: "station",
+            {
+              $lookup: {
+                from: "stations",
+                let: { stationId: "$stationId" },
+                pipeline: [
+                  { $match: { $expr: { $eq: ["$stationId", "$$stationId"] } } },
+                  { $project: { _id: 0, title: 1 } },
+                ],
+                as: "station",
+              },
             },
-          },
-          {
-            $addFields: {
-              createdByUser: { $arrayElemAt: ["$createdByUser", 0] },
-              station: { $arrayElemAt: ["$station", 0] },
+            {
+              $addFields: {
+                createdByUser: { $arrayElemAt: ["$createdByUser", 0] },
+                station: { $arrayElemAt: ["$station", 0] },
+              },
             },
-          },
-          { $project: { __v: 0 } },
-        ]),
-      ]);
+            { $project: { __v: 0 } },
+          ]),
+        ]);
 
-      const stats = {
-        total: 0,
-        open: 0,
-        closed: 0,
-        resolved: 0,
-        unresolved: 0,
-      };
-      for (const c of counts) {
-        stats.total += c.count;
-        stats[c._id] = c.count;
-      }
+        const stats = {
+          total: 0,
+          open: 0,
+          closed: 0,
+          resolved: 0,
+          unresolved: 0,
+        };
+        for (const c of counts) {
+          stats.total += c.count;
+          stats[c._id] = c.count;
+        }
 
-      return success(res, { data: { ...stats, recent } });
+        return { ...stats, recent };
+      }, 60);
+
+      return success(res, { data });
     }
 
     const filter = {};

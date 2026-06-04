@@ -47,6 +47,58 @@ import userModel from "../models/user.model.js";
 
 const router = Router();
 
+/**
+ * @openapi
+ * /api/users:
+ *   get:
+ *     tags: [Users]
+ *     summary: Listar utilizadores (admin/company-manager)
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: view
+ *         schema:
+ *           type: string
+ *           enum: [dashboard, admin]
+ *         description: "view=dashboard retorna total (cache 60s)"
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: sort
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: role
+ *         schema:
+ *           type: string
+ *           enum: [client, admin, worker, company-manager]
+ *       - in: query
+ *         name: companyId
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Lista de utilizadores (view=dashboard, cache 60s)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Pagination'
+ *       401:
+ *         description: Não autenticado
+ *       403:
+ *         description: Sem permissões
+ */
 router.get("/", protect, requireRole("admin", "company-manager"), getUsers);
 router.post("/", authLimiter, register);
 
@@ -251,10 +303,10 @@ router.post("/logout-all", protect, logoutAll);
  *         name: profile
  *         schema:
  *           type: string
- *         description: Se definido, retorna perfil completo com histórico
+ *         description: Se definido, retorna perfil completo com histórico (cache 5min)
  *     responses:
  *       200:
- *         description: Perfil do utilizador
+ *         description: Perfil do utilizador (com ?profile, cache 5min — invalidado ao atualizar)
  *         content:
  *           application/json:
  *             schema:
@@ -280,7 +332,7 @@ router.get("/me", protect, getCurrentUser);
  *             $ref: '#/components/schemas/UpdateOwnUserInput'
  *     responses:
  *       200:
- *         description: Perfil atualizado
+ *         description: Perfil atualizado (invalida cache do perfil)
  *       400:
  *         description: Dados inválidos
  *       401:

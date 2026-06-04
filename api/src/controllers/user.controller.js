@@ -4,6 +4,7 @@ import generateUniqueId from "../utils/utils.js";
 import companyModel from "../models/company.model.js";
 import { paginate } from "../utils/paginate.js";
 import { success, error as sendError } from "../utils/response.js";
+import { wrap, del } from "../utils/cache.js";
 
 const userSortFieldMap = {
   username: "username",
@@ -26,7 +27,9 @@ export const getUsers = async (req, res, next) => {
     const { view, search, sort, role } = req.query;
 
     if (view === "dashboard") {
-      const total = await userModel.countDocuments();
+      const total = await wrap("admin:users:dashboard", async () => {
+        return userModel.countDocuments();
+      }, 60);
       return success(res, { data: { total } });
     }
 
@@ -178,122 +181,124 @@ export const getCurrentUser = async (req, res, next) => {
     const userId = req.user.userId;
     const isProfile = req.query.profile;
 
-    const user = await userModel.findOne({ userId: userId });
-
     if (isProfile) {
-      console.log("Getting user profile", userId);
-      const userProfile = await userModel.aggregate([
-        { $match: { userId: userId } },
-        {
-          $lookup: {
-            from: "companies",
-            localField: "companyId",
-            foreignField: "companyId",
-            as: "companyData",
+      const data = await wrap(`user:profile:${userId}`, async () => {
+        const result = await userModel.aggregate([
+          { $match: { userId } },
+          {
+            $lookup: {
+              from: "companies",
+              localField: "companyId",
+              foreignField: "companyId",
+              as: "companyData",
+            },
           },
-        },
-        {
-          $unwind: {
-            path: "$companyData",
-            preserveNullAndEmptyArrays: true, // This keeps the user if companyData is empty
+          {
+            $unwind: {
+              path: "$companyData",
+              preserveNullAndEmptyArrays: true,
+            },
           },
-        },
-        {
-          $set: { companyName: "$companyData.name" },
-        },
-        {
-          $lookup: {
-            from: "usages",
-            let: { userId: "$userId" },
-            pipeline: [
-              { $match: { $expr: { $eq: ["$userId", "$$userId"] } } },
-              { $sort: { createdAt: -1 } },
-              { $limit: 4 },
-              {
-                $lookup: {
-                  from: "stations",
-                  localField: "stationId",
-                  foreignField: "stationId",
-                  as: "stationData",
+          {
+            $set: { companyName: "$companyData.name" },
+          },
+          {
+            $lookup: {
+              from: "usages",
+              let: { userId: "$userId" },
+              pipeline: [
+                { $match: { $expr: { $eq: ["$userId", "$$userId"] } } },
+                { $sort: { createdAt: -1 } },
+                { $limit: 4 },
+                {
+                  $lookup: {
+                    from: "stations",
+                    localField: "stationId",
+                    foreignField: "stationId",
+                    as: "stationData",
+                  },
                 },
-              },
-              {
-                $unwind: {
-                  path: "$stationData",
-                  preserveNullAndEmptyArrays: true,
+                {
+                  $unwind: {
+                    path: "$stationData",
+                    preserveNullAndEmptyArrays: true,
+                  },
                 },
-              },
-              {
-                $addFields: {
-                  stationName: "$stationData.title",
-                  duration: {
-                    $cond: {
-                      if: { $eq: ["$state", "completed"] },
-                      then: {
-                        $let: {
-                          vars: {
-                            totalMinutes: {
-                              $floor: {
-                                $divide: [
-                                  { $subtract: ["$endTime", "$createdAt"] },
-                                  60000,
-                                ],
+                {
+                  $addFields: {
+                    stationName: "$stationData.title",
+                    duration: {
+                      $cond: {
+                        if: { $eq: ["$state", "completed"] },
+                        then: {
+                          $let: {
+                            vars: {
+                              totalMinutes: {
+                                $floor: {
+                                  $divide: [
+                                    { $subtract: ["$endTime", "$createdAt"] },
+                                    60000,
+                                  ],
+                                },
                               },
                             },
-                          },
-                          in: {
-                            $let: {
-                              vars: {
-                                hours: {
-                                  $floor: { $divide: ["$$totalMinutes", 60] },
-                                },
-                                minutes: { $mod: ["$$totalMinutes", 60] },
-                              },
-                              in: {
-                                $cond: {
-                                  if: { $eq: ["$$hours", 0] },
-                                  then: {
-                                    $concat: [{ $toString: "$$minutes" }, "m"],
+                            in: {
+                              $let: {
+                                vars: {
+                                  hours: {
+                                    $floor: { $divide: ["$$totalMinutes", 60] },
                                   },
-                                  else: {
-                                    $concat: [
-                                      { $toString: "$$hours" },
-                                      "h ",
-                                      { $toString: "$$minutes" },
-                                      "m",
-                                    ],
+                                  minutes: { $mod: ["$$totalMinutes", 60] },
+                                },
+                                in: {
+                                  $cond: {
+                                    if: { $eq: ["$$hours", 0] },
+                                    then: {
+                                      $concat: [{ $toString: "$$minutes" }, "m"],
+                                    },
+                                    else: {
+                                      $concat: [
+                                        { $toString: "$$hours" },
+                                        "h ",
+                                        { $toString: "$$minutes" },
+                                        "m",
+                                      ],
+                                    },
                                   },
                                 },
                               },
                             },
                           },
                         },
+                        else: "$state",
                       },
-                      else: "$state",
                     },
                   },
                 },
-              },
-              { $project: { stationData: 0 } },
-            ],
-            as: "chargingHistory",
+                { $project: { stationData: 0 } },
+              ],
+              as: "chargingHistory",
+            },
           },
-        },
-        {
-          $project: {
-            endTime: 0,
-            password: 0,
-            _id: 0,
-            companyId: 0,
-            companyData: 0,
+          {
+            $project: {
+              endTime: 0,
+              password: 0,
+              _id: 0,
+              companyId: 0,
+              companyData: 0,
+            },
           },
-        },
-      ]);
+        ]);
 
-      console.log(userProfile);
+        return result[0];
+      }, 300);
 
-      return success(res, { data: userProfile[0] });
+      return success(res, { data });
     }
+
+    const user = await userModel.findOne({ userId });
+
     if (!user) {
       const err = new Error("User not found");
       err.status = 404;
@@ -321,6 +326,8 @@ export const getUserById = async (req, res, next) => {
 
 export const updateOwnUser = async (req, res, next) => {
   try {
+    await del(`user:profile:${req.user.userId}`);
+
     const user = await userModel
       .findOne({ userId: req.user.userId })
       .select("+password");
