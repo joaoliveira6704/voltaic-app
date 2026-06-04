@@ -90,29 +90,23 @@ const userSchema = new mongoose.Schema(
   { timestamps: true, collection: "users" },
 );
 
-// Hash the password before saving the user
 userSchema.pre("save", async function () {
   if (!this.isModified("password")) return;
 
   this.password = await bcrypt.hash(this.password, 12);
 });
 
-// Remove 'next' from arguments and make the function async
 userSchema.pre("save", async function () {
-  // 1. Only run if vehicles are modified
   if (!this.isModified("vehicles")) return;
 
-  // 2. Check max 4 vehicles
   if (this.vehicles.length > 4) {
     const err = new Error("Maximum of 4 vehicles per user");
     err.status = 400;
     throw err;
   }
 
-  // 3. Get and clean the plates
   const plates = this.vehicles.map((v) => v.plate.toLowerCase().trim());
 
-  // 4. Check for duplicates
   const hasDuplicates = plates.some((plate, index) => {
     return plates.indexOf(plate) !== index;
   });
@@ -124,7 +118,6 @@ userSchema.pre("save", async function () {
   }
 });
 
-// Method to compare passwords
 userSchema.methods.correctPassword = async function (
   candidatePassword,
   userPassword,

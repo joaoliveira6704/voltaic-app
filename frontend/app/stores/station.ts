@@ -68,7 +68,6 @@ export const useStationStore = defineStore("station", () => {
     };
 
     try {
-      // Create a clean payload with telemetry included
       const payload = {
         ...station,
         telemetry,
@@ -79,7 +78,6 @@ export const useStationStore = defineStore("station", () => {
         body: payload,
       });
 
-      // Use the response from the server which contains the real DB object
       stations.value = [...stations.value, response];
       toast.success("Station added successfully");
       return response;
@@ -218,8 +216,6 @@ export const useStationStore = defineStore("station", () => {
     stopCharge,
     fetchStationById,
     executeCommand,
-    currentStation,
+      currentStation,
   };
 });
-
-// remember to add fetchNearbyStations to the return object

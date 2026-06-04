@@ -1,16 +1,13 @@
 <script setup lang="ts">
 import { computed } from "vue";
-// Import only the specific icons you want to support
 import { Zap, Map, Shield } from "lucide-vue-next";
 
-// 1. Create a static mapping
 const iconMap = {
     Zap,
     Map,
     Shield,
 } as const;
 
-// 2. Define types based on the keys of your map
 type IconName = keyof typeof iconMap;
 
 const props = defineProps<{
@@ -19,7 +16,6 @@ const props = defineProps<{
     icon: IconName;
 }>();
 
-// 3. Simple lookup
 const dynamicIcon = computed(() => iconMap[props.icon]);
 </script>
 

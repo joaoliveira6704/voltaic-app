@@ -31,7 +31,6 @@ const mapGrid = ref([]);
 const hoveredDot = ref(null);
 
 onMounted(async () => {
-    // 1. Load D3 and TopoJSON
     const [d3, topojson] = await Promise.all([
         import("https://cdn.jsdelivr.net/npm/d3@7/+esm"),
         import("https://cdn.jsdelivr.net/npm/topojson-client@3/+esm"),
@@ -41,7 +40,6 @@ onMounted(async () => {
         "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json",
     ).then((r) => r.json());
 
-    // 2. Setup Projection
     const projection = d3
         .geoNaturalEarth1()
         .scale(153)
@@ -50,7 +48,6 @@ onMounted(async () => {
     const path = d3.geoPath(projection);
     const land = topojson.feature(world, world.objects.land);
 
-    // 3. Project Stations to Pixel Space
     const projectedStations = props.stations.map((s) => {
         const [lon, lat] = s.location.coordinates;
         const [x, y] = projection([lon, lat]) ?? [0, 0];
@@ -62,7 +59,6 @@ onMounted(async () => {
         };
     });
 
-    // 4. Create Land Mask via Canvas
     const canvas = document.createElement("canvas");
     canvas.width = W;
     canvas.height = H;
@@ -74,7 +70,6 @@ onMounted(async () => {
     await new Promise((res) => (img.onload = res));
     ctx.drawImage(img, 0, 0);
 
-    // 5. Generate Integrated Grid (deferred to avoid blocking paint)
     const schedule = typeof requestIdleCallback === "function"
         ? requestIdleCallback
         : (cb) => setTimeout(cb, 50);

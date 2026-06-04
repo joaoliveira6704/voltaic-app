@@ -16,7 +16,7 @@ async function takeScreenshot(driver, name) {
 
 async function main() {
   const options = new chrome.Options();
-  options.excludeSwitches(["enable-logging"]); // ✅ Fix 2: array em vez de string
+  options.excludeSwitches(["enable-logging"]);
   options.addArguments("--log-level=3", "--silent", "--start-maximized");
 
   const driver = await new Builder()
@@ -32,7 +32,6 @@ async function main() {
     const email = await driver.wait(until.elementLocated(By.id("email")), 10000);
     const password = await driver.findElement(By.id("password"));
 
-    // ✅ Fix 1: localizar o botão primeiro, depois esperar que fique enabled
     const buttonEl = await driver.wait(
       until.elementLocated(By.css("button[type='submit']")), 10000
     );

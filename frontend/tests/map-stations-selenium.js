@@ -20,7 +20,7 @@ async function sleep(ms) {
 
 async function main() {
   const options = new chrome.Options();
-  options.excludeSwitches(["enable-logging"]); // ✅ Fix 1: array
+  options.excludeSwitches(["enable-logging"]);
   options.addArguments("--log-level=3", "--silent", "--start-maximized");
 
   const driver = await new Builder()
@@ -36,7 +36,6 @@ async function main() {
     const email = await driver.wait(until.elementLocated(By.id("email")), 10000);
     const password = await driver.findElement(By.id("password"));
 
-    // ✅ Fix 2: locate first, then wait for enabled
     const buttonEl = await driver.wait(
       until.elementLocated(By.css("button[type='submit']")), 10000
     );
@@ -71,7 +70,7 @@ async function main() {
       15000,
     );
     const loadTime = Date.now() - startTime;
-    console.log(`Map loaded in ${loadTime}ms ${loadTime < 3000 ? "✓" : "✗ (> 3s)"}`);
+    console.log(`Map loaded in ${loadTime}ms ${loadTime < 3000 ? "OK" : "SLOW (> 3s)"}`);
 
     await takeScreenshot(driver, "02-map-loaded");
 
@@ -80,7 +79,7 @@ async function main() {
       console.log("ERRORS found:");
       for (const e of errors) console.log(`  ${await e.getText()}`);
     } else {
-      console.log("No errors detected ✓");
+      console.log("No errors detected");
     }
 
     // ── 3. Click a station marker to see details ───────────────────────────────
@@ -107,7 +106,7 @@ async function main() {
       try {
         await driver.findElement(By.css("h2.text-base.font-bold.text-gray-900"));
         cardVisible = true;
-        console.log("  Station card appeared ✓");
+        console.log("  Station card appeared");
         await takeScreenshot(driver, "03-station-card");
         break;
       } catch {
@@ -161,7 +160,7 @@ async function main() {
     }
 
     await takeScreenshot(driver, "04-details-verified");
-    console.log("\nAll steps passed ✓");
+    console.log("\nAll steps passed");
   } finally {
     await driver.quit();
   }

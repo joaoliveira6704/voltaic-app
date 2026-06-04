@@ -5,16 +5,15 @@ import { onMounted, onUnmounted, ref } from "vue";
 const { t } = useI18n();
 import {
     Chart,
-    LineElement, // Changed from BarElement
-    PointElement, // Added for the dots on the line
-    LineController, // Changed from BarController
+    LineElement,
+    PointElement,
+    LineController,
     CategoryScale,
     LinearScale,
     Tooltip,
-    Filler, // Added if you want a background area fill
+    Filler,
 } from "chart.js";
 
-// Register line-specific components
 Chart.register(
     LineElement,
     PointElement,
@@ -36,7 +35,7 @@ onMounted(() => {
     const accentColor = isDark ? "#185FA5" : "#378ADD";
 
     chart = new Chart(canvas.value, {
-        type: "line", // Changed to line
+        type: "line",
         data: {
             labels,
             datasets: [
@@ -47,9 +46,9 @@ onMounted(() => {
                     backgroundColor: isDark
                         ? "rgba(24, 95, 165, 0.2)"
                         : "rgba(55, 138, 221, 0.2)",
-                    fill: true, // Set to true for an area chart effect
-                    tension: 0.4, // Makes the line curvy
-                    pointRadius: 4, // Size of the dots
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 4,
                     pointHoverRadius: 6,
                     borderWidth: 2,
                 },

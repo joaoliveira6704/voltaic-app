@@ -244,17 +244,17 @@ Paginated responses follow this shape:
 
 | Action                     | client | worker | company-manager | admin |
 |----------------------------|--------|--------|-----------------|-------|
-| Browse stations            | ✅     | ✅     | ✅              | ✅    |
-| Manage own profile         | ✅     | ✅     | ✅              | ✅    |
-| Own vehicles/favorites     | ✅     | ✅     | ✅              | ✅    |
-| Create tickets             | ✅     | ✅     | ✅              | ✅    |
-| Start/end charging         | ✅     | ✅     | ✅              | ✅    |
-| Edit own company stations  | —      | ✅     | ✅              | ✅    |
-| Company dashboard          | —      | —      | ✅              | ✅    |
-| Manage users/roles         | —      | —      | ✅*             | ✅    |
-| Create/delete companies    | —      | —      | —               | ✅    |
-| Delete stations/tickets    | —      | —      | —               | ✅    |
-| Full admin panel           | —      | —      | —               | ✅    |
+| Browse stations            | yes    | yes    | yes             | yes   |
+| Manage own profile         | yes    | yes    | yes             | yes   |
+| Own vehicles/favorites     | yes    | yes    | yes             | yes   |
+| Create tickets             | yes    | yes    | yes             | yes   |
+| Start/end charging         | yes    | yes    | yes             | yes   |
+| Edit own company stations  | no     | yes    | yes             | yes   |
+| Company dashboard          | no     | no     | yes             | yes   |
+| Manage users/roles         | no     | no     | yes*            | yes   |
+| Create/delete companies    | no     | no     | no              | yes   |
+| Delete stations/tickets    | no     | no     | no              | yes   |
+| Full admin panel           | no     | no     | no              | yes   |
 
 \* company-manager can only update roles within their own company.
 

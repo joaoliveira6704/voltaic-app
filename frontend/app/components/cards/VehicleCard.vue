@@ -21,16 +21,13 @@ const props = defineProps<Props>();
 const emit = defineEmits(["delete", "edit"]);
 
 const logoSrc = computed(() => {
-    // Guard against missing slug
     if (!props.data.slug) return "/voltaic-logo.svg";
 
-    // Reassign the transformations properly
-    const slug = props.data.slug.trim().toLowerCase().replace(/\s+/g, "-"); // Replaces one or more spaces with a single hyphen
+    const slug = props.data.slug.trim().toLowerCase().replace(/\s+/g, "-");
 
     return `https://www.carlogos.org/car-logos/${slug}-logo.png`;
 });
 
-// Function to handle broken external links
 const handleImageError = (event: Event) => {
     const target = event.target as HTMLImageElement;
     target.src = "/voltaic-logo.png";
