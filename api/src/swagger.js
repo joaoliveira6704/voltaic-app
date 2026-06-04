@@ -7,7 +7,7 @@ const options = {
       title: "Voltaic API",
       version: "1.0.0",
       description:
-        "API de gestão de estações de carregamento de veículos elétricos. Permite gerir utilizadores, empresas, estações, tickets e sessões de carregamento.",
+        "API de gestão de estações de carregamento de veículos elétricos. Permite gerir utilizadores, empresas, estações, tickets e sessões de carregamento.\n\nGrupo 5 — João Pedro Teixeira Oliveira (40240391), Miguel José Carvalho Neto (40240358)",
     },
     servers: [
       {
