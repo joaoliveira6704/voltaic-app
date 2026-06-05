@@ -216,8 +216,6 @@ export const useUserStore = defineStore("user", () => {
       if (changes.preferences?.language) {
         await setLocale(changes.preferences.language);
       }
-
-      toast.success("Changes Applied Successfully");
     } catch (e) {
       toast.error("Error Applying Changes: " + e);
     }
