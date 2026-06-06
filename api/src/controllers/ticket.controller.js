@@ -155,7 +155,7 @@ export const createTicket = async (req, res, next) => {
 
 export const getTickets = async (req, res, next) => {
   try {
-    const { page, limit, stationless, view, search, sort, status } = req.query;
+    const { page, limit, stationless, view, search, sort, status, stationId } = req.query;
 
     if (view === "dashboard") {
       const data = await wrap("admin:tickets:dashboard", async () => {
@@ -218,6 +218,7 @@ export const getTickets = async (req, res, next) => {
 
     const filter = {};
     if (stationless === "true") filter.stationId = null;
+    if (stationId) filter.stationId = stationId;
     if (status) filter.status = status;
 
     const sortObj = parseSort(sort);

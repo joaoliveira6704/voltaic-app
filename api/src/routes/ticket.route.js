@@ -73,6 +73,11 @@ router.post("/", protect, createTicket);
  *           type: string
  *           enum: [open, closed, resolved, unresolved]
  *       - in: query
+ *         name: stationId
+ *         schema:
+ *           type: string
+ *         description: "Filtrar tickets por estação"
+ *       - in: query
  *         name: stationless
  *         schema:
  *           type: string
