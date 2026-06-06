@@ -123,14 +123,20 @@ export const useStationStore = defineStore("station", () => {
     lat: number,
     lng: number,
     distanceKm: number = 10,
+    extraParams: Record<string, string> = {},
   ) {
     try {
-      const data = await api<PaginatedResponse<Station>>(
-        `/api/stations?near=${lat},${lng}&maxDistance=${distanceKm}`,
+      const query = new URLSearchParams({
+        near: `${lat},${lng}`,
+        maxDistance: String(distanceKm),
+        ...extraParams,
+      });
+      const data = await api<Station[]>(
+        `/api/stations?${query}`,
       );
-      stations.value = data.data;
-      currentPage.value = data.page;
-      totalPages.value = data.pages;
+      stations.value = data;
+      currentPage.value = 1;
+      totalPages.value = 1;
     } catch (e) {
       console.error("Failed to fetch nearby stations:", e);
     }
