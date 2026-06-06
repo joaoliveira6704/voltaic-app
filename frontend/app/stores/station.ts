@@ -128,7 +128,7 @@ export const useStationStore = defineStore("station", () => {
       const data = await api<PaginatedResponse<Station>>(
         `/api/stations?near=${lat},${lng}&maxDistance=${distanceKm}`,
       );
-      stations.value = data;
+      stations.value = data.data;
       currentPage.value = data.page;
       totalPages.value = data.pages;
     } catch (e) {

@@ -24,7 +24,7 @@ const parseStationSort = (sort) => {
 
 export const getStations = async (req, res, next) => {
   try {
-    const { near, maxDistance, view, search, sort } = req.query;
+    const { near, maxDistance, view, search, sort, socketType } = req.query;
 
     if (view === "dashboard") {
       const data = await wrap("admin:stations:dashboard", async () => {
@@ -53,31 +53,38 @@ export const getStations = async (req, res, next) => {
     }
 
     if (near) {
-      console.log("Getting stations");
       const [lat, lng] = near.split(",").map(parseFloat);
       const distance = parseFloat(maxDistance || "10");
       const radius = distance / 6378;
 
-      const result = await stationModel.find({
+      const query = {
         location: {
           $geoWithin: {
             $centerSphere: [[lng, lat], radius],
           },
         },
-      });
+      };
 
-      console.log("Found: ", result.length);
+      if (socketType) {
+        const types = socketType.split(",").map(s => s.trim());
+        query["connector.socketTypes"] = { $in: types };
+      }
+
+      const result = await stationModel.find(query);
       return success(res, { data: result });
     }
 
-    const filter = search
-      ? {
-          $or: [
-            { title: { $regex: search, $options: "i" } },
-            { stationId: { $regex: search, $options: "i" } },
-          ],
-        }
-      : {};
+    const filter = {};
+    if (search) {
+      filter.$or = [
+        { title: { $regex: search, $options: "i" } },
+        { stationId: { $regex: search, $options: "i" } },
+      ];
+    }
+    if (socketType) {
+      const types = socketType.split(",").map(s => s.trim());
+      filter["connector.socketTypes"] = { $in: types };
+    }
 
     const sortObj = parseStationSort(sort);
     const result = await paginate(stationModel, filter, {

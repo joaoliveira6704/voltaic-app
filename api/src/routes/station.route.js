@@ -55,6 +55,11 @@ const router = Router();
  *         schema:
  *           type: string
  *       - in: query
+ *         name: socketType
+ *         schema:
+ *           type: string
+ *         description: "Filtrar por tipo de conector. Vários separados por vírgula (ex: ccs2,type2)"
+ *       - in: query
  *         name: page
  *         schema:
  *           type: integer
