@@ -123,16 +123,10 @@ export const useStationStore = defineStore("station", () => {
     lat: number,
     lng: number,
     distanceKm: number = 10,
-    extraParams: Record<string, string> = {},
   ) {
     try {
-      const query = new URLSearchParams({
-        near: `${lat},${lng}`,
-        maxDistance: String(distanceKm),
-        ...extraParams,
-      });
       const data = await api<Station[]>(
-        `/api/stations?${query}`,
+        `/api/stations?near=${lat},${lng}&maxDistance=${distanceKm}`,
       );
       stations.value = data;
       currentPage.value = 1;

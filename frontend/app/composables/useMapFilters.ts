@@ -76,18 +76,10 @@ export function useMapFilters() {
     }
   }
 
-  const socketTypeParams = computed(() =>
-    selectedConnectors.value.length > 0
-      ? { socketType: selectedConnectors.value.join(",") }
-      : {},
-  );
-
-  async function toggleConnector(connector: string) {
+  function toggleConnector(connector: string) {
     const idx = selectedConnectors.value.indexOf(connector);
     if (idx === -1) selectedConnectors.value.push(connector);
     else selectedConnectors.value.splice(idx, 1);
-
-    await applyFilters();
   }
 
   function onSliderChange(value: number) {
@@ -112,16 +104,7 @@ export function useMapFilters() {
     distanceActive.value = true;
 
     const [lng, lat] = location;
-    await stationStore.fetchNearbyStations(lat, lng, value, socketTypeParams.value);
-  }
-
-  async function applyFilters() {
-    if (distanceActive.value && userLocation.value) {
-      const [lng, lat] = userLocation.value;
-      await stationStore.fetchNearbyStations(lat, lng, sliderValue.value, socketTypeParams.value);
-    } else {
-      await stationStore.fetchStations(1, 20, socketTypeParams.value);
-    }
+    await stationStore.fetchNearbyStations(lat, lng, value);
   }
 
   async function resetSidebarFilters() {
@@ -141,6 +124,8 @@ export function useMapFilters() {
     const compatibleActive = isFilterActive("compatible");
     const freeActive = isFilterActive("free");
     const companyActive = isFilterActive("company");
+    const hasSelectedConnectors = selectedConnectors.value.length > 0;
+
     return allStations.value.filter((station) => {
       if (favsActive && !userFavorites.value.includes(station.stationId))
         return false;
@@ -156,6 +141,13 @@ export function useMapFilters() {
 
       if (companyActive && !companyStationIds.value.includes(station.stationId))
         return false;
+
+      if (hasSelectedConnectors) {
+        const match = station.connector.socketTypes.some((t) =>
+          selectedConnectors.value.includes(t),
+        );
+        if (!match) return false;
+      }
 
       return true;
     });
