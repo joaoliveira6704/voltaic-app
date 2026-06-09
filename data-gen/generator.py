@@ -1,6 +1,7 @@
 import math
 import random
 import uuid
+from datetime import datetime, timedelta, timezone
 from concurrent.futures import ThreadPoolExecutor
 
 import bcrypt
@@ -222,7 +223,9 @@ def generate_users(count, companies=None, outpath="users.txt"):
         hashed_pwds = list(executor.map(_hash_password, raw_pwds))
 
     used_usernames = set()
+    used_emails = set()
     lines = []
+    email_domains = ["gmail.com", "outlook.com", "icloud.com", "proton.me"]
     for i in range(count):
         role = random.choice(["client", "worker", "company-manager", "admin"])
         comp_id = random.choice(company_ids) if role != "admin" and company_ids else None
@@ -240,20 +243,29 @@ def generate_users(count, companies=None, outpath="users.txt"):
                     }
                 )
 
-        username = fake.user_name()[:20]
-        while username in used_usernames or len(username) < 8:
-            username = fake.user_name()[:20]
+        first_name = fake.first_name()
+        last_name = fake.last_name()
+        base_key = f"{first_name.lower()}.{last_name.lower()}".translate(
+            str.maketrans("", "", " .,'-$")
+        )[:24]
+
+        username = base_key
+        while username in used_usernames or len(username) < 6:
+            username = f"{base_key[:18]}{random.randint(10, 99)}"
         used_usernames.add(username)
 
-        email = fake.email()
+        email = f"{base_key}@{random.choice(email_domains)}"
+        while email in used_emails:
+            email = f"{base_key}.{random.randint(10, 99)}@{random.choice(email_domains)}"
+        used_emails.add(email)
         lines.append(f"{email}:{raw_pwds[i]}:{role}")
 
         users.append(
             User(
                 str(uuid.uuid4()),
                 username,
-                fake.first_name(),
-                fake.last_name(),
+                first_name,
+                last_name,
                 email,
                 hashed_pwds[i],
                 role,
@@ -426,6 +438,13 @@ def generate_tickets(count, users, stations, ticket_type="mixed"):
     return tickets
 
 
+def _random_past_datetime(max_days_back=90):
+    return datetime.now(timezone.utc) - timedelta(
+        days=random.randint(0, max_days_back),
+        hours=random.randint(0, 23),
+        minutes=random.randint(0, 59),
+    )
+
 def generate_station_usage(count, users, stations):
     clients = [u for u in users if u.vehicles]
     if not clients:
@@ -436,6 +455,9 @@ def generate_station_usage(count, users, stations):
             random.choice(clients).userId,
             random.choice(stations).stationId,
             random.choice(clients).vehicles[0]["plate"],
+            endTime=(created_at := _random_past_datetime()) + timedelta(minutes=random.randint(30, 360)),
+            state="completed",
+            createdAt=created_at,
         )
         for _ in range(count)
     ]

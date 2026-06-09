@@ -84,10 +84,11 @@ class Ticket:
 
 
 class StationUsage:
-    def __init__(self, usageId, userId, stationId, plate, endTime=None, state="active"):
+    def __init__(self, usageId, userId, stationId, plate, endTime=None, state="active", createdAt=None):
         self.usageId = usageId
         self.userId = userId
         self.stationId = stationId
         self.plate = plate
         self.endTime = endTime
         self.state = state
+        self.createdAt = createdAt
