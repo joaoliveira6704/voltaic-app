@@ -10,6 +10,7 @@ import ticketRoute from "./src/routes/ticket.route.js";
 import errorHandler from "./src/middleware/error.middleware.js";
 import vehicleRoute from "./src/routes/vehicle.route.js";
 import usageRoute from "./src/routes/usage.route.js";
+import statsRoute from "./src/routes/stats.route.js";
 import compression from "compression";
 
 const app = express();
@@ -36,6 +37,7 @@ app.use("/api/stations", stationRoute);
 app.use("/api/tickets", ticketRoute);
 app.use("/api/vehicles", vehicleRoute);
 app.use("/api/usages", usageRoute);
+app.use("/api/stats", statsRoute);
 
 app.get("/api/status", (req, res) => res.json({ status: "Alive" }));
 

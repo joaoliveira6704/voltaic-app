@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import Hero from "@/components/landing-page/Hero.vue";
 import FeatureCard from "@/components/landing-page/FeatureCard.vue";
-import { onMounted, nextTick, computed } from "vue";
+import { onMounted, nextTick, ref } from "vue";
 
 const { t } = useI18n();
 const userStore = useUserStore();
@@ -18,6 +18,25 @@ onBeforeMount(async () => {
         await userStore.fetchCurrentUser();
     }
 });
+
+interface Stat {
+    id: number;
+    number: string;
+    label: string;
+}
+
+function formatStat(n: number): string {
+    if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1).replace(/\.0$/, "")}M+`;
+    if (n >= 1_000) return `${(n / 1_000).toFixed(1).replace(/\.0$/, "")}K+`;
+    return `${n}+`;
+}
+
+const stats = ref<Stat[]>([
+    { id: 1, number: "0", label: t("landing.stats.activeUsers") },
+    { id: 2, number: "0", label: t("landing.stats.chargingStations") },
+    { id: 3, number: "99.9%", label: t("landing.stats.uptimeGuarantee") },
+    { id: 4, number: "0", label: t("landing.stats.companiesRegistered") },
+]);
 
 onMounted(async () => {
     await nextTick();
@@ -48,6 +67,17 @@ onMounted(async () => {
             });
         });
     }
+
+    const statsStore = useStatsStore();
+    await statsStore.fetchLandingStats();
+    if (statsStore.landingStats) {
+        stats.value = [
+            { id: 1, number: formatStat(statsStore.landingStats.totalUsers), label: t("landing.stats.activeUsers") },
+            { id: 2, number: formatStat(statsStore.landingStats.totalStations), label: t("landing.stats.chargingStations") },
+            { id: 3, number: "99.9%", label: t("landing.stats.uptimeGuarantee") },
+            { id: 4, number: formatStat(statsStore.landingStats.totalCompanies), label: t("landing.stats.companiesRegistered") },
+        ];
+    }
 });
 
 type IconName = "Zap" | "Map" | "Shield";
@@ -72,13 +102,6 @@ const features = computed<
     },
 ]);
 
-const stats = computed<{ id: number; number: string; label: string }[]>(() => [
-    { id: 1, number: "2000+", label: t("landing.stats.activeUsers") },
-    { id: 2, number: "10K+", label: t("landing.stats.chargingStations") },
-    { id: 3, number: "99.9%", label: t("landing.stats.uptimeGuarantee") },
-    { id: 4, number: "200+", label: t("landing.stats.companiesRegistered") },
-]);
-</script>
 
 <template>
     <main
@@ -142,11 +165,12 @@ const stats = computed<{ id: number; number: string; label: string }[]>(() => [
                 </h2>
                 <p class="mb-10 opacity-90">{{ t("landing.cta.subtitle") }}</p>
                 <div class="flex justify-center gap-4">
-                    <button
+                    <NuxtLink
+                        to="/signup"
                         class="bg-white text-green-600 px-8 py-4 rounded-xl font-bold hover:bg-green-100 transition"
                     >
                         {{ t("landing.cta.button") }}
-                    </button>
+                    </NuxtLink>
                 </div>
             </div>
         </section>

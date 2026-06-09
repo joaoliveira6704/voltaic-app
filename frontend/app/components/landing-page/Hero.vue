@@ -7,6 +7,22 @@ const { t } = useI18n();
 
 let ctx: gsap.Context;
 
+function formatStat(n: number): string {
+    if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1).replace(/\.0$/, "")}M+`;
+    if (n >= 1_000) return `${(n / 1_000).toFixed(1).replace(/\.0$/, "")}K+`;
+    return `${n}+`;
+}
+
+const stationCount = ref("0");
+
+const statsStore = useStatsStore();
+
+watch(() => statsStore.landingStats, (val) => {
+    if (val) {
+        stationCount.value = formatStat(val.totalStations);
+    }
+}, { immediate: true });
+
 onMounted(() => {
     ctx = gsap.context(() => {
         gsap.from(".hero-content", {
@@ -53,11 +69,12 @@ onUnmounted(() => {
                     {{ t("landing.hero.subtitle") }}
                 </p>
                 <div class="hero-content mt-8 flex gap-4 mx-auto md:mx-0 w-fit">
-                    <button
+                    <NuxtLink
+                        to="/signup"
                         class="bg-black text-white px-8 py-4 rounded-xl flex items-center gap-2 text-xs md:text-base"
                     >
                         {{ t("landing.cta.button") }}
-                    </button>
+                    </NuxtLink>
                 </div>
             </div>
             <div class="hero-image relative">
@@ -76,7 +93,7 @@ onUnmounted(() => {
                     <p
                         class="text-base min-[540px]:text-xl font-bold text-green-600"
                     >
-                        10,000+ Posts
+                        {{ stationCount }} Posts
                     </p>
                 </div>
             </div>
