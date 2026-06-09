@@ -13,4 +13,3 @@ __unconfig*
 todos.json
 api/package-lock.json
 data-gen/__pycache__/
-data-gen/users.txt
