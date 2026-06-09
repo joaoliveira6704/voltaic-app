@@ -101,7 +101,7 @@ const features = computed<
         icon: "Shield",
     },
 ]);
-
+</script>
 
 <template>
     <main
