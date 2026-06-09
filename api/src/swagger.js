@@ -7,7 +7,7 @@ const options = {
       title: "Voltaic API",
       version: "1.0.0",
       description:
-        "API de gestão de estações de carregamento de veículos elétricos. Permite gerir utilizadores, empresas, estações, tickets e sessões de carregamento.\n\nGrupo 5 — João Pedro Teixeira Oliveira (40240391), Miguel José Carvalho Neto (40240358)\n\nContas de Teste:\nEmail: moorecrystal@example.org Password: f7Uq1Shb)8G9 Role: Company-manager\nEmail: cnorman@example.org PasswordTf6CVmJM&Cha Role: Client\nEmail:bsingleton@example.net Password: G3RJEuk1(Kt1 Role: admin\nEmail: mikewade@example.net Password: X3Pm_$Cj@uiZ Role: worker",
+        "API de gestão de estações de carregamento de veículos elétricos. Permite gerir utilizadores, empresas, estações, tickets e sessões de carregamento.\n\nGrupo 5 — João Pedro Teixeira Oliveira (40240391), Miguel José Carvalho Neto (40240358)\n\n**Contas de Teste:**\n\n| Role | Email | Password |\n|------|-------|----------|\n| Company-manager | moorecrystal@example.org | f7Uq1Shb)8G9 |\n| Client | cnorman@example.org | Tf6CVmJM&Cha |\n| admin | bsingleton@example.net | G3RJEuk1(Kt1 |\n| worker | mikewade@example.net | X3Pm_$Cj@uiZ |",
     },
     servers: [
       {
