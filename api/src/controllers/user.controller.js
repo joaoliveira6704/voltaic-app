@@ -170,6 +170,8 @@ export const updateUser = async (req, res, next) => {
       err.status = 404;
       return next(err);
     }
+    await del(`user:profile:${req.params.id}`);
+    await del("admin:users:dashboard");
     success(res, { data: updatedUser });
   } catch (error) {
     next(error);
@@ -485,6 +487,7 @@ export const addVehicle = async (req, res, next) => {
       { new: true },
     );
 
+    await del(`user:profile:${req.user.userId}`);
     success(res, { data: updatedUser, statusCode: 201 });
   } catch (error) {
     next(error);
@@ -508,6 +511,7 @@ export const removeVehicle = async (req, res, next) => {
       return next(err);
     }
 
+    await del(`user:profile:${req.user.userId}`);
     success(res, { data: updatedUser });
   } catch (error) {
     next(error);
@@ -540,6 +544,7 @@ export const editVehicle = async (req, res, next) => {
       err.message = "Vehicle not found";
       return next(err);
     }
+    await del(`user:profile:${req.user.userId}`);
     success(res, { data: updatedUser });
   } catch (error) {
     next(error);
