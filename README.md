@@ -168,36 +168,36 @@ All endpoints are prefixed with `/api`. Protected routes require a `Bearer` toke
 
 | Email | Password | Role |
 |---|---|---|
-| epowell@example.com | pbS!vjR2%6^R | worker |
-| raguilar@example.com | LJCzEaeJ_0*& | worker |
-| cpitts@example.com | +WKU!ZGaHs6J | company-manager |
-| glendagibson@example.org | tMyykYqf%5Zk | admin |
-| cole32@example.com | y@4uhsU4&KI7 | admin |
-| briggsdavid@example.org | k)d!JIUrAV1G | worker |
-| valenzuelaashley@example.org | +2kV!tVZ7tc_ | company-manager |
-| miranda09@example.org | Z+_favasae6X | admin |
-| nicolereynolds@example.org | lA8&2l%z$iBR | admin |
-| moorecrystal@example.org | f7Uq1Shb)8G9 | company-manager |
-| cnorman@example.org | Tf6CVmJM&Cha | client |
-| bsingleton@example.net | G3RJEuk1(Kt1 | admin |
-| mikewade@example.net | X3Pm_$Cj@uiZ | worker |
-| coffeysteven@example.org | ^1&ZgfkL)NMx | worker |
-| lewisjoshua@example.org | %0L8fp$iInYi | company-manager |
-| rachel62@example.org | 4kpRz0K@*4!Q | client |
-| powellkristina@example.net | 9qnq3T7(%rK1 | worker |
-| kmartinez@example.net | %T6p)s4f)HAD | client |
-| abigail68@example.org | $^9J%4wpSBRC | worker |
-| richardsmith@example.com | 1%yO0AWm%KR4 | admin |
-| iwhite@example.org | c)ZLYBJabT3E | company-manager |
-| mariawhitney@example.com | $)JE2Wr)@6Ak | client |
-| mark07@example.com | jrKOb7Aj9@w) | company-manager |
-| navarronatasha@example.org | Jy%L2M%f4d8% | company-manager |
-| sueedwards@example.net | %9PT+0ZHlWg3 | worker |
-| richardwatson@example.net | D0HEizlk&%Oo | worker |
-| fbowman@example.org | ig8q^7Xb#6q( | company-manager |
-| christinehale@example.com | Kr0^zD5G)67K | worker |
-| alyssa90@example.org | IceKHYiVu!7I | client |
-| tperez@example.org | eG5^p5G&hFWi | company-manager |
+| jonathonsuarez@outlook.com | 1@0FQZhy9#Ud | admin |
+| courtneyhaynes@gmail.com | #k7bDVgPj+Ks | client |
+| marywalker@proton.me | WR^UPIl8a_e0 | company-manager |
+| andrewsmith@outlook.com | WHH%$Vpv(8Mx | company-manager |
+| jessicabell@icloud.com | N78B9cNn_%y1 | client |
+| peteroconnor@outlook.com | fA&)b(0cB&YO | worker |
+| leslielucas@icloud.com | 48KLquzA+X1S | client |
+| patriciaboyd@outlook.com | 7P4FnaaX&yhN | worker |
+| lindagardner@gmail.com | _Ok@%%Vc79Lr | admin |
+| thomasrice@proton.me | x!FoaK+vV%0z | client |
+| reginaldmoss@proton.me | (t1GImiyT&bK | admin |
+| laurenmitchell@proton.me | q@C#)bJw0c&0 | worker |
+| scottroth@gmail.com | I6sT$1E9&zwW | admin |
+| andrewphelps@proton.me | $*PPzUIyTm3L | company-manager |
+| jennifergreene@proton.me | @0KDK0dV5A3R | admin |
+| ericalvarez@gmail.com | w*!mXJfU$5lL | worker |
+| markrocha@proton.me | !2niXpQVQ#Hi | company-manager |
+| kristopherthomas@outlook.com | zVzCn_IA$zM8 | client |
+| suevillegas@proton.me | _D7CltLghINI | admin |
+| jonathanmccormick@proton.me | Q^0xGMSf#cr6 | worker |
+| michellebecker@gmail.com | KH!Z8jBr!A74 | client |
+| rachelglover@gmail.com | K%MaoHnxqq92 | client |
+| andreadalton@icloud.com | f54KQpatBUg* | client |
+| christinawilson@proton.me | S5Kp!(XV%zBp | admin |
+| ruthadams@outlook.com | ge3ViJYY%T0G | company-manager |
+| terrencesosa@icloud.com | T*Uz5ZpqWF+O | client |
+| natalienorton@outlook.com | yFSAGYx@J(^7 | client |
+| michellepeterson@proton.me | T*6GSTjg7qT3 | client |
+| mariahudson@outlook.com | 2CKmm^enm+2( | admin |
+| davidgreene@proton.me | K^uHV$&Rwd9D | admin |
 
 ### Auth Endpoints
 
