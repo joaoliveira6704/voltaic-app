@@ -100,7 +100,7 @@ export const getStations = async (req, res, next) => {
 
 export const createStation = async (req, res, next) => {
   try {
-    const { title, location, connector, state, alive } = req.body;
+    const { title, location, connector, state, alive, groupId, telemetry } = req.body;
     const newStation = new stationModel({
       stationId: generateUniqueId(),
       title,
@@ -108,6 +108,8 @@ export const createStation = async (req, res, next) => {
       connector,
       state,
       alive,
+      groupId,
+      telemetry,
     });
     await newStation.save();
     success(res, { data: { stationId: newStation.stationId }, statusCode: 201 });

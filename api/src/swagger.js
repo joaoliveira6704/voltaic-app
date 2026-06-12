@@ -167,7 +167,7 @@ const options = {
         },
         CreateStationInput: {
           type: "object",
-          required: ["title", "location", "connector", "state"],
+          required: ["title", "location", "connector", "state", "groupId"],
           properties: {
             title: { type: "string", example: "Estação Central" },
             location: {
@@ -191,11 +191,20 @@ const options = {
                 maxPower: { type: "number", example: 150 },
               },
             },
+            groupId: { type: "string", example: "7ac8fdb9-4023-4c7d-8edc-2d5a09f0ebda" },
             state: {
               type: "string",
               enum: ["available", "unavailable", "maintenance"],
             },
             alive: { type: "boolean", default: true },
+            telemetry: {
+              type: "object",
+              properties: {
+                amperage: { type: "number", example: 32 },
+                voltage: { type: "number", example: 400 },
+                temperature: { type: "number", example: 24 },
+              },
+            },
           },
         },
         Company: {

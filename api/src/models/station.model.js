@@ -50,7 +50,6 @@ const stationSchema = new mongoose.Schema(
       },
       temperature: {
         type: Number,
-        required: true,
       },
     },
 
