@@ -100,6 +100,34 @@ const router = Router();
  *         description: Sem permissões
  */
 router.get("/", protect, requireRole("admin", "company-manager"), getUsers);
+
+/**
+ * @openapi
+ * /api/users:
+ *   post:
+ *     tags: [Users]
+ *     summary: Registar novo utilizador
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/CreateUserInput'
+ *     responses:
+ *       201:
+ *         description: Utilizador criado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 userId:
+ *                   type: string
+ *       400:
+ *         description: Dados inválidos ou email/username já existe
+ *       429:
+ *         description: Demasiados pedidos
+ */
 router.post("/", authLimiter, register);
 
 /**
