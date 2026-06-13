@@ -2,6 +2,8 @@
 
 Full-stack EV charging infrastructure management platform. Browse an interactive map of charging stations, manage charging sessions, handle support tickets, and oversee company fleets — all through a modern web interface backed by a REST API.
 
+Website URL: https://voltaic.diacidos.pt/
+
 ## Monorepo Structure
 
 ```
@@ -16,12 +18,11 @@ voltaic-app/
 
 ## Tech Stack
 
-| Service     | Language   | Runtime/Framework             | Database       |
-|-------------|------------|-------------------------------|----------------|
-| **API**     | JavaScript | Express 5 on Bun              | MongoDB 7      |
-| **Frontend**| TypeScript | Nuxt 4 + Vue 3 + Pinia        | —              |
-| **Data Gen**| Python     | Faker + PyMongo               | MongoDB 7      |
-| **Admin UI**| —          | Mongo Express                 | MongoDB 7      |
+| Service     | Language   | Runtime/Framework             | Database              |
+|-------------|------------|-------------------------------|-----------------------|
+| **API**     | JavaScript | Express 5 on Bun              | MongoDB 7 + Redis     |
+| **Frontend**| TypeScript | Nuxt 4 + Vue 3 + Pinia        | —                     |
+| **Data Gen**| Python     | Faker + PyMongo               | MongoDB 7             |
 
 ## Prerequisites
 
