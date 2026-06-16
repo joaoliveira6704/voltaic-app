@@ -16,7 +16,7 @@ const stationSchema = new mongoose.Schema(
         index: "2dsphere",
       },
     },
-    groupId: { type: String, ref: "Group", required: true },
+    groupId: { type: String, ref: "Group", required: false },
     connector: {
       socketTypes: [
         {
