@@ -37,8 +37,8 @@ async function main() {
     );
     const button = await driver.wait(until.elementIsEnabled(buttonEl), 10000);
 
-    await email.sendKeys("valenzuelaashley@example.org");
-    await password.sendKeys("+2kV!tVZ7tc_");
+    await email.sendKeys("andrewsmith@outlook.com");
+    await password.sendKeys("WHH%$Vpv(8Mx");
 
     try {
       await button.click();
